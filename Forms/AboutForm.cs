@@ -15,97 +15,46 @@
    License along with the SmartGoldbergEmu Launcher; if not, see
    <http://www.gnu.org/licenses/>.
  */
-using System;
-using System.Diagnostics;
-using System.IO;
 using System.Windows.Forms;
-
-using OSUtility;
+using System.Drawing;
+using System.Reflection;
+using System.IO;
+using System.Diagnostics;
+using SmartGoldbergEmu.Helpers;
 
 namespace SmartGoldbergEmu
 {
     public partial class AboutForm : Form
     {
+        private Label lblVersion = new Label { Text = "Version: ...", AutoSize = true };
+
         public AboutForm()
         {
             InitializeComponent();
-
-        }
-
-        private void Ok_button_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.OK;
-            this.Close();
-        }
-
-        private void NemirtingasUrl_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://cs.rin.ru/forum/viewtopic.php?f=29&t=62935",
-                UseShellExecute = true
-            });
-        }
-        private void KolasUrl_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://github.com/Kola124/SmartGoldbergEmu",
-                UseShellExecute = true
-            });
-        }
-        private void GivenToFlysUrl_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "https://cs.rin.ru/forum/viewtopic.php?p=3221424#p3221424",
-                    UseShellExecute = true
-                });
-            }
-        }
-
-        private void ShowEmuFolder(GameConfig app)
-        {
-            string emu_folder = OSFuncs.GetEmuApiFolder(app.UseX64);
-
-            if (!Directory.Exists(emu_folder))
-                Directory.CreateDirectory(emu_folder);
-
-            try
-            {
-                if (OSDetector.IsWindows())
-                    Process.Start("explorer.exe", emu_folder);
-                else if (OSDetector.IsLinux())
-                    Process.Start("nautilus", emu_folder);
-            }
-            catch
-            {
-                MessageBox.Show("Folder: " + emu_folder, "Folder", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private void Steamapi_dll_folder_Click(object sender, EventArgs e)
-        {
-            GameConfig app = new GameConfig
-            {
-                UseX64 = false
-            };
-            ShowEmuFolder(app);
-        }
-
-        private void Steamapi64_dll_folder_Click(object sender, EventArgs e)
-        {
-            GameConfig app = new GameConfig
-            {
-                UseX64 = true
-            };
-            ShowEmuFolder(app);
-        }
-
-        private void about_description_label_Click(object sender, EventArgs e)
-        {
-
+            // Use project resources for icon and logo
+            this.Icon = Properties.Resources.steel_steam_32;
+            this.picLogo.Image = Properties.Resources.steel_steam_128;
+            // Set project name without version
+            this.lblTitle.Text = "SmartGoldbergEmu Launcher";
+            // Use VersionHelper for version string
+            string version = VersionHelper.GetDisplayVersion();
+            // Set the version label to match the project name font
+            this.lblVersion.Text = version;
+            this.lblVersion.Font = this.lblTitle.Font;
+            this.lblVersion.Location = new System.Drawing.Point(132, 32);
+            this.lblVersion.Name = "lblVersion";
+            this.lblVersion.TabIndex = 99;
+            this.Controls.Add(this.lblVersion);
+            this.lblDescription.Text = "Streamlines and automates the configuration process for the Goldberg Steam Emulator.";
+            this.lblContributors.Text = "Contributors: Nemirtingas, Kola124, GivenToFly.";
+            this.linkNemirtingas.Text = "Nemirtingas (SmartSteamEmu)";
+            this.linkKola124.Text = "Kola124 (GoldbergEmu)";
+            this.linkRev22b.Text = "GivenToFly (Release Info)";
+            this.Text = "About SmartGoldbergEmu";
+            // Wire up link click events with correct URLs
+            this.linkNemirtingas.LinkClicked += (s, e) => Process.Start("https://cs.rin.ru/forum/viewtopic.php?f=29&t=62935");
+            this.linkKola124.LinkClicked += (s, e) => Process.Start("https://github.com/Kola124/SmartGoldbergEmu");
+            this.linkRev22b.LinkClicked += (s, e) => Process.Start("https://cs.rin.ru/forum/viewtopic.php?p=3221424#p3221424");
         }
     }
 }

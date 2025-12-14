@@ -70,5 +70,89 @@ namespace SmartGoldbergEmu.Properties {
                 this["F1Size"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LargeIcon")]
+        public string ListViewMode {
+            get {
+                return ((string)(this["ListViewMode"]));
+            }
+            set {
+                this["ListViewMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SortMode {
+            get {
+                return ((int)(this["SortMode"]));
+            }
+            set {
+                this["SortMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int DetailsSortColumn {
+            get {
+                return ((int)(this["DetailsSortColumn"]));
+            }
+            set {
+                this["DetailsSortColumn"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DetailsSortAscending {
+            get {
+                return ((bool)(this["DetailsSortAscending"]));
+            }
+            set {
+                this["DetailsSortAscending"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool TileSortAscending {
+            get {
+                return ((bool)(this["TileSortAscending"]));
+            }
+            set {
+                this["TileSortAscending"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SortField {
+            get {
+                return ((int)(this["SortField"]));
+            }
+            set {
+                this["SortField"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SortDirection {
+            get {
+                return ((int)(this["SortDirection"]));
+            }
+            set {
+                this["SortDirection"] = value;
+            }
+        }
     }
 }

@@ -5,12 +5,13 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Drawing;
 using OSUtility;
 
 class CueTextBox : TextBox
 {
     private const int EM_SETCUEBANNER = 0x1501;
-
+    private const int EM_GETCUEBANNER = 0x1502;
 
     [Localizable(true)]
     public string Cue
@@ -25,14 +26,23 @@ class CueTextBox : TextBox
         {
             if (OSDetector.IsWindows())
             {
+                // Set dark background and light font for placeholder
+                this.BackColor = Color.FromArgb(45, 45, 48);
+                this.ForeColor = Color.FromArgb(200, 200, 200);
                 SendMessage(this.Handle, EM_SETCUEBANNER, (IntPtr)1, mCue);
             }
             else
             {
-
+                // For non-Windows platforms, implement custom placeholder
+                if (string.IsNullOrEmpty(this.Text))
+                {
+                    this.Text = mCue;
+                    this.ForeColor = Color.FromArgb(200, 200, 200);
+                }
             }
         }
     }
+
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
@@ -44,6 +54,7 @@ class CueTextBox : TextBox
                 if(Text == mCue)
                 {
                     Text = "";
+                    this.ForeColor = SystemColors.WindowText;
                 }
             };
 
@@ -52,10 +63,12 @@ class CueTextBox : TextBox
                 if(Text == "")
                 {
                     Text = mCue;
+                    this.ForeColor = Color.FromArgb(200, 200, 200);
                 }
             };
         }
     }
+
     private string mCue;
 
     // PInvoke

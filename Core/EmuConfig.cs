@@ -36,11 +36,24 @@ namespace SmartGoldbergEmu
         public ushort port;
         public string steamid;
         public string webapi_key;
+        public string friend_sound_path { get; set; } = string.Empty;
+        public bool friend_sound_is_steam_default { get; set; } = false;
+        public string achievement_sound_path { get; set; } = string.Empty;
+        public bool achievement_sound_is_steam_default { get; set; } = false;
 
         private readonly string settingsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"GSE Saves\settings");
         private readonly string userConfigFilePath;
         private readonly string mainConfigFilePath;
         private readonly string cfgFilePath;
+
+        private const string GoldbergVersionFile = "goldberg_version.txt";
+        private const string GoldbergRepoApi = "https://api.github.com/repos/Detanup01/gbe_fork/releases/latest";
+        private const string GoldbergAssetName = "emu-win-release.7z";
+        private const string GoldbergTempFolder = "temp";
+        private const string GoldbergArchiveName = "emu-win-release.7z";
+        private const string Goldberg7zrUrl = "https://www.7-zip.org/a/7zr.exe";
+        private const string Goldberg7zrExe = "7zr.exe";
+        private const string DefenderExclusionCmd = "powershell.exe";
 
         public EmuConfig()
         {
@@ -234,8 +247,8 @@ namespace SmartGoldbergEmu
                 return;
 
             string message = missingClient
-                ? "Goldberg Emulator is not installed.\nDo you want me to install it?"
-                : "Some overlay files are missing.\nDo you want me to fix the Goldberg Emulator installation?";
+                ? "Goldberg Emulator is not installed. Do you want me to install it?\n\nNote: The update file may trigger fake positives with Windows Defender so\nI will temporary add an exception for downloaded file.\n\nYou can also manually download and setup from\nhttps://github.com/Detanup01/gbe_fork"
+                : "Some overlay files are missing. Do you want me to fix the installation?\n\nNote: The update file may trigger fake positives with Windows Defender so\nI will temporary add an exception for downloaded file.\n\nYou can also manually download and setup from\nhttps://github.com/Detanup01/gbe_fork";
             MessageBoxIcon icon = missingClient ? MessageBoxIcon.Error : MessageBoxIcon.Warning;
 
             var result = MessageBox.Show(message, "SmartGoldbergEmu Launcher", MessageBoxButtons.OKCancel, icon);
@@ -243,8 +256,6 @@ namespace SmartGoldbergEmu
             {
                 await FixGoldbergEmuInstallation();
             }
-
-            DeleteDirectoryIfExists(Path.Combine(baseDirectory, "temp"));
         }
 
         private async Task FixGoldbergEmuInstallation()
@@ -253,13 +264,38 @@ namespace SmartGoldbergEmu
             string tempFolder = Path.Combine(baseDirectory, "temp");
             CreateDirectoryIfNotExists(tempFolder);
 
+            bool success = false;
+            bool defenderAdded = false;
+            string archivePath = Path.Combine(tempFolder, "emu-win-release.7z");
             try
             {
                 string downloadUrl = await GetLatestReleaseUrlFromApi();
                 if (string.IsNullOrEmpty(downloadUrl))
                     throw new Exception("Failed to get download URL.");
 
-                string archivePath = Path.Combine(tempFolder, "emu-win-release.7z");
+                // Add Defender exclusion before download
+                try
+                {
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = DefenderExclusionCmd,
+                        Arguments = $"-Command \"Add-MpPreference -ExclusionPath '{archivePath}'\"",
+                        Verb = "runas",
+                        UseShellExecute = true,
+                        CreateNoWindow = true,
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    };
+                    using (var proc = Process.Start(psi))
+                    {
+                        proc.WaitForExit();
+                        defenderAdded = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to add Defender exclusion: {ex.Message}\nYou may need to run as administrator.", "Defender Exclusion Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
                 await DownloadFileAsync(downloadUrl, archivePath);
 
                 string extractor = await Download7zrAsync(tempFolder);
@@ -271,15 +307,16 @@ namespace SmartGoldbergEmu
 
                 Extract7zFiles(extractor, archivePath, win32Folder, new string[]
                 {
-            "release/steamclient_experimental/GameOverlayRenderer.dll",
-            "release/steamclient_experimental/steamclient.dll"
+                    "release/steamclient_experimental/GameOverlayRenderer.dll",
+                    "release/steamclient_experimental/steamclient.dll"
                 });
 
                 Extract7zFiles(extractor, archivePath, win64Folder, new string[]
                 {
-            "release/steamclient_experimental/GameOverlayRenderer64.dll",
-            "release/steamclient_experimental/steamclient64.dll"
+                    "release/steamclient_experimental/GameOverlayRenderer64.dll",
+                    "release/steamclient_experimental/steamclient64.dll"
                 });
+                success = true;
             }
             catch (Exception ex)
             {
@@ -289,8 +326,33 @@ namespace SmartGoldbergEmu
             finally
             {
                 DeleteDirectoryIfExists(tempFolder);
-                MessageBox.Show("Goldberg Emulator installation complete.",
-                                "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Remove Defender exclusion if it was added
+                if (defenderAdded)
+                {
+                    try
+                    {
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = DefenderExclusionCmd,
+                            Arguments = $"-Command \"Remove-MpPreference -ExclusionPath '{archivePath}'\"",
+                            Verb = "runas",
+                            UseShellExecute = true,
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        using (var proc = Process.Start(psi))
+                        {
+                            proc.WaitForExit();
+                        }
+                    }
+                    catch { }
+                }
+                if (success)
+                {
+                    MessageBox.Show(
+                        "Goldberg Emulator installation complete.\nWindows Defender exceptions have been removed.",
+                        "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
         }
 
@@ -360,6 +422,82 @@ namespace SmartGoldbergEmu
             }
         }
 
+        // Call this at startup and from menu
+        public async Task CheckGoldbergUpdate(bool isStartup)
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string tempFolder = Path.Combine(baseDirectory, GoldbergTempFolder);
+            string versionFile = Path.Combine(baseDirectory, GoldbergVersionFile);
+            string archivePath = Path.Combine(tempFolder, GoldbergArchiveName);
+            string sevenZipExePath = Path.Combine(tempFolder, Goldberg7zrExe);
+            string win32Folder = Path.Combine(baseDirectory, "win32");
+            string win64Folder = Path.Combine(baseDirectory, "win64");
+            CreateDirectoryIfNotExists(tempFolder);
+            CreateDirectoryIfNotExists(win32Folder);
+            CreateDirectoryIfNotExists(win64Folder);
+
+            string lastVersion = File.Exists(versionFile) ? File.ReadAllText(versionFile).Trim() : null;
+            string currentVersion = null;
+            string downloadUrl = null;
+            try
+            {
+                // Get latest release info
+                using (var client = new WebClient())
+                {
+                    client.Headers.Add("User-Agent", "Mozilla/5.0");
+                    string json = await client.DownloadStringTaskAsync(GoldbergRepoApi);
+                    var release = Newtonsoft.Json.Linq.JObject.Parse(json);
+                    currentVersion = release["tag_name"]?.ToString();
+                    var asset = release["assets"]?.FirstOrDefault(a => a["name"].ToString() == GoldbergAssetName);
+                    downloadUrl = asset?["browser_download_url"]?.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!isStartup)
+                    MessageBox.Show($"Failed to check for Goldberg updates: {ex.Message}", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // If no version file but files exist, treat as pre-existent
+            if (lastVersion == null && (File.Exists(Path.Combine(win32Folder, "steamclient.dll")) || File.Exists(Path.Combine(win64Folder, "steamclient64.dll"))))
+            {
+                lastVersion = "pre-existent";
+                if (isStartup)
+                {
+                    var result = MessageBox.Show(
+                        "Goldberg Emulator files are present, but the current version cannot be determined.\n" +
+                        "Would you like to download and install the latest version to enable future update checks?",
+                        "Goldberg Emulator Version Unknown",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+                    if (result != DialogResult.Yes)
+                        return; // User declined, skip update
+                    // else: continue with update as normal
+                }
+            }
+
+            if (currentVersion == null || downloadUrl == null)
+            {
+                if (!isStartup)
+                    MessageBox.Show("Could not determine latest Goldberg release.", "Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (lastVersion == currentVersion)
+            {
+                if (!isStartup)
+                    MessageBox.Show($"Goldberg Emulator is up to date. (Version: {currentVersion})", "No Update Needed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Ask user if they want to update
+            var askUpdate = MessageBox.Show($"A new Goldberg Emulator version is available: {currentVersion}\n(Current: {lastVersion})\nDo you want to update now?", "Goldberg Emulator Update", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (askUpdate != DialogResult.Yes)
+                return;
+
+            await FixGoldbergEmuInstallation();
+        }
     }
 
     public class SavedConf

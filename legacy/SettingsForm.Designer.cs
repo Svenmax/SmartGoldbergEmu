@@ -42,7 +42,6 @@ namespace SmartGoldbergEmu
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.settings_Save_bttn = new System.Windows.Forms.Button();
             this.general_GetApiKey_bttn = new System.Windows.Forms.Button();
             this.settings_Cancel_bttn = new System.Windows.Forms.Button();
@@ -63,11 +62,6 @@ namespace SmartGoldbergEmu
             this.general_steamId_label = new System.Windows.Forms.Label();
             this.general_username_label = new System.Windows.Forms.Label();
             this.appearance_tab = new System.Windows.Forms.TabPage();
-            this.appearance_active_reset = new System.Windows.Forms.Button();
-            this.appearance_hover_reset = new System.Windows.Forms.Button();
-            this.appearance_element_reset = new System.Windows.Forms.Button();
-            this.appearance_background_reset = new System.Windows.Forms.Button();
-            this.appearance_notification_reset = new System.Windows.Forms.Button();
             this.appearance_chatPos_label = new System.Windows.Forms.Label();
             this.appearance_invPos_label = new System.Windows.Forms.Label();
             this.appearance_achPos_label = new System.Windows.Forms.Label();
@@ -78,33 +72,22 @@ namespace SmartGoldbergEmu
             this.appearance_imageSize_label = new System.Windows.Forms.Label();
             this.appearance_fontSize_box = new System.Windows.Forms.TextBox();
             this.appearance_fontSize_label = new System.Windows.Forms.Label();
-            this.appearance_active_colorPreview = new System.Windows.Forms.Panel();
-            this.appearance_active_alpha = new System.Windows.Forms.TextBox();
+            this.appearance_active_label1 = new System.Windows.Forms.Label();
             this.appearance_active_label = new System.Windows.Forms.Label();
             this.appearance_active_box = new System.Windows.Forms.TextBox();
-            this.appearance_hover_colorPreview = new System.Windows.Forms.Panel();
-            this.appearance_hover_alpha = new System.Windows.Forms.TextBox();
+            this.appearance_hover_label1 = new System.Windows.Forms.Label();
             this.appearance_hover_label = new System.Windows.Forms.Label();
             this.appearance_hover_box = new System.Windows.Forms.TextBox();
-            this.appearance_element_colorPreview = new System.Windows.Forms.Panel();
-            this.appearance_element_alpha = new System.Windows.Forms.TextBox();
+            this.appearance_element_label1 = new System.Windows.Forms.Label();
             this.appearance_element_label = new System.Windows.Forms.Label();
             this.appearance_element_box = new System.Windows.Forms.TextBox();
-            this.appearance_background_colorPreview = new System.Windows.Forms.Panel();
-            this.appearance_background_alpha = new System.Windows.Forms.TextBox();
+            this.appearance_background_label1 = new System.Windows.Forms.Label();
             this.appearance_background_label = new System.Windows.Forms.Label();
             this.appearance_background_box = new System.Windows.Forms.TextBox();
-            this.appearance_notification_colorPreview = new System.Windows.Forms.Panel();
-            this.appearance_notification_alpha = new System.Windows.Forms.TextBox();
+            this.appearance_notification_label1 = new System.Windows.Forms.Label();
             this.appearance_notification_label = new System.Windows.Forms.Label();
             this.appearance_notification_box = new System.Windows.Forms.TextBox();
             this.sound_tab = new System.Windows.Forms.TabPage();
-            this.sounds_fontFilename_label = new System.Windows.Forms.Label();
-            this.sounds_fontSpacing_label = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.sounds_achievementFilename_label = new System.Windows.Forms.Label();
-            this.sounds_friendFilename_label = new System.Windows.Forms.Label();
-            this.sounds_playFriendSound_bttn = new System.Windows.Forms.Button();
             this.sounds_fontSpacingY_label = new System.Windows.Forms.Label();
             this.sounds_fontSpacingX_label = new System.Windows.Forms.Label();
             this.sounds_fontSpacingY_box = new System.Windows.Forms.TextBox();
@@ -139,14 +122,6 @@ namespace SmartGoldbergEmu
             this.randomizePort = new System.Windows.Forms.ToolTip(this.components);
             this.removeAvatarBttn = new System.Windows.Forms.ToolTip(this.components);
             this.setAvatarBttn = new System.Windows.Forms.ToolTip(this.components);
-            this.notification_rounding_reset = new System.Windows.Forms.Button();
-            this.notification_animation_reset = new System.Windows.Forms.Button();
-            this.notification_marginX_reset = new System.Windows.Forms.Button();
-            this.notification_marginY_reset = new System.Windows.Forms.Button();
-            this.notification_achDuration_reset = new System.Windows.Forms.Button();
-            this.notification_progressDuration_reset = new System.Windows.Forms.Button();
-            this.notification_inviteDuration_reset = new System.Windows.Forms.Button();
-            this.notification_chatDuration_reset = new System.Windows.Forms.Button();
             this.sounds_notification.SuspendLayout();
             this.general_tab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.general_avatar_frame)).BeginInit();
@@ -355,11 +330,7 @@ namespace SmartGoldbergEmu
             // 
             // appearance_tab
             // 
-            this.appearance_tab.Controls.Add(this.appearance_active_reset);
-            this.appearance_tab.Controls.Add(this.appearance_hover_reset);
-            this.appearance_tab.Controls.Add(this.appearance_element_reset);
-            this.appearance_tab.Controls.Add(this.appearance_background_reset);
-            this.appearance_tab.Controls.Add(this.appearance_notification_reset);
+            this.appearance_tab.BackColor = System.Drawing.SystemColors.Control;
             this.appearance_tab.Controls.Add(this.appearance_chatPos_label);
             this.appearance_tab.Controls.Add(this.appearance_invPos_label);
             this.appearance_tab.Controls.Add(this.appearance_achPos_label);
@@ -370,24 +341,19 @@ namespace SmartGoldbergEmu
             this.appearance_tab.Controls.Add(this.appearance_imageSize_label);
             this.appearance_tab.Controls.Add(this.appearance_fontSize_box);
             this.appearance_tab.Controls.Add(this.appearance_fontSize_label);
-            this.appearance_tab.Controls.Add(this.appearance_active_colorPreview);
-            this.appearance_tab.Controls.Add(this.appearance_active_alpha);
+            this.appearance_tab.Controls.Add(this.appearance_active_label1);
             this.appearance_tab.Controls.Add(this.appearance_active_label);
             this.appearance_tab.Controls.Add(this.appearance_active_box);
-            this.appearance_tab.Controls.Add(this.appearance_hover_colorPreview);
-            this.appearance_tab.Controls.Add(this.appearance_hover_alpha);
+            this.appearance_tab.Controls.Add(this.appearance_hover_label1);
             this.appearance_tab.Controls.Add(this.appearance_hover_label);
             this.appearance_tab.Controls.Add(this.appearance_hover_box);
-            this.appearance_tab.Controls.Add(this.appearance_element_colorPreview);
-            this.appearance_tab.Controls.Add(this.appearance_element_alpha);
+            this.appearance_tab.Controls.Add(this.appearance_element_label1);
             this.appearance_tab.Controls.Add(this.appearance_element_label);
             this.appearance_tab.Controls.Add(this.appearance_element_box);
-            this.appearance_tab.Controls.Add(this.appearance_background_colorPreview);
-            this.appearance_tab.Controls.Add(this.appearance_background_alpha);
+            this.appearance_tab.Controls.Add(this.appearance_background_label1);
             this.appearance_tab.Controls.Add(this.appearance_background_label);
             this.appearance_tab.Controls.Add(this.appearance_background_box);
-            this.appearance_tab.Controls.Add(this.appearance_notification_colorPreview);
-            this.appearance_tab.Controls.Add(this.appearance_notification_alpha);
+            this.appearance_tab.Controls.Add(this.appearance_notification_label1);
             this.appearance_tab.Controls.Add(this.appearance_notification_label);
             this.appearance_tab.Controls.Add(this.appearance_notification_box);
             this.appearance_tab.Location = new System.Drawing.Point(4, 22);
@@ -396,56 +362,6 @@ namespace SmartGoldbergEmu
             this.appearance_tab.Size = new System.Drawing.Size(439, 141);
             this.appearance_tab.TabIndex = 1;
             this.appearance_tab.Text = "Appearance";
-            // 
-            // appearance_active_reset
-            // 
-            this.appearance_active_reset.Location = new System.Drawing.Point(262, 112);
-            this.appearance_active_reset.Name = "appearance_active_reset";
-            this.appearance_active_reset.Size = new System.Drawing.Size(22, 23);
-            this.appearance_active_reset.TabIndex = 67;
-            this.appearance_active_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.appearance_active_reset, "Randomize port.");
-            this.appearance_active_reset.UseVisualStyleBackColor = true;
-            // 
-            // appearance_hover_reset
-            // 
-            this.appearance_hover_reset.Location = new System.Drawing.Point(262, 85);
-            this.appearance_hover_reset.Name = "appearance_hover_reset";
-            this.appearance_hover_reset.Size = new System.Drawing.Size(22, 23);
-            this.appearance_hover_reset.TabIndex = 66;
-            this.appearance_hover_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.appearance_hover_reset, "Randomize port.");
-            this.appearance_hover_reset.UseVisualStyleBackColor = true;
-            // 
-            // appearance_element_reset
-            // 
-            this.appearance_element_reset.Location = new System.Drawing.Point(262, 60);
-            this.appearance_element_reset.Name = "appearance_element_reset";
-            this.appearance_element_reset.Size = new System.Drawing.Size(22, 23);
-            this.appearance_element_reset.TabIndex = 65;
-            this.appearance_element_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.appearance_element_reset, "Randomize port.");
-            this.appearance_element_reset.UseVisualStyleBackColor = true;
-            // 
-            // appearance_background_reset
-            // 
-            this.appearance_background_reset.Location = new System.Drawing.Point(262, 34);
-            this.appearance_background_reset.Name = "appearance_background_reset";
-            this.appearance_background_reset.Size = new System.Drawing.Size(22, 23);
-            this.appearance_background_reset.TabIndex = 64;
-            this.appearance_background_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.appearance_background_reset, "Randomize port.");
-            this.appearance_background_reset.UseVisualStyleBackColor = true;
-            // 
-            // appearance_notification_reset
-            // 
-            this.appearance_notification_reset.Location = new System.Drawing.Point(262, 8);
-            this.appearance_notification_reset.Name = "appearance_notification_reset";
-            this.appearance_notification_reset.Size = new System.Drawing.Size(22, 23);
-            this.appearance_notification_reset.TabIndex = 63;
-            this.appearance_notification_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.appearance_notification_reset, "Randomize port.");
-            this.appearance_notification_reset.UseVisualStyleBackColor = true;
             // 
             // appearance_chatPos_label
             // 
@@ -487,7 +403,7 @@ namespace SmartGoldbergEmu
             this.appearance_achPos_box.Location = new System.Drawing.Point(368, 62);
             this.appearance_achPos_box.Name = "appearance_achPos_box";
             this.appearance_achPos_box.Size = new System.Drawing.Size(65, 21);
-            this.appearance_achPos_box.TabIndex = 27;
+            this.appearance_achPos_box.TabIndex = 9;
             // 
             // appearance_invPos_box
             // 
@@ -502,7 +418,7 @@ namespace SmartGoldbergEmu
             this.appearance_invPos_box.Location = new System.Drawing.Point(368, 87);
             this.appearance_invPos_box.Name = "appearance_invPos_box";
             this.appearance_invPos_box.Size = new System.Drawing.Size(65, 21);
-            this.appearance_invPos_box.TabIndex = 28;
+            this.appearance_invPos_box.TabIndex = 10;
             // 
             // appearance_chatPos_box
             // 
@@ -517,7 +433,7 @@ namespace SmartGoldbergEmu
             this.appearance_chatPos_box.Location = new System.Drawing.Point(368, 113);
             this.appearance_chatPos_box.Name = "appearance_chatPos_box";
             this.appearance_chatPos_box.Size = new System.Drawing.Size(65, 21);
-            this.appearance_chatPos_box.TabIndex = 29;
+            this.appearance_chatPos_box.TabIndex = 11;
             this.appearance_chatPos_box.SelectedIndexChanged += new System.EventHandler(this.PosMsg_Dropdown_SelectedIndexChanged);
             // 
             // appearance_imageSize_box
@@ -525,8 +441,7 @@ namespace SmartGoldbergEmu
             this.appearance_imageSize_box.Location = new System.Drawing.Point(368, 36);
             this.appearance_imageSize_box.Name = "appearance_imageSize_box";
             this.appearance_imageSize_box.Size = new System.Drawing.Size(38, 20);
-            this.appearance_imageSize_box.TabIndex = 26;
-            this.appearance_imageSize_box.TextChanged += new System.EventHandler(this.appearance_imageSize_box_TextChanged);
+            this.appearance_imageSize_box.TabIndex = 8;
             // 
             // appearance_imageSize_label
             // 
@@ -542,8 +457,7 @@ namespace SmartGoldbergEmu
             this.appearance_fontSize_box.Location = new System.Drawing.Point(368, 10);
             this.appearance_fontSize_box.Name = "appearance_fontSize_box";
             this.appearance_fontSize_box.Size = new System.Drawing.Size(38, 20);
-            this.appearance_fontSize_box.TabIndex = 25;
-            this.appearance_fontSize_box.TextChanged += new System.EventHandler(this.appearance_fontSize_box_TextChanged);
+            this.appearance_fontSize_box.TabIndex = 7;
             // 
             // appearance_fontSize_label
             // 
@@ -554,22 +468,14 @@ namespace SmartGoldbergEmu
             this.appearance_fontSize_label.TabIndex = 42;
             this.appearance_fontSize_label.Text = "Font Size";
             // 
-            // appearance_active_colorPreview
+            // appearance_active_label1
             // 
-            this.appearance_active_colorPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.appearance_active_colorPreview.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.appearance_active_colorPreview.Location = new System.Drawing.Point(236, 114);
-            this.appearance_active_colorPreview.Name = "appearance_active_colorPreview";
-            this.appearance_active_colorPreview.Size = new System.Drawing.Size(20, 20);
-            this.appearance_active_colorPreview.TabIndex = 24;
-            // 
-            // appearance_active_alpha
-            // 
-            this.appearance_active_alpha.Location = new System.Drawing.Point(200, 114);
-            this.appearance_active_alpha.Name = "appearance_active_alpha";
-            this.appearance_active_alpha.Size = new System.Drawing.Size(30, 20);
-            this.appearance_active_alpha.TabIndex = 23;
-            this.appearance_active_alpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_active_label1.AutoSize = true;
+            this.appearance_active_label1.Location = new System.Drawing.Point(123, 117);
+            this.appearance_active_label1.Name = "appearance_active_label1";
+            this.appearance_active_label1.Size = new System.Drawing.Size(46, 13);
+            this.appearance_active_label1.TabIndex = 41;
+            this.appearance_active_label1.Text = "R,G,B,A";
             // 
             // appearance_active_label
             // 
@@ -582,28 +488,19 @@ namespace SmartGoldbergEmu
             // 
             // appearance_active_box
             // 
-            this.appearance_active_box.Location = new System.Drawing.Point(108, 114);
+            this.appearance_active_box.Location = new System.Drawing.Point(175, 114);
             this.appearance_active_box.Name = "appearance_active_box";
-            this.appearance_active_box.Size = new System.Drawing.Size(86, 20);
-            this.appearance_active_box.TabIndex = 22;
-            this.appearance_active_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_active_box.Size = new System.Drawing.Size(117, 20);
+            this.appearance_active_box.TabIndex = 6;
             // 
-            // appearance_hover_colorPreview
+            // appearance_hover_label1
             // 
-            this.appearance_hover_colorPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.appearance_hover_colorPreview.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.appearance_hover_colorPreview.Location = new System.Drawing.Point(236, 88);
-            this.appearance_hover_colorPreview.Name = "appearance_hover_colorPreview";
-            this.appearance_hover_colorPreview.Size = new System.Drawing.Size(20, 20);
-            this.appearance_hover_colorPreview.TabIndex = 21;
-            // 
-            // appearance_hover_alpha
-            // 
-            this.appearance_hover_alpha.Location = new System.Drawing.Point(200, 88);
-            this.appearance_hover_alpha.Name = "appearance_hover_alpha";
-            this.appearance_hover_alpha.Size = new System.Drawing.Size(30, 20);
-            this.appearance_hover_alpha.TabIndex = 20;
-            this.appearance_hover_alpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_hover_label1.AutoSize = true;
+            this.appearance_hover_label1.Location = new System.Drawing.Point(123, 91);
+            this.appearance_hover_label1.Name = "appearance_hover_label1";
+            this.appearance_hover_label1.Size = new System.Drawing.Size(46, 13);
+            this.appearance_hover_label1.TabIndex = 32;
+            this.appearance_hover_label1.Text = "R,G,B,A";
             // 
             // appearance_hover_label
             // 
@@ -616,28 +513,19 @@ namespace SmartGoldbergEmu
             // 
             // appearance_hover_box
             // 
-            this.appearance_hover_box.Location = new System.Drawing.Point(108, 88);
+            this.appearance_hover_box.Location = new System.Drawing.Point(175, 88);
             this.appearance_hover_box.Name = "appearance_hover_box";
-            this.appearance_hover_box.Size = new System.Drawing.Size(86, 20);
-            this.appearance_hover_box.TabIndex = 19;
-            this.appearance_hover_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_hover_box.Size = new System.Drawing.Size(117, 20);
+            this.appearance_hover_box.TabIndex = 5;
             // 
-            // appearance_element_colorPreview
+            // appearance_element_label1
             // 
-            this.appearance_element_colorPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.appearance_element_colorPreview.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.appearance_element_colorPreview.Location = new System.Drawing.Point(236, 62);
-            this.appearance_element_colorPreview.Name = "appearance_element_colorPreview";
-            this.appearance_element_colorPreview.Size = new System.Drawing.Size(20, 20);
-            this.appearance_element_colorPreview.TabIndex = 18;
-            // 
-            // appearance_element_alpha
-            // 
-            this.appearance_element_alpha.Location = new System.Drawing.Point(200, 62);
-            this.appearance_element_alpha.Name = "appearance_element_alpha";
-            this.appearance_element_alpha.Size = new System.Drawing.Size(30, 20);
-            this.appearance_element_alpha.TabIndex = 17;
-            this.appearance_element_alpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_element_label1.AutoSize = true;
+            this.appearance_element_label1.Location = new System.Drawing.Point(123, 65);
+            this.appearance_element_label1.Name = "appearance_element_label1";
+            this.appearance_element_label1.Size = new System.Drawing.Size(46, 13);
+            this.appearance_element_label1.TabIndex = 23;
+            this.appearance_element_label1.Text = "R,G,B,A";
             // 
             // appearance_element_label
             // 
@@ -650,28 +538,19 @@ namespace SmartGoldbergEmu
             // 
             // appearance_element_box
             // 
-            this.appearance_element_box.Location = new System.Drawing.Point(108, 62);
+            this.appearance_element_box.Location = new System.Drawing.Point(175, 62);
             this.appearance_element_box.Name = "appearance_element_box";
-            this.appearance_element_box.Size = new System.Drawing.Size(86, 20);
-            this.appearance_element_box.TabIndex = 16;
-            this.appearance_element_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_element_box.Size = new System.Drawing.Size(117, 20);
+            this.appearance_element_box.TabIndex = 4;
             // 
-            // appearance_background_colorPreview
+            // appearance_background_label1
             // 
-            this.appearance_background_colorPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.appearance_background_colorPreview.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.appearance_background_colorPreview.Location = new System.Drawing.Point(236, 36);
-            this.appearance_background_colorPreview.Name = "appearance_background_colorPreview";
-            this.appearance_background_colorPreview.Size = new System.Drawing.Size(20, 20);
-            this.appearance_background_colorPreview.TabIndex = 15;
-            // 
-            // appearance_background_alpha
-            // 
-            this.appearance_background_alpha.Location = new System.Drawing.Point(200, 36);
-            this.appearance_background_alpha.Name = "appearance_background_alpha";
-            this.appearance_background_alpha.Size = new System.Drawing.Size(30, 20);
-            this.appearance_background_alpha.TabIndex = 14;
-            this.appearance_background_alpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_background_label1.AutoSize = true;
+            this.appearance_background_label1.Location = new System.Drawing.Point(123, 39);
+            this.appearance_background_label1.Name = "appearance_background_label1";
+            this.appearance_background_label1.Size = new System.Drawing.Size(46, 13);
+            this.appearance_background_label1.TabIndex = 14;
+            this.appearance_background_label1.Text = "R,G,B,A";
             // 
             // appearance_background_label
             // 
@@ -684,29 +563,20 @@ namespace SmartGoldbergEmu
             // 
             // appearance_background_box
             // 
-            this.appearance_background_box.Location = new System.Drawing.Point(108, 36);
+            this.appearance_background_box.Location = new System.Drawing.Point(175, 36);
             this.appearance_background_box.Name = "appearance_background_box";
-            this.appearance_background_box.Size = new System.Drawing.Size(86, 20);
-            this.appearance_background_box.TabIndex = 13;
-            this.appearance_background_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_background_box.Size = new System.Drawing.Size(117, 20);
+            this.appearance_background_box.TabIndex = 3;
             this.appearance_background_box.TextChanged += new System.EventHandler(this.appearance_background_box_TextChanged);
             // 
-            // appearance_notification_colorPreview
+            // appearance_notification_label1
             // 
-            this.appearance_notification_colorPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.appearance_notification_colorPreview.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.appearance_notification_colorPreview.Location = new System.Drawing.Point(236, 10);
-            this.appearance_notification_colorPreview.Name = "appearance_notification_colorPreview";
-            this.appearance_notification_colorPreview.Size = new System.Drawing.Size(20, 20);
-            this.appearance_notification_colorPreview.TabIndex = 12;
-            // 
-            // appearance_notification_alpha
-            // 
-            this.appearance_notification_alpha.Location = new System.Drawing.Point(200, 10);
-            this.appearance_notification_alpha.Name = "appearance_notification_alpha";
-            this.appearance_notification_alpha.Size = new System.Drawing.Size(30, 20);
-            this.appearance_notification_alpha.TabIndex = 11;
-            this.appearance_notification_alpha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_notification_label1.AutoSize = true;
+            this.appearance_notification_label1.Location = new System.Drawing.Point(123, 13);
+            this.appearance_notification_label1.Name = "appearance_notification_label1";
+            this.appearance_notification_label1.Size = new System.Drawing.Size(46, 13);
+            this.appearance_notification_label1.TabIndex = 5;
+            this.appearance_notification_label1.Text = "R,G,B,A";
             // 
             // appearance_notification_label
             // 
@@ -719,21 +589,14 @@ namespace SmartGoldbergEmu
             // 
             // appearance_notification_box
             // 
-            this.appearance_notification_box.Location = new System.Drawing.Point(108, 10);
+            this.appearance_notification_box.Location = new System.Drawing.Point(175, 10);
             this.appearance_notification_box.Name = "appearance_notification_box";
-            this.appearance_notification_box.Size = new System.Drawing.Size(86, 20);
-            this.appearance_notification_box.TabIndex = 10;
-            this.appearance_notification_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.appearance_notification_box.Size = new System.Drawing.Size(117, 20);
+            this.appearance_notification_box.TabIndex = 2;
             // 
             // sound_tab
             // 
             this.sound_tab.BackColor = System.Drawing.SystemColors.Control;
-            this.sound_tab.Controls.Add(this.sounds_fontFilename_label);
-            this.sound_tab.Controls.Add(this.sounds_fontSpacing_label);
-            this.sound_tab.Controls.Add(this.button1);
-            this.sound_tab.Controls.Add(this.sounds_achievementFilename_label);
-            this.sound_tab.Controls.Add(this.sounds_friendFilename_label);
-            this.sound_tab.Controls.Add(this.sounds_playFriendSound_bttn);
             this.sound_tab.Controls.Add(this.sounds_fontSpacingY_label);
             this.sound_tab.Controls.Add(this.sounds_fontSpacingX_label);
             this.sound_tab.Controls.Add(this.sounds_fontSpacingY_box);
@@ -754,103 +617,45 @@ namespace SmartGoldbergEmu
             this.sound_tab.Text = "Sound and Font";
             this.sound_tab.Click += new System.EventHandler(this.setting_sound_tab_Click);
             // 
-            // sounds_fontFilename_label
-            // 
-            this.sounds_fontFilename_label.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.sounds_fontFilename_label.Location = new System.Drawing.Point(306, 26);
-            this.sounds_fontFilename_label.Name = "sounds_fontFilename_label";
-            this.sounds_fontFilename_label.Size = new System.Drawing.Size(126, 13);
-            this.sounds_fontFilename_label.TabIndex = 43;
-            this.sounds_fontFilename_label.Text = "No font set";
-            // 
-            // sounds_fontSpacing_label
-            // 
-            this.sounds_fontSpacing_label.AutoSize = true;
-            this.sounds_fontSpacing_label.Location = new System.Drawing.Point(306, 69);
-            this.sounds_fontSpacing_label.Name = "sounds_fontSpacing_label";
-            this.sounds_fontSpacing_label.Size = new System.Drawing.Size(73, 13);
-            this.sounds_fontSpacing_label.TabIndex = 42;
-            this.sounds_fontSpacing_label.Text = "Font Spacing:";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(19, 108);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(50, 23);
-            this.button1.TabIndex = 41;
-            this.button1.Text = "▶ Play";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // sounds_achievementFilename_label
-            // 
-            this.sounds_achievementFilename_label.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.sounds_achievementFilename_label.Location = new System.Drawing.Point(16, 92);
-            this.sounds_achievementFilename_label.Name = "sounds_achievementFilename_label";
-            this.sounds_achievementFilename_label.Size = new System.Drawing.Size(165, 13);
-            this.sounds_achievementFilename_label.TabIndex = 40;
-            this.sounds_achievementFilename_label.Text = "Default achievement sound";
-            // 
-            // sounds_friendFilename_label
-            // 
-            this.sounds_friendFilename_label.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.sounds_friendFilename_label.Location = new System.Drawing.Point(16, 26);
-            this.sounds_friendFilename_label.Name = "sounds_friendFilename_label";
-            this.sounds_friendFilename_label.Size = new System.Drawing.Size(165, 13);
-            this.sounds_friendFilename_label.TabIndex = 39;
-            this.sounds_friendFilename_label.Text = "Default friend sound";
-            // 
-            // sounds_playFriendSound_bttn
-            // 
-            this.sounds_playFriendSound_bttn.Location = new System.Drawing.Point(19, 45);
-            this.sounds_playFriendSound_bttn.Name = "sounds_playFriendSound_bttn";
-            this.sounds_playFriendSound_bttn.Size = new System.Drawing.Size(50, 23);
-            this.sounds_playFriendSound_bttn.TabIndex = 38;
-            this.sounds_playFriendSound_bttn.Text = "▶ Play";
-            this.sounds_playFriendSound_bttn.UseVisualStyleBackColor = true;
-            this.sounds_playFriendSound_bttn.Click += new System.EventHandler(this.sounds_playFriendSound_bttn_Click);
-            // 
             // sounds_fontSpacingY_label
             // 
             this.sounds_fontSpacingY_label.AutoSize = true;
-            this.sounds_fontSpacingY_label.Location = new System.Drawing.Point(372, 88);
+            this.sounds_fontSpacingY_label.Location = new System.Drawing.Point(235, 106);
             this.sounds_fontSpacingY_label.Name = "sounds_fontSpacingY_label";
-            this.sounds_fontSpacingY_label.Size = new System.Drawing.Size(17, 13);
+            this.sounds_fontSpacingY_label.Size = new System.Drawing.Size(83, 13);
             this.sounds_fontSpacingY_label.TabIndex = 36;
-            this.sounds_fontSpacingY_label.Text = "Y:";
+            this.sounds_fontSpacingY_label.Text = "Font Spacing Y:";
             // 
             // sounds_fontSpacingX_label
             // 
             this.sounds_fontSpacingX_label.AutoSize = true;
-            this.sounds_fontSpacingX_label.Location = new System.Drawing.Point(306, 88);
+            this.sounds_fontSpacingX_label.Location = new System.Drawing.Point(235, 79);
             this.sounds_fontSpacingX_label.Name = "sounds_fontSpacingX_label";
-            this.sounds_fontSpacingX_label.Size = new System.Drawing.Size(17, 13);
+            this.sounds_fontSpacingX_label.Size = new System.Drawing.Size(83, 13);
             this.sounds_fontSpacingX_label.TabIndex = 35;
-            this.sounds_fontSpacingX_label.Text = "X:";
+            this.sounds_fontSpacingX_label.Text = "Font Spacing X:";
             // 
             // sounds_fontSpacingY_box
             // 
-            this.sounds_fontSpacingY_box.Location = new System.Drawing.Point(395, 85);
+            this.sounds_fontSpacingY_box.Location = new System.Drawing.Point(329, 102);
             this.sounds_fontSpacingY_box.Name = "sounds_fontSpacingY_box";
-            this.sounds_fontSpacingY_box.Size = new System.Drawing.Size(37, 20);
+            this.sounds_fontSpacingY_box.Size = new System.Drawing.Size(86, 20);
             this.sounds_fontSpacingY_box.TabIndex = 10;
-            this.sounds_fontSpacingY_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.sounds_fontSpacingY_box.TextChanged += new System.EventHandler(this.fontSpacingY_settings_sound_edit_TextChanged);
             // 
             // sounds_fontSpacingX_box
             // 
-            this.sounds_fontSpacingX_box.Location = new System.Drawing.Point(329, 85);
+            this.sounds_fontSpacingX_box.Location = new System.Drawing.Point(329, 76);
             this.sounds_fontSpacingX_box.Name = "sounds_fontSpacingX_box";
-            this.sounds_fontSpacingX_box.Size = new System.Drawing.Size(37, 20);
+            this.sounds_fontSpacingX_box.Size = new System.Drawing.Size(86, 20);
             this.sounds_fontSpacingX_box.TabIndex = 9;
-            this.sounds_fontSpacingX_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.sounds_fontSpacingX_box.TextChanged += new System.EventHandler(this.sounds_fontSpacingX_box_TextChanged);
             // 
             // sounds_deleteFont_bttn
             // 
-            this.sounds_deleteFont_bttn.Location = new System.Drawing.Point(364, 43);
+            this.sounds_deleteFont_bttn.Location = new System.Drawing.Point(322, 29);
             this.sounds_deleteFont_bttn.Name = "sounds_deleteFont_bttn";
-            this.sounds_deleteFont_bttn.Size = new System.Drawing.Size(50, 23);
+            this.sounds_deleteFont_bttn.Size = new System.Drawing.Size(94, 31);
             this.sounds_deleteFont_bttn.TabIndex = 8;
             this.sounds_deleteFont_bttn.Text = "Clear Font";
             this.sounds_deleteFont_bttn.UseVisualStyleBackColor = true;
@@ -858,9 +663,9 @@ namespace SmartGoldbergEmu
             // 
             // sounds_changeFont_bttn
             // 
-            this.sounds_changeFont_bttn.Location = new System.Drawing.Point(309, 43);
+            this.sounds_changeFont_bttn.Location = new System.Drawing.Point(222, 29);
             this.sounds_changeFont_bttn.Name = "sounds_changeFont_bttn";
-            this.sounds_changeFont_bttn.Size = new System.Drawing.Size(50, 23);
+            this.sounds_changeFont_bttn.Size = new System.Drawing.Size(94, 31);
             this.sounds_changeFont_bttn.TabIndex = 7;
             this.sounds_changeFont_bttn.Text = "Set Font";
             this.sounds_changeFont_bttn.UseVisualStyleBackColor = true;
@@ -869,7 +674,7 @@ namespace SmartGoldbergEmu
             // sounds_font_label
             // 
             this.sounds_font_label.AutoSize = true;
-            this.sounds_font_label.Location = new System.Drawing.Point(306, 13);
+            this.sounds_font_label.Location = new System.Drawing.Point(219, 13);
             this.sounds_font_label.Name = "sounds_font_label";
             this.sounds_font_label.Size = new System.Drawing.Size(28, 13);
             this.sounds_font_label.TabIndex = 30;
@@ -877,50 +682,50 @@ namespace SmartGoldbergEmu
             // 
             // sounds_deleteAlertSound_bttn
             // 
-            this.sounds_deleteAlertSound_bttn.Location = new System.Drawing.Point(131, 108);
+            this.sounds_deleteAlertSound_bttn.Location = new System.Drawing.Point(119, 90);
             this.sounds_deleteAlertSound_bttn.Name = "sounds_deleteAlertSound_bttn";
-            this.sounds_deleteAlertSound_bttn.Size = new System.Drawing.Size(60, 23);
+            this.sounds_deleteAlertSound_bttn.Size = new System.Drawing.Size(94, 29);
             this.sounds_deleteAlertSound_bttn.TabIndex = 6;
-            this.sounds_deleteAlertSound_bttn.Text = "Clear";
+            this.sounds_deleteAlertSound_bttn.Text = "Clear Sound";
             this.sounds_deleteAlertSound_bttn.UseVisualStyleBackColor = true;
-            this.sounds_deleteAlertSound_bttn.Click += new System.EventHandler(this.sounds_deleteAlertSound_bttn_Click);
+            this.sounds_deleteAlertSound_bttn.Click += new System.EventHandler(this.DelAchSoundButton_Click);
             // 
             // sounds_deleteFriendSound_bttn
             // 
-            this.sounds_deleteFriendSound_bttn.Location = new System.Drawing.Point(131, 45);
+            this.sounds_deleteFriendSound_bttn.Location = new System.Drawing.Point(119, 29);
             this.sounds_deleteFriendSound_bttn.Name = "sounds_deleteFriendSound_bttn";
-            this.sounds_deleteFriendSound_bttn.Size = new System.Drawing.Size(60, 23);
+            this.sounds_deleteFriendSound_bttn.Size = new System.Drawing.Size(94, 31);
             this.sounds_deleteFriendSound_bttn.TabIndex = 3;
-            this.sounds_deleteFriendSound_bttn.Text = "Clear";
+            this.sounds_deleteFriendSound_bttn.Text = "Clear Sound";
             this.sounds_deleteFriendSound_bttn.UseVisualStyleBackColor = true;
-            this.sounds_deleteFriendSound_bttn.Click += new System.EventHandler(this.sounds_deleteFriendSound_bttn_Click);
+            this.sounds_deleteFriendSound_bttn.Click += new System.EventHandler(this.DelFriendSundButton_Click);
             // 
             // sounds_changeAlertSound_bttn
             // 
-            this.sounds_changeAlertSound_bttn.Location = new System.Drawing.Point(75, 108);
+            this.sounds_changeAlertSound_bttn.Location = new System.Drawing.Point(19, 90);
             this.sounds_changeAlertSound_bttn.Name = "sounds_changeAlertSound_bttn";
-            this.sounds_changeAlertSound_bttn.Size = new System.Drawing.Size(50, 23);
+            this.sounds_changeAlertSound_bttn.Size = new System.Drawing.Size(94, 29);
             this.sounds_changeAlertSound_bttn.TabIndex = 4;
             this.sounds_changeAlertSound_bttn.Text = "Set Sound";
             this.sounds_changeAlertSound_bttn.UseVisualStyleBackColor = true;
-            this.sounds_changeAlertSound_bttn.Click += new System.EventHandler(this.sounds_changeAlertSound_bttn_Click);
+            this.sounds_changeAlertSound_bttn.Click += new System.EventHandler(this.AddAchSoundButton_Click);
             // 
             // sounds_changeFriendSound_bttn
             // 
             this.sounds_changeFriendSound_bttn.AccessibleDescription = "Change Sound bttn 1";
             this.sounds_changeFriendSound_bttn.AccessibleName = "Change Sound bttn 2";
-            this.sounds_changeFriendSound_bttn.Location = new System.Drawing.Point(75, 45);
+            this.sounds_changeFriendSound_bttn.Location = new System.Drawing.Point(19, 29);
             this.sounds_changeFriendSound_bttn.Name = "sounds_changeFriendSound_bttn";
-            this.sounds_changeFriendSound_bttn.Size = new System.Drawing.Size(50, 23);
+            this.sounds_changeFriendSound_bttn.Size = new System.Drawing.Size(94, 31);
             this.sounds_changeFriendSound_bttn.TabIndex = 2;
             this.sounds_changeFriendSound_bttn.Text = "Set Sound";
             this.sounds_changeFriendSound_bttn.UseVisualStyleBackColor = true;
-            this.sounds_changeFriendSound_bttn.Click += new System.EventHandler(this.sounds_changeFriendSound_bttn_Click);
+            this.sounds_changeFriendSound_bttn.Click += new System.EventHandler(this.addfriendsoundbutton_Click);
             // 
             // sound_alert_label
             // 
             this.sound_alert_label.AutoSize = true;
-            this.sound_alert_label.Location = new System.Drawing.Point(16, 79);
+            this.sound_alert_label.Location = new System.Drawing.Point(16, 74);
             this.sound_alert_label.Name = "sound_alert_label";
             this.sound_alert_label.Size = new System.Drawing.Size(125, 13);
             this.sound_alert_label.TabIndex = 6;
@@ -938,14 +743,6 @@ namespace SmartGoldbergEmu
             // notification_tab
             // 
             this.notification_tab.BackColor = System.Drawing.SystemColors.Control;
-            this.notification_tab.Controls.Add(this.notification_chatDuration_reset);
-            this.notification_tab.Controls.Add(this.notification_inviteDuration_reset);
-            this.notification_tab.Controls.Add(this.notification_progressDuration_reset);
-            this.notification_tab.Controls.Add(this.notification_achDuration_reset);
-            this.notification_tab.Controls.Add(this.notification_marginY_reset);
-            this.notification_tab.Controls.Add(this.notification_marginX_reset);
-            this.notification_tab.Controls.Add(this.notification_animation_reset);
-            this.notification_tab.Controls.Add(this.notification_rounding_reset);
             this.notification_tab.Controls.Add(this.notification_inviteDuration_label);
             this.notification_tab.Controls.Add(this.notification_inviteDuration_box);
             this.notification_tab.Controls.Add(this.notification_chatDuration_box);
@@ -971,7 +768,7 @@ namespace SmartGoldbergEmu
             // notification_inviteDuration_label
             // 
             this.notification_inviteDuration_label.AutoSize = true;
-            this.notification_inviteDuration_label.Location = new System.Drawing.Point(225, 76);
+            this.notification_inviteDuration_label.Location = new System.Drawing.Point(195, 65);
             this.notification_inviteDuration_label.Name = "notification_inviteDuration_label";
             this.notification_inviteDuration_label.Size = new System.Drawing.Size(76, 13);
             this.notification_inviteDuration_label.TabIndex = 52;
@@ -979,73 +776,65 @@ namespace SmartGoldbergEmu
             // 
             // notification_inviteDuration_box
             // 
-            this.notification_inviteDuration_box.Location = new System.Drawing.Point(343, 73);
+            this.notification_inviteDuration_box.Location = new System.Drawing.Point(313, 62);
             this.notification_inviteDuration_box.Name = "notification_inviteDuration_box";
             this.notification_inviteDuration_box.Size = new System.Drawing.Size(38, 20);
             this.notification_inviteDuration_box.TabIndex = 8;
-            this.notification_inviteDuration_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.notification_inviteDuration_box.TextChanged += new System.EventHandler(this.inviteduration_text_TextChanged);
             // 
             // notification_chatDuration_box
             // 
-            this.notification_chatDuration_box.Location = new System.Drawing.Point(343, 99);
+            this.notification_chatDuration_box.Location = new System.Drawing.Point(313, 88);
             this.notification_chatDuration_box.Name = "notification_chatDuration_box";
             this.notification_chatDuration_box.Size = new System.Drawing.Size(38, 20);
             this.notification_chatDuration_box.TabIndex = 9;
-            this.notification_chatDuration_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_progressDuration_box
             // 
-            this.notification_progressDuration_box.Location = new System.Drawing.Point(343, 47);
+            this.notification_progressDuration_box.Location = new System.Drawing.Point(313, 36);
             this.notification_progressDuration_box.Name = "notification_progressDuration_box";
             this.notification_progressDuration_box.Size = new System.Drawing.Size(38, 20);
             this.notification_progressDuration_box.TabIndex = 7;
-            this.notification_progressDuration_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_achDuration_box
             // 
-            this.notification_achDuration_box.Location = new System.Drawing.Point(343, 21);
+            this.notification_achDuration_box.Location = new System.Drawing.Point(313, 10);
             this.notification_achDuration_box.Name = "notification_achDuration_box";
             this.notification_achDuration_box.Size = new System.Drawing.Size(38, 20);
             this.notification_achDuration_box.TabIndex = 6;
-            this.notification_achDuration_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_marginY_box
             // 
-            this.notification_marginY_box.Location = new System.Drawing.Point(132, 99);
+            this.notification_marginY_box.Location = new System.Drawing.Point(131, 88);
             this.notification_marginY_box.Name = "notification_marginY_box";
             this.notification_marginY_box.Size = new System.Drawing.Size(38, 20);
             this.notification_marginY_box.TabIndex = 5;
-            this.notification_marginY_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_marginX_box
             // 
-            this.notification_marginX_box.Location = new System.Drawing.Point(132, 73);
+            this.notification_marginX_box.Location = new System.Drawing.Point(131, 62);
             this.notification_marginX_box.Name = "notification_marginX_box";
             this.notification_marginX_box.Size = new System.Drawing.Size(38, 20);
             this.notification_marginX_box.TabIndex = 4;
-            this.notification_marginX_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_animation_box
             // 
-            this.notification_animation_box.Location = new System.Drawing.Point(132, 47);
+            this.notification_animation_box.Location = new System.Drawing.Point(131, 36);
             this.notification_animation_box.Name = "notification_animation_box";
             this.notification_animation_box.Size = new System.Drawing.Size(38, 20);
             this.notification_animation_box.TabIndex = 3;
-            this.notification_animation_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_rounding_box
             // 
-            this.notification_rounding_box.Location = new System.Drawing.Point(132, 21);
+            this.notification_rounding_box.Location = new System.Drawing.Point(131, 10);
             this.notification_rounding_box.Name = "notification_rounding_box";
             this.notification_rounding_box.Size = new System.Drawing.Size(38, 20);
             this.notification_rounding_box.TabIndex = 2;
-            this.notification_rounding_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // notification_achDuration_label
             // 
             this.notification_achDuration_label.AutoSize = true;
-            this.notification_achDuration_label.Location = new System.Drawing.Point(225, 24);
+            this.notification_achDuration_label.Location = new System.Drawing.Point(195, 13);
             this.notification_achDuration_label.Name = "notification_achDuration_label";
             this.notification_achDuration_label.Size = new System.Drawing.Size(112, 13);
             this.notification_achDuration_label.TabIndex = 11;
@@ -1054,7 +843,7 @@ namespace SmartGoldbergEmu
             // notification_chatDuration_label
             // 
             this.notification_chatDuration_label.AutoSize = true;
-            this.notification_chatDuration_label.Location = new System.Drawing.Point(225, 102);
+            this.notification_chatDuration_label.Location = new System.Drawing.Point(195, 91);
             this.notification_chatDuration_label.Name = "notification_chatDuration_label";
             this.notification_chatDuration_label.Size = new System.Drawing.Size(72, 13);
             this.notification_chatDuration_label.TabIndex = 10;
@@ -1063,7 +852,7 @@ namespace SmartGoldbergEmu
             // notification_progressDuration_label
             // 
             this.notification_progressDuration_label.AutoSize = true;
-            this.notification_progressDuration_label.Location = new System.Drawing.Point(225, 50);
+            this.notification_progressDuration_label.Location = new System.Drawing.Point(195, 39);
             this.notification_progressDuration_label.Name = "notification_progressDuration_label";
             this.notification_progressDuration_label.Size = new System.Drawing.Size(91, 13);
             this.notification_progressDuration_label.TabIndex = 9;
@@ -1072,7 +861,7 @@ namespace SmartGoldbergEmu
             // notification_animation_label
             // 
             this.notification_animation_label.AutoSize = true;
-            this.notification_animation_label.Location = new System.Drawing.Point(17, 50);
+            this.notification_animation_label.Location = new System.Drawing.Point(16, 39);
             this.notification_animation_label.Name = "notification_animation_label";
             this.notification_animation_label.Size = new System.Drawing.Size(109, 13);
             this.notification_animation_label.TabIndex = 8;
@@ -1081,7 +870,7 @@ namespace SmartGoldbergEmu
             // notification_marginY_label
             // 
             this.notification_marginY_label.AutoSize = true;
-            this.notification_marginY_label.Location = new System.Drawing.Point(17, 102);
+            this.notification_marginY_label.Location = new System.Drawing.Point(16, 91);
             this.notification_marginY_label.Name = "notification_marginY_label";
             this.notification_marginY_label.Size = new System.Drawing.Size(105, 13);
             this.notification_marginY_label.TabIndex = 7;
@@ -1090,7 +879,7 @@ namespace SmartGoldbergEmu
             // notification_marginX_label
             // 
             this.notification_marginX_label.AutoSize = true;
-            this.notification_marginX_label.Location = new System.Drawing.Point(17, 76);
+            this.notification_marginX_label.Location = new System.Drawing.Point(16, 65);
             this.notification_marginX_label.Name = "notification_marginX_label";
             this.notification_marginX_label.Size = new System.Drawing.Size(105, 13);
             this.notification_marginX_label.TabIndex = 6;
@@ -1099,91 +888,11 @@ namespace SmartGoldbergEmu
             // notification_rounding_label
             // 
             this.notification_rounding_label.AutoSize = true;
-            this.notification_rounding_label.Location = new System.Drawing.Point(17, 24);
+            this.notification_rounding_label.Location = new System.Drawing.Point(16, 13);
             this.notification_rounding_label.Name = "notification_rounding_label";
             this.notification_rounding_label.Size = new System.Drawing.Size(109, 13);
             this.notification_rounding_label.TabIndex = 5;
             this.notification_rounding_label.Text = "Notification Rounding";
-            // 
-            // notification_rounding_reset
-            // 
-            this.notification_rounding_reset.Location = new System.Drawing.Point(176, 19);
-            this.notification_rounding_reset.Name = "notification_rounding_reset";
-            this.notification_rounding_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_rounding_reset.TabIndex = 53;
-            this.notification_rounding_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_rounding_reset, "Randomize port.");
-            this.notification_rounding_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_animation_reset
-            // 
-            this.notification_animation_reset.Location = new System.Drawing.Point(176, 45);
-            this.notification_animation_reset.Name = "notification_animation_reset";
-            this.notification_animation_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_animation_reset.TabIndex = 54;
-            this.notification_animation_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_animation_reset, "Randomize port.");
-            this.notification_animation_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_marginX_reset
-            // 
-            this.notification_marginX_reset.Location = new System.Drawing.Point(176, 71);
-            this.notification_marginX_reset.Name = "notification_marginX_reset";
-            this.notification_marginX_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_marginX_reset.TabIndex = 55;
-            this.notification_marginX_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_marginX_reset, "Randomize port.");
-            this.notification_marginX_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_marginY_reset
-            // 
-            this.notification_marginY_reset.Location = new System.Drawing.Point(176, 97);
-            this.notification_marginY_reset.Name = "notification_marginY_reset";
-            this.notification_marginY_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_marginY_reset.TabIndex = 56;
-            this.notification_marginY_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_marginY_reset, "Randomize port.");
-            this.notification_marginY_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_achDuration_reset
-            // 
-            this.notification_achDuration_reset.Location = new System.Drawing.Point(387, 19);
-            this.notification_achDuration_reset.Name = "notification_achDuration_reset";
-            this.notification_achDuration_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_achDuration_reset.TabIndex = 57;
-            this.notification_achDuration_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_achDuration_reset, "Randomize port.");
-            this.notification_achDuration_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_progressDuration_reset
-            // 
-            this.notification_progressDuration_reset.Location = new System.Drawing.Point(387, 45);
-            this.notification_progressDuration_reset.Name = "notification_progressDuration_reset";
-            this.notification_progressDuration_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_progressDuration_reset.TabIndex = 58;
-            this.notification_progressDuration_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_progressDuration_reset, "Randomize port.");
-            this.notification_progressDuration_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_inviteDuration_reset
-            // 
-            this.notification_inviteDuration_reset.Location = new System.Drawing.Point(387, 71);
-            this.notification_inviteDuration_reset.Name = "notification_inviteDuration_reset";
-            this.notification_inviteDuration_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_inviteDuration_reset.TabIndex = 59;
-            this.notification_inviteDuration_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_inviteDuration_reset, "Randomize port.");
-            this.notification_inviteDuration_reset.UseVisualStyleBackColor = true;
-            // 
-            // notification_chatDuration_reset
-            // 
-            this.notification_chatDuration_reset.Location = new System.Drawing.Point(387, 97);
-            this.notification_chatDuration_reset.Name = "notification_chatDuration_reset";
-            this.notification_chatDuration_reset.Size = new System.Drawing.Size(22, 23);
-            this.notification_chatDuration_reset.TabIndex = 60;
-            this.notification_chatDuration_reset.Text = "♻️";
-            this.randomizePort.SetToolTip(this.notification_chatDuration_reset, "Randomize port.");
-            this.notification_chatDuration_reset.UseVisualStyleBackColor = true;
             // 
             // SettingsForm
             // 
@@ -1194,12 +903,11 @@ namespace SmartGoldbergEmu
             this.Controls.Add(this.settings_Cancel_bttn);
             this.Controls.Add(this.settings_Save_bttn);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SettingsForm";
+            this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SmartGoldbergEmu Launcher";
             this.sounds_notification.ResumeLayout(false);
             this.general_tab.ResumeLayout(false);
@@ -1264,12 +972,6 @@ namespace SmartGoldbergEmu
         private System.Windows.Forms.TextBox notification_inviteDuration_box;
         private System.Windows.Forms.Label general_webApiKey_label;
         private System.Windows.Forms.Button sounds_changeAlertSound_bttn;
-        private System.Windows.Forms.Button setting_randomizePort_bttn;
-        private System.Windows.Forms.ToolTip getApiKey;
-        private System.Windows.Forms.ToolTip randomizePort;
-        private System.Windows.Forms.Button ramoveAvatar_bttn;
-        private System.Windows.Forms.ToolTip removeAvatarBttn;
-        private System.Windows.Forms.ToolTip setAvatarBttn;
         private System.Windows.Forms.TabPage appearance_tab;
         private System.Windows.Forms.Label appearance_chatPos_label;
         private System.Windows.Forms.Label appearance_invPos_label;
@@ -1281,44 +983,26 @@ namespace SmartGoldbergEmu
         private System.Windows.Forms.Label appearance_imageSize_label;
         private System.Windows.Forms.TextBox appearance_fontSize_box;
         private System.Windows.Forms.Label appearance_fontSize_label;
-        private System.Windows.Forms.Panel appearance_active_colorPreview;
+        private System.Windows.Forms.Label appearance_active_label1;
         private System.Windows.Forms.Label appearance_active_label;
         private System.Windows.Forms.TextBox appearance_active_box;
-        private System.Windows.Forms.TextBox appearance_active_alpha;
-        private System.Windows.Forms.Panel appearance_hover_colorPreview;
+        private System.Windows.Forms.Label appearance_hover_label1;
         private System.Windows.Forms.Label appearance_hover_label;
         private System.Windows.Forms.TextBox appearance_hover_box;
-        private System.Windows.Forms.TextBox appearance_hover_alpha;
-        private System.Windows.Forms.Panel appearance_element_colorPreview;
+        private System.Windows.Forms.Label appearance_element_label1;
         private System.Windows.Forms.Label appearance_element_label;
         private System.Windows.Forms.TextBox appearance_element_box;
-        private System.Windows.Forms.TextBox appearance_element_alpha;
-        private System.Windows.Forms.Panel appearance_background_colorPreview;
+        private System.Windows.Forms.Label appearance_background_label1;
         private System.Windows.Forms.Label appearance_background_label;
         private System.Windows.Forms.TextBox appearance_background_box;
-        private System.Windows.Forms.TextBox appearance_background_alpha;
-        private System.Windows.Forms.Panel appearance_notification_colorPreview;
+        private System.Windows.Forms.Label appearance_notification_label1;
         private System.Windows.Forms.Label appearance_notification_label;
         private System.Windows.Forms.TextBox appearance_notification_box;
-        private System.Windows.Forms.TextBox appearance_notification_alpha;
-        private System.Windows.Forms.Label sounds_achievementFilename_label;
-        private System.Windows.Forms.Label sounds_friendFilename_label;
-        private System.Windows.Forms.Button sounds_playFriendSound_bttn;
-        private System.Windows.Forms.Label sounds_fontFilename_label;
-        private System.Windows.Forms.Label sounds_fontSpacing_label;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button appearance_active_reset;
-        private System.Windows.Forms.Button appearance_hover_reset;
-        private System.Windows.Forms.Button appearance_element_reset;
-        private System.Windows.Forms.Button appearance_background_reset;
-        private System.Windows.Forms.Button appearance_notification_reset;
-        private System.Windows.Forms.Button notification_chatDuration_reset;
-        private System.Windows.Forms.Button notification_inviteDuration_reset;
-        private System.Windows.Forms.Button notification_progressDuration_reset;
-        private System.Windows.Forms.Button notification_achDuration_reset;
-        private System.Windows.Forms.Button notification_marginY_reset;
-        private System.Windows.Forms.Button notification_marginX_reset;
-        private System.Windows.Forms.Button notification_animation_reset;
-        private System.Windows.Forms.Button notification_rounding_reset;
+        private System.Windows.Forms.Button setting_randomizePort_bttn;
+        private System.Windows.Forms.ToolTip getApiKey;
+        private System.Windows.Forms.ToolTip randomizePort;
+        private System.Windows.Forms.Button ramoveAvatar_bttn;
+        private System.Windows.Forms.ToolTip removeAvatarBttn;
+        private System.Windows.Forms.ToolTip setAvatarBttn;
     }
 }

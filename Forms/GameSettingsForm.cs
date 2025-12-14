@@ -237,6 +237,9 @@ namespace SmartGoldbergEmu
         };
         public GameConfig Modified_app { get; private set; }
 
+        // Move this line to the top of the class, just after the opening brace for GameSettingsForm:
+        private static readonly HttpClient httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+
         public GameSettingsForm()
         {
             InitializeComponent();
@@ -1171,9 +1174,6 @@ namespace SmartGoldbergEmu
             Directory.CreateDirectory(gameEmuFolder);
         }
 
-        private static readonly HttpClient httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-
-        // ...existing code...
         private async void DlcFinder(object sender, EventArgs e)
         {
             try
@@ -1345,7 +1345,7 @@ namespace SmartGoldbergEmu
             game_appid_box.Text = int.TryParse(appidContent, out int appid) ? appidContent : "";
         }
 
-        private void FeachNameFromAppid(object sender, EventArgs e) // Fetch game name from Steam API
+        private async void FeachNameFromAppid(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(game_appid_box.Text) || game_appid_box.Text == "0")
             {
@@ -1353,34 +1353,74 @@ namespace SmartGoldbergEmu
                 return;
             }
 
-            using (WebClient web = new WebClient())
+            string appid = game_appid_box.Text.Trim();
+            string name = null;
+
+            // 1. Try Steam Store API
+            try
             {
-                string webadresa = $"https://store.steampowered.com/api/appdetails?appids={game_appid_box.Text}&filters=basic";
-
-                try
+                string url = $"https://store.steampowered.com/api/appdetails?appids={appid}&filters=basic";
+                var response = await httpClient.GetStringAsync(url);
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, Drugi>>(response);
+                if (dict.TryGetValue(appid, out var appData) && appData?.Data != null && !string.IsNullOrEmpty(appData.Data.Name))
                 {
-                    using (System.IO.Stream stream = web.OpenRead(webadresa))
-                    using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
-                    {
-                        string manipulirano = reader.ReadToEnd();
-                        var rjecnik = JsonConvert.DeserializeObject<Dictionary<string, Drugi>>(manipulirano);
-
-                        if (rjecnik.TryGetValue(game_appid_box.Text, out var appData) && appData?.Data != null)
-                        {
-                            game_name_box.Text = appData.Data.Name;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Appid is not valid?", "Not valid Appid", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"An error occurred while fetching data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    name = appData.Data.Name;
                 }
             }
+            catch { }
+
+            // 2. Try Nemirtingas GitHub DB
+            if (string.IsNullOrEmpty(name))
+            {
+                try
+                {
+                    string githubUrl = $"https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/{appid}/{appid}.json";
+                    var githubResponse = await httpClient.GetStringAsync(githubUrl);
+                    var githubData = JsonConvert.DeserializeObject<Prvi>(githubResponse);
+                    if (githubData != null && !string.IsNullOrEmpty(githubData.Name))
+                    {
+                        name = githubData.Name;
+                    }
+                }
+                catch { }
+            }
+
+            // 3. Try Steam Global App List
+            if (string.IsNullOrEmpty(name))
+            {
+                try
+                {
+                    string appListUrl = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
+                    var appListResponse = await httpClient.GetStringAsync(appListUrl);
+                    var appListData = JObject.Parse(appListResponse);
+                    var steamAppList = appListData["applist"]?["apps"]?.ToObject<List<JObject>>() ?? new List<JObject>();
+                    var appListDictionary = new Dictionary<long, string>();
+                    foreach (var app in steamAppList)
+                    {
+                        long appId = app["appid"].ToObject<long>();
+                        string appName = app["name"].ToString();
+                        if (!appListDictionary.ContainsKey(appId))
+                        {
+                            appListDictionary[appId] = appName;
+                        }
+                    }
+                    if (long.TryParse(appid, out long appidLong) && appListDictionary.TryGetValue(appidLong, out var foundName))
+                    {
+                        name = foundName;
+                    }
+                }
+                catch { }
+            }
+
+            // 4. Fallback: Show Steam Store URL
+            if (string.IsNullOrEmpty(name))
+            {
+                name = $"https://store.steampowered.com/app/{appid}";
+            }
+
+            game_name_box.Text = name;
         }
+
         private void GetStats_Click(object sender, EventArgs e) // Fetch game stats from GitHub
         {
             string webadresa = $"https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/{game_appid_box.Text}/stats_db.json";
