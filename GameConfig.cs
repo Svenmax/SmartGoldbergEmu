@@ -13,160 +13,154 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the SmartGoldbergEmu Launcher; if not, see
-   <http://www.gnu.org/licenses/>.
- */
-using System;
-using System.IO;
+   <http://www.gnu.org/licenses/>. */
+
+// Represents the configuration of a game and its associated settings for emulation.
+using SmartGoldbergEmu;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
+using System;
 
-namespace SmartGoldbergEmu
+public class GameConfig
 {
-    public class GameConfig
+    public EmuConfig Config { get; set; }
+    public string StartFolder { get; set; }
+    public string AppName { get; set; }
+    public ulong AppId { get; set; }
+    public string Parameters { get; set; }
+    public bool UseX64 { get; set; }
+    public bool DisableOverlay { get; set; }
+    public bool DisableNetworking { get; set; }
+    public bool DisableLANOnly { get; set; }
+    public bool EnableHTTP { get; set; }
+    public bool DisableAvatar { get; set; }
+    public bool DisableSQuery { get; set; }
+    public bool DisableAchNotif { get; set; }
+    public bool DisableFriendNotif { get; set; }
+    public bool SteamDeck { get; set; }
+    public bool AchBypass { get; set; }
+    public bool Offline { get; set; }
+
+    // Stats-related settings
+    public bool UnknownStats { get; set; }
+    public bool SaveHigherStat { get; set; }
+    public bool GameserverStat { get; set; }
+    public bool DisableStatShare { get; set; }
+    public bool UnlockAllDLC { get; set; }
+
+    // New added settings
+    public bool DisLobbyCreation { get; set; }
+    public bool ShareLeaderboard { get; set; }
+    public bool UnknownLeaderboard { get; set; }
+    public bool ActualType { get; set; }
+    public bool MatchmakeSource { get; set; }
+    public bool HttpSuccess { get; set; }
+
+    public string LocalSave { get; set; }
+    public string CustomIcon { get; set; }
+    public List<string> CustomBroadcasts { get; set; }
+    public List<string> EnvVars { get; set; }
+    public Guid GameGuid { get; set; }
+
+    private string path;
+
+    public GameConfig()
     {
-        public EmuConfig Config { get; set; }
-        public string StartFolder { get; set; }
-        public string AppName { get; set; }
-        public ulong AppId { get; set; }
-        public string Parameters { get; set; }
-        public bool UseX64 { get; set; }
-        public bool DisableOverlay { get; set; }
-        public bool DisableNetworking { get; set; }
-        public bool DisableLANOnly { get; set; }
-        public bool EnableHTTP { get; set; }
-        public bool DisableAvatar { get; set; }
-        public bool DisableSQuery { get; set; }
-        public bool DisableAchNotif { get; set; }
-        public bool DisableFriendNotif { get; set; }
-        public bool SteamDeck { get; set; }
-        public bool AchBypass { get; set; }
-        public bool Offline { get; set; }
-        //Stats
-        public bool UnknownStats { get; set; }
-        public bool SaveHigherStat { get; set; }
-        public bool GameserverStat { get; set; }
-        public bool DisableStatShare { get; set; }
-        public bool UnlockAllDLC { get; set; }
-        //Newadded
-        public bool DisLobbyCreation { get; set; }
-        public bool ShareLeaderboard { get; set; }
-        public bool UnknownLeaderboard { get; set; }
-        public bool ActualType { get; set; }
-        public bool MatchmakeSource { get; set; }
-        public bool HttpSuccess { get; set; }
+        StartFolder = AppName = Parameters = path = LocalSave = string.Empty;
+        CustomIcon = string.Empty;
+        GameGuid = Guid.NewGuid();  
+        AppId = 0;
 
-        public string LocalSave { get; set; }
-        public string CustomIcon { get; set; }
-
-        public List<string> CustomBroadcasts { get; set; }
-        public List<string> EnvVars { get; set; }
-
-
-        public Guid GameGuid { get; set; }
-        public GameConfig()
-        {
-            StartFolder = AppName = Parameters = path = LocalSave = string.Empty;
-            CustomIcon = string.Empty;
-            GameGuid = Guid.NewGuid();
-            AppId = 0;
-            UseX64 = false;
-            DisableOverlay = false;
-            DisableLANOnly = false;
-            Offline = false;
-            DisableNetworking = false;
-            EnableHTTP = false;
-            DisableAvatar = false;
-            DisableSQuery = false;
-            DisableAchNotif = false;
-            DisableFriendNotif = false;
-            SteamDeck = false;
-            AchBypass = false;
-            UnlockAllDLC = false;
-            //stats
-            UnknownStats = false;
-            SaveHigherStat = true;
-            GameserverStat = false;
-            DisableStatShare = false;
-            //
-            //Newer stuff
-            DisLobbyCreation = false;
-            ShareLeaderboard = false;
-            UnknownLeaderboard = false;
-            ActualType = false;
-            MatchmakeSource = false;
-            HttpSuccess = false;
-            //
+        UseX64 = true;
+        DisableOverlay = false;
+        DisableLANOnly = false;
+        Offline = false;
+        DisableNetworking = false;
+        EnableHTTP = false;
+        DisableAvatar = false;
+        DisableSQuery = false;
+        DisableAchNotif = false;
+        DisableFriendNotif = false;
+        SteamDeck = false;
+        AchBypass = false;
+        UnlockAllDLC = false;
+        UnknownStats = false;
+        SaveHigherStat = true;
+        GameserverStat = false;
+        DisableStatShare = false;
+        DisLobbyCreation = false;
+        ShareLeaderboard = false;
+        UnknownLeaderboard = false;
+        ActualType = false;
+        MatchmakeSource = false;
+        HttpSuccess = false;
 
         CustomBroadcasts = new List<string>();
-            EnvVars = new List<string>();
-        }
+        EnvVars = new List<string>();
+    }
 
-        // Absolute game path
-        private string path;
-
-        public string Path
+    public string Path
+    {
+        get { return path; }
+        set
         {
-            get { return path; }
-            set
+            try
             {
-                try
-                {
-                    string path = System.IO.Path.GetFullPath(value);
-                    /*if (File.Exists(path))
-                    {
-                        this.path = path;
-                    }*/
-                    this.path = path;
-                }
-                catch(Exception e)
-                {
-                    Debug.WriteLine(e.Message);
-                }
+                this.path = System.IO.Path.GetFullPath(value);
+            }
+            catch (ArgumentException argEx)
+            {
+                Debug.WriteLine($"Invalid path provided: {argEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting path: {ex.Message}");
             }
         }
+    }
 
-        public GameConfig Clone()
+    public GameConfig Clone()
+    {
+        GameConfig copy = new GameConfig
         {
-            GameConfig copy = new GameConfig
-            {
-                StartFolder = StartFolder,
-                AppName = AppName,
-                AppId = AppId,
-                Parameters = Parameters,
-                UseX64 = UseX64,
-                DisableOverlay = DisableOverlay,
-                DisableNetworking = DisableNetworking,
-                Offline = Offline,
-                DisableLANOnly = DisableLANOnly,
-                EnableHTTP = EnableHTTP,
-                DisableAvatar = DisableAvatar,
-                DisableSQuery = DisableSQuery,
-                DisableAchNotif = DisableAchNotif,
-                DisableFriendNotif = DisableFriendNotif,
-                SteamDeck = SteamDeck,
-                AchBypass = AchBypass,
-                UnlockAllDLC= UnlockAllDLC,
-                UnknownStats = UnknownStats,
-                SaveHigherStat = SaveHigherStat,
-                GameserverStat = GameserverStat,
-                DisableStatShare = DisableStatShare,
-                DisLobbyCreation=DisLobbyCreation,
-                ShareLeaderboard=ShareLeaderboard,
-                UnknownLeaderboard=UnknownLeaderboard,
-                ActualType = ActualType,
-                MatchmakeSource = MatchmakeSource,
-                HttpSuccess = HttpSuccess,
-                CustomBroadcasts = new List<string>(CustomBroadcasts),
-                EnvVars = new List<string>(EnvVars),
-                GameGuid = GameGuid
-            };
-            return copy;
-        }
+            StartFolder = this.StartFolder,
+            AppName = this.AppName,
+            AppId = this.AppId,
+            Parameters = this.Parameters,
+            UseX64 = this.UseX64,
+            DisableOverlay = this.DisableOverlay,
+            DisableNetworking = this.DisableNetworking,
+            Offline = this.Offline,
+            DisableLANOnly = this.DisableLANOnly,
+            EnableHTTP = this.EnableHTTP,
+            DisableAvatar = this.DisableAvatar,
+            DisableSQuery = this.DisableSQuery,
+            DisableAchNotif = this.DisableAchNotif,
+            DisableFriendNotif = this.DisableFriendNotif,
+            SteamDeck = this.SteamDeck,
+            AchBypass = this.AchBypass,
+            UnlockAllDLC = this.UnlockAllDLC,
+            UnknownStats = this.UnknownStats,
+            SaveHigherStat = this.SaveHigherStat,
+            GameserverStat = this.GameserverStat,
+            DisableStatShare = this.DisableStatShare,
+            DisLobbyCreation = this.DisLobbyCreation,
+            ShareLeaderboard = this.ShareLeaderboard,
+            UnknownLeaderboard = this.UnknownLeaderboard,
+            ActualType = this.ActualType,
+            MatchmakeSource = this.MatchmakeSource,
+            HttpSuccess = this.HttpSuccess,
 
-        public string GetGameEmuFolder()
-        {
-            return System.IO.Path.Combine(System.IO.Path.GetFullPath("."), "games", AppId.ToString());
-        }
+            CustomBroadcasts = new List<string>(this.CustomBroadcasts),
+            EnvVars = new List<string>(this.EnvVars),
+            GameGuid = this.GameGuid
+        };
+
+        return copy;
+    }
+
+    public string GetGameEmuFolder()
+    {
+        return System.IO.Path.Combine(System.IO.Path.GetFullPath("."), "games", AppId.ToString());
     }
 }

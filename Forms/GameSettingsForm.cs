@@ -13,29 +13,26 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the SmartGoldbergEmu Launcher; if not, see
-   <http://www.gnu.org/licenses/>.
- */
+   <http://www.gnu.org/licenses/>. */
+
 using HeaderReader;
 using OSUtility;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression; // Required for ZipFile
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Globalization;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System.Diagnostics.Eventing.Reader;
-using static SmartGoldbergEmu.GameSettingsForm;
-using System.Security.Policy;
-using System.Threading;
-using System.Runtime.InteropServices.ComTypes;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Diagnostics;
+
 
 namespace SmartGoldbergEmu
 {
@@ -240,7 +237,6 @@ namespace SmartGoldbergEmu
         };
         public GameConfig Modified_app { get; private set; }
 
-
         public GameSettingsForm()
         {
             InitializeComponent();
@@ -248,77 +244,87 @@ namespace SmartGoldbergEmu
 
         public void SetApp(GameConfig app)
         {
-            game_name_edit.Text = app.AppName;
-            game_folder_edit.Text = app.StartFolder;
-            game_exe_edit.Text = app.Path;
-            game_appid_edit.Text = app.AppId.ToString();
-            game_parameters_edit.Text = app.Parameters;
-            x64_checkbox.Checked = app.UseX64;
-            local_save_edit.Text = app.LocalSave;
-            CustomIcon.Text = app.CustomIcon;
+            // Initializes UI components based on the given GameConfig properties
+            game_name_box.Text = app.AppName;
+            game_folder_box.Text = app.StartFolder;
+            game_gameExe_box.Text = app.Path;
+            game_appid_box.Text = app.AppId.ToString();
+            game_params_box.Text = app.Parameters;
+            game_x64_checkbox.Checked = app.UseX64;
+            other_localSaveName_box.Text = app.LocalSave;
+            game_customIcon_box.Text = app.CustomIcon;
+
             foreach (string ip in app.CustomBroadcasts)
             {
                 try
                 {
-                    ip_listBox.Items.Add(IPAddress.Parse(ip));
+                    broadcast_ipList_box.Items.Add(IPAddress.Parse(ip));
                 }
                 catch { }
             }
+
             foreach (string env_var in app.EnvVars)
             {
-                listBox_env_var.Items.Add(env_var);
+                broadcast_envList_box.Items.Add(env_var);
             }
 
+            // OS-specific environment setup
             switch (OSDetector.GetOS())
             {
                 case OsId.Windows:
                     break;
                 case OsId.Linux:
-                    textBox_env_var_key.Cue = "LD_PRELOAD";
-                    textBox_env_var_value.Cue = Path.Combine(OSFuncs.GetEmuApiFolder(app.UseX64), OSFuncs.GetSteamAPIName(app.UseX64));
+                    broadcast_envName_box.Cue = "LD_PRELOAD";
+                    broadcast_envKey_box.Cue = Path.Combine(OSFuncs.GetEmuApiFolder(app.UseX64), OSFuncs.GetSteamAPIName(app.UseX64));
                     break;
                 case OsId.MacOSX:
-                    textBox_env_var_key.Cue = "DYLD_PRELOAD";
-                    textBox_env_var_value.Cue = Path.Combine(OSFuncs.GetEmuApiFolder(app.UseX64), OSFuncs.GetSteamAPIName(app.UseX64));
+                    broadcast_envName_box.Cue = "DYLD_PRELOAD";
+                    broadcast_envKey_box.Cue = Path.Combine(OSFuncs.GetEmuApiFolder(app.UseX64), OSFuncs.GetSteamAPIName(app.UseX64));
                     break;
             }
 
+            // Checking for executable header type (32-bit or 64-bit)
             ExecutableHeaderReader reader;
             if ((reader = new PeHeaderReader(app.Path)).IsValidHeader ||
                 (reader = new ElfHeaderReader(app.Path)).IsValidHeader ||
                 (reader = new MachOHeaderReader(app.Path)).IsValidHeader)
             {
-                x64_checkbox.Checked = !reader.Is32BitHeader;
+                game_x64_checkbox.Checked = !reader.Is32BitHeader;
             }
+            //???
+            // Setting up checkboxes based on game configuration
+            game_x64_checkbox.Checked = app.UseX64;
+            game_disableOverlay_checkbox.Checked = app.DisableOverlay;
+            game_disableNetwork_checkbox.Checked = app.DisableNetworking;
+            game_disableLan_checkbox.Checked = app.DisableLANOnly;
+            game_offline_checkbox.Checked = app.Offline;
+            game_enableHttp_checkbox.Checked = app.EnableHTTP;
+            other_disableAvatar_checkbox.Checked = app.DisableAvatar;
+            other_disableAchPop_checkbox.Checked = app.DisableAchNotif;
+            other_disableFriendPop_checkbox.Checked = app.DisableFriendNotif;
+            other_forceSteamDeck_checkbox.Checked = app.SteamDeck;
+            other_achBypass_checkbox.Checked = app.AchBypass;
+            other_disableSourceQuery_checkbox.Checked = app.DisableSQuery;
+            stats_allowUnkStats_checkbox.Checked = app.UnknownStats;
+            stats_bestScoreSaveOnly_checkbox.Checked = app.SaveHigherStat;
+            stats_serverStats_checkbox.Checked = app.GameserverStat;
+            stats_disbleStatsShare_checkbox.Checked = app.DisableStatShare;
+            other_disableLobbyCreate_checkbox.Checked = app.DisLobbyCreation;
+            other_shareLeaderboard_checkbox.Checked = app.ShareLeaderboard;
+            other_disableUknLeaderboard_checkbox.Checked = app.UnknownLeaderboard;
+            other_mmActualType_checkbox.Checked = app.ActualType;
+            other_mmSourceQuery_checkbox.Checked = app.MatchmakeSource;
+            other_forceHttpSuccess_checkbox.Checked = app.HttpSuccess;
+            dlc_unlockAllDlc_bttn.Checked = app.UnlockAllDLC;
 
-            checkBox_disableOverlay.Checked = app.DisableOverlay;
-            checkBox_DisableNetworking.Checked = app.DisableNetworking;
-            checkBox_DisableLANOnly.Checked = app.DisableLANOnly;
-            checkbox_offline.Checked = app.Offline;
-            checkBox_EnableHTTP.Checked = app.EnableHTTP;
-            checkBox_DisableAvatar.Checked = app.DisableAvatar;
-            checkBox_DisableAchNotif.Checked = app.DisableAchNotif;
-            checkBox_DisableFriendNotif.Checked = app.DisableFriendNotif;
-            checkBox_SteamDeck.Checked = app.SteamDeck;
-            checkBox_AchBypass.Checked = app.AchBypass;
-            checkBox_DisableSQuery.Checked = app.DisableSQuery;
-            checkBox_UnknownStats.Checked = app.UnknownStats;
-            checkBox_SaveHigheStats.Checked = app.SaveHigherStat;
-            checkBox_GameServerStat.Checked = app.GameserverStat;
-            checkBox_DisableStatShare.Checked = app.DisableStatShare;
-            checkBox_DisLobbyCreation.Checked = app.DisLobbyCreation;
-            checkBox_ShareLeaderboard.Checked = app.ShareLeaderboard;
-            checkBox_UnknownLeaderboard.Checked = app.UnknownLeaderboard;
-            checkBox_ActualType.Checked = app.ActualType;
-            checkBox_MatchmakeSource.Checked = app.MatchmakeSource;
-            checkBox_HttpSuccess.Checked = app.HttpSuccess;
-            checkBox_UnlockAllDLC.Checked = app.UnlockAllDLC;
-
+            // Cloning the app configuration for later use
             Modified_app = app.Clone();
 
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (game_appid_edit.Text != "0")
+
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            if (game_appid_box.Text != "0")
             {
+                // Reads and sets values from the user configuration file if it exists
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini")))
                 {
                     using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini"), FileMode.Open), Encoding.UTF8))
@@ -328,166 +334,189 @@ namespace SmartGoldbergEmu
                             var line = streamReader.ReadLine();
                             if (line.StartsWith("account_name="))
                             {
-                                var popravni=line.Replace("account_name=", "");
-                                force_account_name_add.Text = popravni;
+                                var popravni = line.Replace("account_name=", "");
+                                other_forceAccName_box.Text = popravni;
                             }
                             if (line.StartsWith("account_steamid="))
                             {
-                                var popravni=line.Replace("account_steamid=", "");
-                                force_steamidpoigri_add.Text = popravni;
+                                var popravni = line.Replace("account_steamid=", "");
+                                other_forceSteamId_box.Text = popravni;
                             }
                             if (line.StartsWith("language="))
                             {
                                 var popravni = line.Replace("language=", "");
-                                force_langugae_add.Text = popravni;
+                                other_forceLanguage_box.Text = popravni;
                             }
                             if (line.StartsWith("ip_country="))
                             {
                                 var popravni = line.Replace("ip_country=", "");
-                                force_IPCountry_add.Text = popravni;
+                                other_forceIp_box.Text = popravni;
                             }
                             if (line.StartsWith("saves_folder_name="))
                             {
                                 var popravni = line.Replace("saves_folder_name=", "");
-                                local_save_edit.Text = popravni;
+                                other_localSaveName_box.Text = popravni;
                             }
-                        } 
+                        }
                     }
                 }
+
+                // Reads and sets values from the app configuration file if it exists
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "configs.app.ini")))
                 {
                     using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.app.ini"), FileMode.Open), Encoding.ASCII))
                     {
                         while (!streamReader.EndOfStream)
                         {
-                            
                             var line = streamReader.ReadLine();
                             if (line.StartsWith("branch_name="))
                             {
                                 var popravni = line.Replace("branch_name=", "");
-                                beta_branch_add.Text = popravni;
+                                other_betaBranch_box.Text = popravni;
                             }
                             if (!line.Contains("is_beta_branch=") && !line.Contains("branch_name=") && !line.Contains("unlock_all=") && !line.Contains("[app::general]") && !line.Contains("[app::dlcs]"))
                             {
-                                DLC_add.Text = DLC_add.Text+line+ "\r\n";
+                                dlc_list_box.Text = dlc_list_box.Text + line + "\r\n";
                             }
                         }
                     }
                 }
+
+                // Reads and sets the listen port from the main configuration file if it exists
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "configs.main.ini")))
                 {
                     using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.main.ini"), FileMode.Open), Encoding.UTF8))
                     {
                         while (!streamReader.EndOfStream)
                         {
-
                             var line = streamReader.ReadLine();
                             if (line.StartsWith("listen_port="))
                             {
                                 var popravni = line.Replace("listen_port=", "");
-                                force_listen_port_add.Text = popravni;
+                                other_forcePort_box.Text = popravni;
                             }
                         }
                     }
                 }
-                if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups.txt")))
+
+                // Check if the "subscribed_groups.txt" file exists and load its contents into the advanced subscribed groups box
+                string filePath = Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups.txt");
+                if (File.Exists(filePath))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(filePath, Encoding.ASCII))
                     {
-                        sg_add.Text = streamReader.ReadToEnd();
+                        string content = streamReader.ReadToEnd();
+                        if (!string.IsNullOrEmpty(content))
+                        {
+                            advanced_subscribedGroups_box.Text = content;
+                        }
                     }
                 }
+
+                // Check if the "stats.txt" file exists and load its contents into the stats custom box
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "stats.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "stats.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "steam_settings", "stats.txt"), Encoding.ASCII))
                     {
-                        stat_add.Text = streamReader.ReadToEnd();
+                        string content = streamReader.ReadToEnd();
+                        if (!string.IsNullOrEmpty(content))
+                        {
+                            stats_custom_box.Text = content;
+                        }
                     }
                 }
+
+                // Check if the "app_paths.txt" file exists and load its contents into the advanced custom paths box
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "app_paths.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "app_paths.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "steam_settings", "app_paths.txt"), Encoding.ASCII))
                     {
-                        Apppt_add.Text = streamReader.ReadToEnd();
+                        string content = streamReader.ReadToEnd();
+                        if (!string.IsNullOrEmpty(content))
+                        {
+                            advanced_customPaths_box.Text = content;
+                        }
                     }
                 }
+
+                // Reads 'depots.txt' if it exists and updates the UI text box.
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "depots.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "depots.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "steam_settings", "depots.txt"), Encoding.ASCII))
                     {
-                        depots_add.Text = streamReader.ReadToEnd();
+                        advanced_customDepots_box.Text = streamReader.ReadToEnd();
                     }
                 }
+
+                // Reads the first line of 'subscribed_groups_clans.txt' if it exists and updates the UI text box.
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups_clans.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups_clans.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups_clans.txt"), Encoding.ASCII))
                     {
-                        clan_tag_add.Text = streamReader.ReadLine();
+                        game_clanTag_box.Text = streamReader.ReadLine();
                     }
                 }
+
+                // Reads the first line of 'serverbrowser.txt' if it exists and updates the UI text box.
                 if (File.Exists(Path.Combine(game_emu_folder, "remote", "serverbrowser.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "remote", "serverbrowser.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "remote", "serverbrowser.txt"), Encoding.ASCII))
                     {
-                        Server_add.Text = streamReader.ReadLine();
+                        server_spectate_box.Text = streamReader.ReadLine();
                     }
                 }
+
+                // Reads the first line of 'serverbrowser_favorites.txt' if it exists and updates the UI text box.
                 if (File.Exists(Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt"), Encoding.ASCII))
                     {
-                        FavServ_add.Text = streamReader.ReadLine();
+                        server_favorites_box.Text = streamReader.ReadLine();
                     }
                 }
+
+                // Reads the first line of 'serverbrowser_history.txt' if it exists and updates the UI text box.
                 if (File.Exists(Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt"), Encoding.ASCII))
                     {
-                        HisServ_add.Text = streamReader.ReadLine();
+                        server_history_box.Text = streamReader.ReadLine();
                     }
                 }
+
+                // Reads the first line of 'installed_app_ids.txt' if it exists and updates the UI text box.
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt")))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt"), FileMode.Open), Encoding.ASCII))
+                    using (StreamReader streamReader = new StreamReader(Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt"), Encoding.ASCII))
                     {
-                        installed_app_id_add.Text = streamReader.ReadLine();
+                        advanced_installedApps_box.Text = streamReader.ReadLine();
                     }
                 }
             }
         }
 
+        // Handles the Save button click, creating necessary directories and files, and saving configurations.
         private void Save_Click(object sender, EventArgs e)
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
 
             Directory.CreateDirectory(Path.Combine(game_emu_folder, "steam_settings"));
             Directory.CreateDirectory(Path.Combine(game_emu_folder, "remote"));
             File.Create(Path.Combine(game_emu_folder, "steam_settings", "configs.app.ini")).Close();
             File.Create(Path.Combine(game_emu_folder, "steam_settings", "configs.main.ini")).Close();
 
-            PisanjeAppConfig();
-
-            PisanjeMainConfig();
-
-            PisanjeUserConfig();
-
-            PisanjeOverlayConfig();
-
-            Pisanjesg();
-
-            Pisanjestat();
-
-            Pisanjedepo();
-
-            Pisanje_clan_tag();
-
-            Pisanje_Server();
-
-            Pisanje_FavServ();
-
-            Pisanje_HisServ();
- 
-            Pisanje_InstaliraniIDovi();
+            SetAppConfig();
+            SetMainConfig();
+            SetUserConfig();
+            SetOverlayConfig();
+            Setsg();
+            Setstat();
+            Setdepo();
+            Set_clan_tag();
+            Set_Server();
+            Set_FavServ();
+            Set_HisServ();
+            Set_InstaliraniIDovi();
 
             if (Is_app_valid())
             {
@@ -496,12 +525,14 @@ namespace SmartGoldbergEmu
             }
         }
 
+        // Handles the Cancel button click, setting the dialog result to Cancel and closing the form.
         private void Cancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             this.Close();
         }
 
+        // Opens a file dialog to browse and select a game executable, then updates the text box with the selected file path.
         private void Browse_game_exe_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -513,113 +544,131 @@ namespace SmartGoldbergEmu
             };
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                game_exe_edit.Text = openFileDialog.FileName;
+                game_gameExe_box.Text = openFileDialog.FileName;
             }
         }
 
+        // Opens a folder dialog to browse and select a game start folder, then updates the text box with the selected path.
         private void Browse_start_folder_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog openFolderDialog = new FolderBrowserDialog
             {
                 ShowNewFolderButton = false,
                 Description = "Game start folder",
-                SelectedPath = game_folder_edit.Text
+                SelectedPath = game_folder_box.Text
             };
             if (openFolderDialog.ShowDialog() == DialogResult.OK)
             {
-                game_folder_edit.Text = openFolderDialog.SelectedPath;
+                game_folder_box.Text = openFolderDialog.SelectedPath;
             }
         }
 
+        // Opens a file dialog to browse and select a custom icon file, then updates the text box with the selected file path.
         private void browse_custom_icon_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            try
             {
-                Filter = "Image Files|*.jpg; *.jpeg; *.png; *.ico|All Files|*.*",
-                FilterIndex = 1,
-                Multiselect = false,
-                CheckFileExists = true
-            };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+                string sourceFile = GetIconSource();
+                if (string.IsNullOrEmpty(sourceFile))
+                    return;
+
+                // Simply use the path directly for all file types
+                game_customIcon_box.Text = sourceFile;
+            }
+            catch (Exception ex)
             {
-                CustomIcon.Text = openFileDialog.FileName;
+                MessageBox.Show($"Error processing icon: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        private string GetIconSource()
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Icon Sources|*.exe;*.ico;*.png;*.jpg;*.jpeg|Executables (*.exe)|*.exe|Icons (*.ico)|*.ico|Images (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|All Files (*.*)|*.*";
+                ofd.Title = "Select an icon source";
+                return ofd.ShowDialog() == DialogResult.OK ? ofd.FileName : null;
+            }
+        }
+
+        // Validates the application settings and displays appropriate error messages if any required fields are incorrect or missing.
         private bool Is_app_valid()
         {
-            if (game_folder_edit.Text.Length == 0 || !Directory.Exists(game_folder_edit.Text))
+            if (!IsValidFolder(game_folder_box.Text))
             {
-                MessageBox.Show("Start folder " + game_folder_edit.Text + " does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Start folder " + game_folder_box.Text + " does not exist");
                 return false;
             }
-            else if (game_exe_edit.Text.Length == 0 || !File.Exists(game_exe_edit.Text))
+
+            if (!IsValidFile(game_gameExe_box.Text))
             {
-                MessageBox.Show("Game exe " + game_exe_edit.Text + " does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage("Game exe " + game_gameExe_box.Text + " does not exist");
                 return false;
             }
-            else
-            {
-                try
-                {
-                    Modified_app.AppId = Convert.ToUInt64(game_appid_edit.Text);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Game exe " + game_exe_edit.Text + " does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-            }
 
-            Modified_app.UseX64 = x64_checkbox.Checked;
-            Modified_app.DisableOverlay = checkBox_disableOverlay.Checked;
-            Modified_app.DisableNetworking = checkBox_DisableNetworking.Checked;
-            Modified_app.DisableLANOnly = checkBox_DisableLANOnly.Checked;
-            Modified_app.EnableHTTP = checkBox_EnableHTTP.Checked;
-            Modified_app.DisableSQuery = checkBox_DisableSQuery.Checked;
-            Modified_app.DisableAchNotif = checkBox_DisableAchNotif.Checked;
-            Modified_app.DisableFriendNotif = checkBox_DisableFriendNotif.Checked;
-            Modified_app.SteamDeck = checkBox_SteamDeck.Checked;
-            Modified_app.AchBypass = checkBox_AchBypass.Checked;
-            Modified_app.DisableAvatar = checkBox_DisableAvatar.Checked;
-            Modified_app.Offline = checkbox_offline.Checked;
-            Modified_app.UnlockAllDLC = checkBox_UnlockAllDLC.Checked;
-            //stats
-            Modified_app.UnknownStats = checkBox_UnknownStats.Checked;
-            Modified_app.SaveHigherStat = checkBox_SaveHigheStats.Checked;
-            Modified_app.GameserverStat = checkBox_GameServerStat.Checked;
-            Modified_app.DisableStatShare = checkBox_DisableStatShare.Checked;
-            //
-            Modified_app.AppName = game_name_edit.Text;
-            Modified_app.Path = game_exe_edit.Text;
-            Modified_app.StartFolder = game_folder_edit.Text;
-            Modified_app.LocalSave = local_save_edit.Text;
-            Modified_app.CustomIcon = CustomIcon.Text;
-            Modified_app.Parameters = game_parameters_edit.Text;
-            //Novo
-            Modified_app.DisLobbyCreation = checkBox_DisLobbyCreation.Checked;
-            Modified_app.ShareLeaderboard = checkBox_ShareLeaderboard.Checked;
-            Modified_app.UnknownLeaderboard = checkBox_UnknownLeaderboard.Checked;
-            Modified_app.ActualType = checkBox_ActualType.Checked;
-            Modified_app.MatchmakeSource = checkBox_MatchmakeSource.Checked;
-            Modified_app.HttpSuccess = checkBox_HttpSuccess.Checked;
-            //
-            Modified_app.CustomBroadcasts = new List<string>();
-            Modified_app.EnvVars = new List<string>();
-
-            foreach (IPAddress ip in ip_listBox.Items)
+            if (!ulong.TryParse(game_appid_box.Text, out ulong appId))
             {
-                Modified_app.CustomBroadcasts.Add(ip.ToString());
+                ShowErrorMessage("Invalid App ID");
+                return false;
             }
+            Modified_app.AppId = appId;
 
-            foreach (string env_var in listBox_env_var.Items)
-            {
-                Modified_app.EnvVars.Add(env_var);
-            }
+            // Set other properties
+            Modified_app.UseX64 = game_x64_checkbox.Checked;
+            Modified_app.DisableOverlay = game_disableOverlay_checkbox.Checked;
+            Modified_app.DisableNetworking = game_disableNetwork_checkbox.Checked;
+            Modified_app.DisableLANOnly = game_disableLan_checkbox.Checked;
+            Modified_app.EnableHTTP = game_enableHttp_checkbox.Checked;
+            Modified_app.DisableSQuery = other_disableSourceQuery_checkbox.Checked;
+            Modified_app.DisableAchNotif = other_disableAchPop_checkbox.Checked;
+            Modified_app.DisableFriendNotif = other_disableFriendPop_checkbox.Checked;
+            Modified_app.SteamDeck = other_forceSteamDeck_checkbox.Checked;
+            Modified_app.AchBypass = other_achBypass_checkbox.Checked;
+            Modified_app.DisableAvatar = other_disableAvatar_checkbox.Checked;
+            Modified_app.Offline = game_offline_checkbox.Checked;
+            Modified_app.UnlockAllDLC = dlc_unlockAllDlc_bttn.Checked;
+
+            // Stats
+            Modified_app.UnknownStats = stats_allowUnkStats_checkbox.Checked;
+            Modified_app.SaveHigherStat = stats_bestScoreSaveOnly_checkbox.Checked;
+            Modified_app.GameserverStat = stats_serverStats_checkbox.Checked;
+            Modified_app.DisableStatShare = stats_disbleStatsShare_checkbox.Checked;
+
+            // Additional properties
+            Modified_app.AppName = game_name_box.Text;
+            Modified_app.Path = game_gameExe_box.Text;
+            Modified_app.StartFolder = game_folder_box.Text;
+            Modified_app.LocalSave = other_localSaveName_box.Text;
+            Modified_app.CustomIcon = game_customIcon_box.Text;
+            Modified_app.Parameters = game_params_box.Text;
+
+            // New settings
+            Modified_app.DisLobbyCreation = other_disableLobbyCreate_checkbox.Checked;
+            Modified_app.ShareLeaderboard = other_shareLeaderboard_checkbox.Checked;
+            Modified_app.UnknownLeaderboard = other_disableUknLeaderboard_checkbox.Checked;
+            Modified_app.ActualType = other_mmActualType_checkbox.Checked;
+            Modified_app.MatchmakeSource = other_mmSourceQuery_checkbox.Checked;
+            Modified_app.HttpSuccess = other_forceHttpSuccess_checkbox.Checked;
+
+            // Broadcasts and environment variables
+            Modified_app.CustomBroadcasts.AddRange(broadcast_ipList_box.Items.Cast<IPAddress>().Select(ip => ip.ToString()));
+            Modified_app.EnvVars.AddRange(broadcast_envList_box.Items.Cast<string>());
 
             return true;
         }
 
+        // Helper method to validate if the folder exists
+        private bool IsValidFolder(string folderPath) => !string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath);
+
+        // Helper method to validate if the file exists
+        private bool IsValidFile(string filePath) => !string.IsNullOrEmpty(filePath) && File.Exists(filePath);
+
+        // Helper method to show error messages
+        private void ShowErrorMessage(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        // Attempts to add an IP address to the broadcast list, shows an error if the IP is invalid.
         private void Add_broadcast(string text)
         {
             try
@@ -631,40 +680,40 @@ namespace SmartGoldbergEmu
                 MessageBox.Show("Invalid IP Address", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        // Handles the button click to add a custom broadcast IP address, clears the input field afterward.
         private void Add_broadcast_button_Click(object sender, EventArgs e)
         {
-            Add_broadcast(ip_textBox.Text);
-            ip_textBox.Text = "";
+            Add_broadcast(broadcast_custom_box.Text); // Attempt to add the broadcast IP
+            broadcast_custom_box.Text = ""; // Clear the input field after adding
         }
-
+        // Removes the selected broadcast IP from the list
         private void Remove_broadcast_button_Click(object sender, EventArgs e)
         {
-            Del_ip_from_list((IPAddress)ip_listBox.SelectedItem);
+            Del_ip_from_list((IPAddress)broadcast_ipList_box.SelectedItem);
         }
-
+        // Clears all items from the broadcast IP list
         private void Clear_broadcast_button_Click(object sender, EventArgs e)
         {
-            ip_listBox.Items.Clear();
+            broadcast_ipList_box.Items.Clear();
         }
-
+        // Adds the IP from the custom broadcast box when Enter is pressed
         private void Ip_textBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                Add_broadcast(ip_textBox.Text);
-                ip_textBox.Text = "";
+                Add_broadcast(broadcast_custom_box.Text);
+                broadcast_custom_box.Text = "";
             }
         }
-
+        // Deletes the selected IP from the list when the Delete key is pressed
         private void Ip_listBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
             {
-                Del_ip_from_list((IPAddress)ip_listBox.SelectedItem);
+                Del_ip_from_list((IPAddress)broadcast_ipList_box.SelectedItem);
             }
         }
-
+        // Verifies if the file at the given path matches any known original Steam API hash
         static public bool Is_original_steam_api(string path)
         {
             if (File.Exists(path))
@@ -672,125 +721,104 @@ namespace SmartGoldbergEmu
                 string file_name = Path.GetFileName(path);
 
                 SHA256 checksum = SHA256.Create();
-                // Create a fileStream for the file.
-                FileStream fileStream = File.Open(path, FileMode.Open);
-                // Be sure it's positioned to the beginning of the stream.
-                fileStream.Position = 0;
-                // Compute the hash of the fileStream.
-                StringBuilder string_builder = new StringBuilder();
 
-                foreach (byte b in checksum.ComputeHash(fileStream))
-                    string_builder.Append(b.ToString("X2"));
-
-                string file_hash = string_builder.ToString().ToLower();
-
-                // Close the file.
-                fileStream.Close();
-
-                foreach (KeyValuePair<string, List<string>> entry in steamapi_hashsmap)
+                // Using 'using' statement ensures proper disposal of the FileStream
+                using (FileStream fileStream = File.Open(path, FileMode.Open))
                 {
-                    foreach (string hash in entry.Value)
+                    fileStream.Position = 0;
+
+                    // Compute the hash of the fileStream.
+                    StringBuilder string_builder = new StringBuilder();
+
+                    foreach (byte b in checksum.ComputeHash(fileStream))
+                        string_builder.Append(b.ToString("X2"));
+
+                    string file_hash = string_builder.ToString().ToLower();
+
+                    foreach (KeyValuePair<string, List<string>> entry in steamapi_hashsmap)
                     {
-                        if (hash.Equals(file_hash))
+                        foreach (string hash in entry.Value)
                         {
-                            return true;
+                            if (hash.Equals(file_hash))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
             }
             return false;
         }
-
+        // Extracts and returns a list of interfaces found in the specified file
         static public List<string> Get_interfaces(string path)
         {
             List<string> interfaces = new List<string>();
 
             if (File.Exists(path))
             {
-                // Create a fileStream for the file.
-                FileStream fileStream = File.Open(path, FileMode.Open);
-
-                long size = fileStream.Length;
-                byte[] buffer = new byte[size];
-
-                fileStream.Read(buffer, 0, buffer.Length);
-                StringBuilder sbuilder = new StringBuilder();
-
-                foreach (byte b in buffer)
+                // Using 'using' statement ensures proper disposal of the FileStream
+                using (FileStream fileStream = File.Open(path, FileMode.Open))
                 {
-                    sbuilder.Append(Convert.ToChar(b));
-                }
+                    long size = fileStream.Length;
+                    byte[] buffer = new byte[size];
 
-                string binary_buffer = sbuilder.ToString();
+                    fileStream.Read(buffer, 0, buffer.Length);
+                    string binary_buffer = Encoding.Default.GetString(buffer);
 
-                string[] interface_names = new string[] {
-                    "SteamClient",
-                    "SteamGameServer",
-                    "SteamGameServerStats",
-                    "SteamUser",
-                    "SteamFriends",
-                    "SteamUtils",
-                    "SteamMatchMaking",
-                    "SteamMatchMakingServers",
-                    "STEAMUSERSTATS_INTERFACE_VERSION",
-                    "STEAMAPPS_INTERFACE_VERSION",
-                    "SteamNetworking",
-                    "STEAMREMOTESTORAGE_INTERFACE_VERSION",
-                    "STEAMSCREENSHOTS_INTERFACE_VERSION",
-                    "STEAMHTTP_INTERFACE_VERSION",
-                    "STEAMUNIFIEDMESSAGES_INTERFACE_VERSION",
-                    "STEAMUGC_INTERFACE_VERSION",
-                    "STEAMAPPLIST_INTERFACE_VERSION",
-                    "STEAMMUSIC_INTERFACE_VERSION",
-                    "STEAMMUSICREMOTE_INTERFACE_VERSION",
-                    "STEAMHTMLSURFACE_INTERFACE_VERSION_",
-                    "STEAMINVENTORY_INTERFACE_V",
-                    "SteamController",
-                    "SteamMasterServerUpdater",
-                    "STEAMVIDEO_INTERFACE_V",
-                    "STEAMCONTROLLER_INTERFACE_VERSION"};
+                    string[] interface_names = new string[] {
+                "SteamClient", "SteamGameServer", "SteamGameServerStats", "SteamUser",
+                "SteamFriends", "SteamUtils", "SteamMatchMaking", "SteamMatchMakingServers",
+                "STEAMUSERSTATS_INTERFACE_VERSION", "STEAMAPPS_INTERFACE_VERSION", "SteamNetworking",
+                "STEAMREMOTESTORAGE_INTERFACE_VERSION", "STEAMSCREENSHOTS_INTERFACE_VERSION",
+                "STEAMHTTP_INTERFACE_VERSION", "STEAMUNIFIEDMESSAGES_INTERFACE_VERSION",
+                "STEAMUGC_INTERFACE_VERSION", "STEAMAPPLIST_INTERFACE_VERSION", "STEAMMUSIC_INTERFACE_VERSION",
+                "STEAMMUSICREMOTE_INTERFACE_VERSION", "STEAMHTMLSURFACE_INTERFACE_VERSION_",
+                "STEAMINVENTORY_INTERFACE_V", "SteamController", "SteamMasterServerUpdater",
+                "STEAMVIDEO_INTERFACE_V", "STEAMCONTROLLER_INTERFACE_VERSION"
+            };
 
-                foreach (string iface in interface_names)
-                {
-                    Regex rx = new Regex(iface + "\\d{3}");
-
-                    MatchCollection matches = rx.Matches(binary_buffer);
-
-                    foreach (Match match in matches)
+                    foreach (string iface in interface_names)
                     {
-                        interfaces.Add(match.ToString());
+                        Regex rx = new Regex(iface + "\\d{3}");
+
+                        MatchCollection matches = rx.Matches(binary_buffer);
+
+                        foreach (Match match in matches)
+                        {
+                            interfaces.Add(match.ToString());
+                        }
                     }
                 }
             }
 
             return interfaces;
         }
-
+        // Adds the provided IP address to the list if it is not an empty string
         private void Add_ip_to_list(string str_ip)
         {
             if (!str_ip.Equals(""))
             {
                 IPAddress ip = IPAddress.Parse(str_ip);
-                ip_listBox.Items.Add(ip);
+                broadcast_ipList_box.Items.Add(ip);
             }
         }
-
+        // Removes the specified IP address from the list if it's not null
         private void Del_ip_from_list(IPAddress ip)
         {
             if (ip != null)
             {
-                ip_listBox.Items.Remove(ip);
+                broadcast_ipList_box.Items.Remove(ip);
             }
         }
-
+        // Adds or updates an environment variable to the list based on user input
         private void Button_add_env_var_Click(object sender, EventArgs e)
         {
-            if (textBox_env_var_key.Text.Equals(""))
+            if (broadcast_envName_box.Text.Equals(""))
             {
                 MessageBox.Show("An env var must have a name", "Invalid Env Var", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (textBox_env_var_value.Text.Equals(""))
+            if (broadcast_envKey_box.Text.Equals(""))
             {
                 if (MessageBox.Show("An empty env var value will clear it before starting the game, are you sure ?", "Null env var value", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 {
@@ -798,599 +826,637 @@ namespace SmartGoldbergEmu
                 }
             }
 
-            for (int i = 0; i < listBox_env_var.Items.Count; ++i)
+            // Check if the environment variable already exists, and update if necessary
+            for (int i = 0; i < broadcast_envList_box.Items.Count; ++i)
             {
-                int pos = ((string)listBox_env_var.Items[i]).IndexOf('=');
-                if (pos != -1 && ((string)listBox_env_var.Items[i]).Substring(0, pos) == textBox_env_var_key.Text)
+                int pos = ((string)broadcast_envList_box.Items[i]).IndexOf('=');
+                if (pos != -1 && ((string)broadcast_envList_box.Items[i]).Substring(0, pos) == broadcast_envName_box.Text)
                 {
-                    listBox_env_var.Items[i] = textBox_env_var_key.Text.Trim() + "=" + textBox_env_var_value.Text.Trim();
-                    textBox_env_var_key.Text = "";
-                    textBox_env_var_value.Text = "";
+                    broadcast_envList_box.Items[i] = broadcast_envName_box.Text.Trim() + "=" + broadcast_envKey_box.Text.Trim();
+                    broadcast_envName_box.Text = "";
+                    broadcast_envKey_box.Text = "";
                     return;
                 }
             }
 
-            listBox_env_var.Items.Add(textBox_env_var_key.Text.Trim() + "=" + textBox_env_var_value.Text.Trim());
-            textBox_env_var_key.Text = "";
-            textBox_env_var_value.Text = "";
+            // Add a new environment variable to the list
+            broadcast_envList_box.Items.Add(broadcast_envName_box.Text.Trim() + "=" + broadcast_envKey_box.Text.Trim());
+            broadcast_envName_box.Text = "";
+            broadcast_envKey_box.Text = "";
         }
-
+        // Removes the selected environment variable from the list
         private void Button_remove_env_var_Click(object sender, EventArgs e)
         {
-            Remove_env_var_value((string)listBox_env_var.SelectedItem);
+            Remove_env_var_value((string)broadcast_envList_box.SelectedItem);
         }
-
+        // Clears all environment variables from the list
         private void Button_clear_env_var_Click(object sender, EventArgs e)
         {
-            listBox_env_var.Items.Clear();
+            broadcast_envList_box.Items.Clear();
         }
-
+        // Removes the specified environment variable from the list if it's not null
         private void Remove_env_var_value(string value)
         {
             if (value != null)
             {
-                listBox_env_var.Items.Remove(value);
+                broadcast_envList_box.Items.Remove(value);
             }
         }
-
-        void PisanjeAppConfig()
+        // Sets the application configuration for the game, including beta branch, DLCs, and custom paths
+        void SetAppConfig()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.app.ini"), FileMode.Append), Encoding.UTF8);
-            tw.WriteLine("[app::general]");
-            if (string.IsNullOrEmpty(beta_branch_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+
+            // Using 'using' statement ensures the StreamWriter is properly disposed of
+            using (TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.app.ini"), FileMode.Append), Encoding.UTF8))
             {
-                tw.WriteLine("is_beta_branch=0");
-                tw.WriteLine("branch_name=public");
-            }
-            else
-            {
-                tw.WriteLine("is_beta_branch=1");
-                tw.WriteLine("branch_name=" + beta_branch_add.Text);
-            }
-            tw.WriteLine("[app::dlcs]");
-            if (string.IsNullOrEmpty(DLC_add.Text))
-            {
-                if (checkBox_UnlockAllDLC.Checked)
+                tw.WriteLine("[app::general]");
+
+                if (string.IsNullOrEmpty(other_betaBranch_box.Text))
                 {
-                    tw.WriteLine("unlock_all=1");
+                    tw.WriteLine("is_beta_branch=0");
+                    tw.WriteLine("branch_name=public");
                 }
                 else
                 {
-                    tw.WriteLine("unlock_all=0");
+                    tw.WriteLine("is_beta_branch=1");
+                    tw.WriteLine("branch_name=" + other_betaBranch_box.Text);
                 }
-            }
-            else
-            {
-                if (checkBox_UnlockAllDLC.Checked)
+
+                tw.WriteLine("[app::dlcs]");
+
+                if (string.IsNullOrEmpty(dlc_list_box.Text))
                 {
-                    tw.WriteLine("unlock_all=1");
+                    tw.WriteLine(dlc_unlockAllDlc_bttn.Checked ? "unlock_all=1" : "unlock_all=0");
                 }
                 else
                 {
-                    tw.WriteLine("unlock_all=0");
+                    tw.WriteLine(dlc_unlockAllDlc_bttn.Checked ? "unlock_all=1" : "unlock_all=0");
+                    tw.WriteLine(dlc_list_box.Text);
                 }
-                tw.WriteLine(DLC_add.Text);
-            }
-            if (string.IsNullOrEmpty(Apppt_add.Text))
-            {
-            }
-            else
-            {
-                tw.WriteLine("[app::paths]");
-                tw.WriteLine(Apppt_add.Text);
-            }
-            tw.Close();
-        }
 
-        void PisanjeUserConfig()
+                if (!string.IsNullOrEmpty(advanced_customPaths_box.Text))
+                {
+                    tw.WriteLine("[app::paths]");
+                    tw.WriteLine(advanced_customPaths_box.Text);
+                }
+            }
+        }
+        // Sets the user configuration for the game, creating or deleting the user config file based on input
+        void SetUserConfig()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (!string.IsNullOrEmpty(force_account_name_add.Text) || !string.IsNullOrEmpty(force_steamidpoigri_add.Text)|| !string.IsNullOrEmpty(force_langugae_add.Text)|| !string.IsNullOrEmpty(force_IPCountry_add.Text)|| !string.IsNullOrEmpty(local_save_edit.Text)) {
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+
+            if (
+                !string.IsNullOrEmpty(other_forceAccName_box.Text)
+                || !string.IsNullOrEmpty(other_forceSteamId_box.Text)
+                || !string.IsNullOrEmpty(other_forceLanguage_box.Text)
+                || !string.IsNullOrEmpty(other_forceIp_box.Text)
+                || !string.IsNullOrEmpty(other_localSaveName_box.Text)
+            )
+            {
+                // Uncomment the block below if the user config should be created
                 TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini"), FileMode.Create), Encoding.UTF8);
                 tw.WriteLine("[user::general]");
-                if (!string.IsNullOrEmpty(force_account_name_add.Text)) tw.WriteLine("account_name=" + force_account_name_add.Text);
-                if (!string.IsNullOrEmpty(force_steamidpoigri_add.Text)) tw.WriteLine("account_steamid=" + force_steamidpoigri_add.Text);
-                if (!string.IsNullOrEmpty(force_langugae_add.Text)) tw.WriteLine("language=" + force_langugae_add.Text);
-                if (!string.IsNullOrEmpty(force_IPCountry_add.Text)) tw.WriteLine("ip_country=" + force_IPCountry_add.Text);
+                if (!string.IsNullOrEmpty(other_forceAccName_box.Text)) tw.WriteLine("account_name=" + other_forceAccName_box.Text);
+                if (!string.IsNullOrEmpty(other_forceSteamId_box.Text)) tw.WriteLine("account_steamid=" + other_forceSteamId_box.Text);
+                if (!string.IsNullOrEmpty(other_forceLanguage_box.Text)) tw.WriteLine("language=" + other_forceLanguage_box.Text);
+                if (!string.IsNullOrEmpty(other_forceIp_box.Text)) tw.WriteLine("ip_country=" + other_forceIp_box.Text);
                 tw.WriteLine("[user::saves]");
-                if (!string.IsNullOrEmpty(local_save_edit.Text)) tw.WriteLine("saves_folder_name=" + local_save_edit.Text);
+                if (!string.IsNullOrEmpty(other_localSaveName_box.Text)) tw.WriteLine("saves_folder_name=" + other_localSaveName_box.Text);
                 tw.Close();
             }
-            else { if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini")); }
+            else
+            {
+                string userConfigPath = Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini");
+                if (File.Exists(userConfigPath))
+                    File.Delete(userConfigPath);
+            }
         }
 
-        void PisanjeMainConfig()
-        {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.main.ini"), FileMode.Append), Encoding.UTF8);
-            tw.WriteLine("[main::general]");
-            tw.WriteLine("new_app_ticket=1");
-            tw.WriteLine("gc_token=1");
-            if (checkBox_SteamDeck.Checked) {
-                tw.WriteLine("steam_deck=1");
-            }
-            else
-            {
-                tw.WriteLine("steam_deck=0");
-            }
-            if (checkBox_DisableAvatar.Checked)
-            {
-                tw.WriteLine("enable_account_avatar=0");
-            }
-            else
-            {
-                tw.WriteLine("enable_account_avatar=1");
-            }
-            if (checkBox_DisLobbyCreation.Checked)
-            {
-                tw.WriteLine("disable_leaderboards_create_unknown=00");
-            }
-            else
-            {
-                tw.WriteLine("disable_leaderboards_create_unknown=1");
-            }
-            if (checkBox_UnknownStats.Checked)
-            {
-                tw.WriteLine("allow_unknown_stats=1");
-            }
-            else
-            {
-                tw.WriteLine("allow_unknown_stats=0");
-            }
-            if (checkBox_SaveHigheStats.Checked)
-            {
-                tw.WriteLine("save_only_higher_stat_achievement_progress=1");
-            }
-            else
-            {
-                tw.WriteLine("save_only_higher_stat_achievement_progress=0");
-            }
-            if (checkBox_GameServerStat.Checked)
-            {
-                tw.WriteLine("immediate_gameserver_stats=1");
-            }
-            else
-            {
-                tw.WriteLine("immediate_gameserver_stats=0");
-            }
-            if (checkBox_ActualType.Checked)
-            {
-                tw.WriteLine("matchmaking_server_list_actual_type=1");
-            }
-            else
-            {
-                tw.WriteLine("matchmaking_server_list_actual_type=0");
-            }
-            if (checkBox_MatchmakeSource.Checked)
-            {
-                tw.WriteLine("matchmaking_server_details_via_source_query=1");
-            }
-            else
-            {
-                tw.WriteLine("matchmaking_server_details_via_source_query=0");
-            }
-            tw.WriteLine("[main::connectivity]");
-            if (checkBox_DisableLANOnly.Checked)
-            {
-                tw.WriteLine("disable_lan_only=1");
-            }
-            else
-            {
-                tw.WriteLine("disable_lan_only=0");
-            }
-            if (checkBox_DisableNetworking.Checked)
-            {
-                tw.WriteLine("disable_networking=1");
-            }
-            else
-            {
-                tw.WriteLine("disable_networking=0");
-            }
-            if (string.IsNullOrEmpty(force_listen_port_add.Text))
-            {
 
-            }
-            else
+
+        void SetMainConfig()
+        {
+            string gameEmuFolder = Path.Combine("games", game_appid_box.Text);
+            string configPath = Path.Combine(gameEmuFolder, "steam_settings", "configs.main.ini");
+
+            var settings = new Dictionary<string, string>
+    {
+        { "new_app_ticket", "1" },
+        { "gc_token", "1" },
+        { "steam_deck", other_forceSteamDeck_checkbox.Checked ? "1" : "0" },
+        { "enable_account_avatar", other_disableAvatar_checkbox.Checked ? "0" : "1" },
+        { "disable_leaderboards_create_unknown", other_disableLobbyCreate_checkbox.Checked ? "00" : "1" },
+        { "allow_unknown_stats", stats_allowUnkStats_checkbox.Checked ? "1" : "0" },
+        { "save_only_higher_stat_achievement_progress", stats_bestScoreSaveOnly_checkbox.Checked ? "1" : "0" },
+        { "immediate_gameserver_stats", stats_serverStats_checkbox.Checked ? "1" : "0" },
+        { "matchmaking_server_list_actual_type", other_mmActualType_checkbox.Checked ? "1" : "0" },
+        { "matchmaking_server_details_via_source_query", other_mmSourceQuery_checkbox.Checked ? "1" : "0" },
+        { "disable_lan_only", game_disableLan_checkbox.Checked ? "1" : "0" },
+        { "disable_networking", game_disableNetwork_checkbox.Checked ? "1" : "0" },
+        { "offline", game_offline_checkbox.Checked ? "1" : "0" },
+        { "disable_sharing_stats_with_gameserver", stats_disbleStatsShare_checkbox.Checked ? "1" : "0" },
+        { "disable_source_query", other_disableSourceQuery_checkbox.Checked ? "1" : "0" },
+        { "share_leaderboards_over_network", other_shareLeaderboard_checkbox.Checked ? "1" : "0" },
+        { "disable_lobby_creation", other_disableLobbyCreate_checkbox.Checked ? "1" : "0" },
+        { "download_steamhttp_requests", game_enableHttp_checkbox.Checked ? "1" : "0" },
+        { "achievements_bypass", other_achBypass_checkbox.Checked ? "1" : "0" },
+        { "force_steamhttp_success", other_forceHttpSuccess_checkbox.Checked ? "1" : "0" }
+    };
+
+            // Add listen port if provided
+            if (!string.IsNullOrEmpty(other_forcePort_box.Text))
             {
-                tw.WriteLine("listen_port=" + force_listen_port_add.Text);
+                settings["listen_port"] = other_forcePort_box.Text;
             }
-            if (checkbox_offline.Checked)
+
+            try
             {
-                tw.WriteLine("offline=1");
+                // Ensure the directory exists before writing the file
+                string configDir = Path.GetDirectoryName(configPath);
+                if (!Directory.Exists(configDir))
+                {
+                    Directory.CreateDirectory(configDir);
+                }
+
+                // Write settings to the configuration file
+                using (TextWriter tw = new StreamWriter(configPath, false, Encoding.UTF8)) // Set to overwrite (false) or append (true) as per your requirement
+                {
+                    tw.WriteLine("[main::general]");
+                    foreach (var setting in settings)
+                    {
+                        tw.WriteLine($"{setting.Key}={setting.Value}");
+                    }
+                }
+
+                //MessageBox.Show("Main configuration written successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else
+            catch (Exception ex)
             {
-                tw.WriteLine("offline=0");
+                MessageBox.Show($"Error writing main config file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            if (checkBox_DisableStatShare.Checked)
-            {
-                tw.WriteLine("disable_sharing_stats_with_gameserver=1");
-            }
-            else
-            {
-                tw.WriteLine("disable_sharing_stats_with_gameserver=0");
-            }
-            if (checkBox_DisableSQuery.Checked)
-            {
-                tw.WriteLine("disable_source_query=1");
-            }
-            else
-            {
-                tw.WriteLine("disable_source_query=0");
-            }
-            if (checkBox_ShareLeaderboard.Checked)
-            {
-                tw.WriteLine("share_leaderboards_over_network=1");
-            }
-            else
-            {
-                tw.WriteLine("share_leaderboards_over_network=0");
-            }
-            if (checkBox_DisLobbyCreation.Checked)
-            {
-                tw.WriteLine("disable_lobby_creation=1");
-            }
-            else
-            {
-                tw.WriteLine("disable_lobby_creation=0");
-            }
-            if (checkBox_EnableHTTP.Checked)
-            {
-                tw.WriteLine("download_steamhttp_requests=1");
-            }
-            else
-            {
-                tw.WriteLine("download_steamhttp_requests=0");
-            }
-            tw.WriteLine("[main::misc]");
-            if (checkBox_AchBypass.Checked)
-            {
-                tw.WriteLine("achievements_bypass=1");
-            }
-            else
-            {
-                tw.WriteLine("achievements_bypass=0");
-            }
-            if (checkBox_HttpSuccess.Checked)
-            {
-                tw.WriteLine("force_steamhttp_success=1");
-            }
-            else
-            {
-                tw.WriteLine("force_steamhttp_success=0");
-            }
-            tw.Close();
         }
+        // This method sets the overlay configuration for the game based on user-selected settings.
 
-        void PisanjeOverlayConfig()
+        void SetOverlayConfig()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
             TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.overlay.ini"), FileMode.Create), Encoding.UTF8);
             tw.WriteLine("[overlay::general]");
-            if (checkBox_disableOverlay.Checked)
-            {
-                tw.WriteLine("enable_experimental_overlay=0");
-            }
-            else
-            {
-                tw.WriteLine("enable_experimental_overlay=1");
-            }
-            if (checkBox_DisableFriendNotif.Checked)
-            {
-            tw.WriteLine("disable_friend_notification=1");
-            }
-            else
-            {
-            tw.WriteLine("disable_friend_notification=0");
-            }
-            if (checkBox_DisableAchNotif.Checked)
-            {
-            tw.WriteLine("disable_achievement_progress=1");
-            }
-            else
-            {
-            tw.WriteLine("disable_achievement_progress=0");
-            }
+
+            // Write the overlay enable/disable setting
+            tw.WriteLine(game_disableOverlay_checkbox.Checked ? "enable_experimental_overlay=0" : "enable_experimental_overlay=1");
+
+            // Write the friend notification disable/enable setting
+            tw.WriteLine(other_disableFriendPop_checkbox.Checked ? "disable_friend_notification=1" : "disable_friend_notification=0");
+
+            // Write the achievement progress disable/enable setting
+            tw.WriteLine(other_disableAchPop_checkbox.Checked ? "disable_achievement_progress=1" : "disable_achievement_progress=0");
+
+            // Disable warnings
             tw.WriteLine("disable_warning_any=0");
             tw.WriteLine("disable_warning_bad_appid=0");
             tw.WriteLine("disable_warning_local_save=0");
+
             tw.Close();
-            }
-        void Pisanjesg()
+        }
+        // This method manages the subscribed groups configuration by creating or deleting the "subscribed_groups.txt" file based on user input.
+
+        // This method manages the subscribed groups configuration by creating or deleting the "subscribed_groups.txt" file based on user input.
+
+        void Setsg()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(sg_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            if (string.IsNullOrEmpty(advanced_subscribedGroups_box.Text))
             {
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups.txt"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups.txt"));
             }
             else
             {
                 TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(sg_add.Text);
+                tw.WriteLine(advanced_subscribedGroups_box.Text);
                 tw.Close();
             }
         }
 
-        void Pisanjestat()
+        // This method manages the stats configuration by creating or deleting the "stats.txt" file based on user input.
+        void Setstat()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(stat_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            if (string.IsNullOrEmpty(stats_custom_box.Text))
             {
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "stats.txt"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "stats.txt"));
             }
             else
             {
                 TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "stats.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(stat_add.Text);
+                tw.WriteLine(stats_custom_box.Text);
                 tw.Close();
             }
         }
 
-        void Pisanjedepo()
+        // This method manages the depots configuration by creating or deleting the "depots.txt" file based on user input.
+        void Setdepo()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(depots_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            if (string.IsNullOrEmpty(advanced_customDepots_box.Text))
             {
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "depots.txt"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "depots.txt"));
             }
             else
             {
                 TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "depots.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(depots_add.Text);
+                tw.WriteLine(advanced_customDepots_box.Text);
                 tw.Close();
             }
         }
-
-        void Pisanje_clan_tag()
+        // This method manages the clan tag configuration by creating or deleting the "subscribed_groups_clans.txt" file based on user input.
+        void Set_clan_tag()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(clan_tag_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            if (string.IsNullOrEmpty(game_clanTag_box.Text))
             {
                 if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups_clans.txt"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups_clans.txt"));
             }
             else
             {
                 TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "subscribed_groups_clans.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(clan_tag_add.Text);
+                tw.WriteLine(game_clanTag_box.Text);
                 tw.Close();
             }
-
         }
-        void Pisanje_Server()
+        // This method manages the server configuration by creating or deleting the "serverbrowser.txt" file based on user input.
+        void Set_Server()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(Server_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            if (string.IsNullOrEmpty(server_spectate_box.Text))
             {
                 if (File.Exists(Path.Combine(game_emu_folder, "remote", "serverbrowser.txt"))) File.Delete(Path.Combine(game_emu_folder, "remote", "serverbrowser.txt"));
             }
             else
             {
                 TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "remote", "serverbrowser.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(Server_add.Text);
+                tw.WriteLine(server_spectate_box.Text);
                 tw.Close();
             }
-
         }
-        void Pisanje_FavServ()
+        // This method manages the favorite server configuration by creating or deleting the "serverbrowser_favorites.txt" file based on user input.
+        void Set_FavServ()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(FavServ_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            string favServFile = Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt");
+
+            if (string.IsNullOrEmpty(server_favorites_box.Text))
             {
-                if (File.Exists(Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt"))) File.Delete(Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt"));
+                if (File.Exists(favServFile)) File.Delete(favServFile);
             }
             else
             {
-                TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "remote", "serverbrowser_favorites.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(FavServ_add.Text);
-                tw.Close();
+                using (TextWriter tw = new StreamWriter(new FileStream(favServFile, FileMode.Create), Encoding.ASCII))
+                {
+                    tw.WriteLine(server_favorites_box.Text);
+                }
             }
-
         }
-        void Pisanje_HisServ()
+
+        // This method manages the server history configuration by creating or deleting the "serverbrowser_history.txt" file based on user input.
+        void Set_HisServ()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(HisServ_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            string histServFile = Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt");
+
+            if (string.IsNullOrEmpty(server_history_box.Text))
             {
-                if (File.Exists(Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt"))) File.Delete(Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt"));
+                if (File.Exists(histServFile)) File.Delete(histServFile);
             }
             else
             {
-                TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "remote", "serverbrowser_history.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(HisServ_add.Text);
-                tw.Close();
+                using (TextWriter tw = new StreamWriter(new FileStream(histServFile, FileMode.Create), Encoding.ASCII))
+                {
+                    tw.WriteLine(server_history_box.Text);
+                }
             }
-
         }
 
-        void Pisanje_InstaliraniIDovi()
+        // This method manages the installed app IDs configuration by creating or deleting the "installed_app_ids.txt" file based on user input.
+        void Set_InstaliraniIDovi()
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (string.IsNullOrEmpty(installed_app_id_add.Text))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            string installedAppsFile = Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt");
+
+            if (string.IsNullOrEmpty(advanced_installedApps_box.Text))
             {
-                if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt"));
+                if (File.Exists(installedAppsFile)) File.Delete(installedAppsFile);
             }
             else
             {
-                TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "installed_app_ids.txt"), FileMode.Create), Encoding.ASCII);
-                tw.WriteLine(installed_app_id_add.Text);
-                tw.Close();
+                using (TextWriter tw = new StreamWriter(new FileStream(installedAppsFile, FileMode.Create), Encoding.ASCII))
+                {
+                    tw.WriteLine(advanced_installedApps_box.Text);
+                }
             }
-
         }
 
+        // This method creates a "mods" directory inside the "steam_settings" folder for the specified game.
         private void Mods_Click(object sender, EventArgs e)
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
             Directory.CreateDirectory(Path.Combine(game_emu_folder, "steam_settings", "mods"));
         }
-
+        // Ensures the DLL folder structure exists for the specified game.
         private void DLLfold_Click(object sender, EventArgs e)
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            Directory.CreateDirectory(Path.Combine(game_emu_folder, "steam_settings", "load_dlls"));
+            string gameEmuFolder = Path.Combine("games", game_appid_box.Text, "steam_settings", "load_dlls");
+            Directory.CreateDirectory(gameEmuFolder);
         }
 
-        private void Button1_Click_1(object sender, EventArgs e)
-        {
-            WebClient web = new WebClient();
-            string manipulirano,webadresa;
-            webadresa = "https://store.steampowered.com/api/appdetails?appids="+game_appid_edit.Text+"&filters=basic";  
-            //System.IO.Stream stream = web.OpenRead("https://store.steampowered.com/api/appdetails?appids=251160&filters=basic");
-            System.IO.Stream stream = web.OpenRead(webadresa);
-            using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
-            {
-                manipulirano = reader.ReadToEnd();
-                var rjecnik = JsonConvert.DeserializeObject<Dictionary<string, Drugi>>(manipulirano);
-                if (rjecnik[game_appid_edit.Text].Data != null)
-                {
-                    if (rjecnik[game_appid_edit.Text].Data.Dlc != null)
-                    {
-                        DLC_add.Text = string.Join(" = 0" + System.Environment.NewLine, rjecnik[game_appid_edit.Text].Data.Dlc) + " = 0";
-                    }
-                    else
-                    {
-                        DialogResult res = MessageBox.Show("Appid has no DLC", "No DLC", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                else
-                {
-                    DialogResult res = MessageBox.Show("Appid is not valid?", "Not valid Appid", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            stream.Dispose();
-            web.Dispose();
-        }
+        private static readonly HttpClient httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
 
-        private void GetgamenameBUT_Click(object sender, EventArgs e)
+        // ...existing code...
+        private async void DlcFinder(object sender, EventArgs e)
         {
-            WebClient web = new WebClient();
-            string manipulirano, webadresa;
-            webadresa = "https://store.steampowered.com/api/appdetails?appids=" + game_appid_edit.Text + "&filters=basic";
-            System.IO.Stream stream = web.OpenRead(webadresa);
-            using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
-            {
-                manipulirano = reader.ReadToEnd();
-                var rjecnik = JsonConvert.DeserializeObject<Dictionary<string, Drugi>>(manipulirano);
-                if (rjecnik[game_appid_edit.Text].Data != null)
-                {
-                    game_name_edit.Text = rjecnik[game_appid_edit.Text].Data.Name;
-                }
-                else
-                {
-                    DialogResult res = MessageBox.Show("Appid is not valid?", "Not valid Appid", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            stream.Dispose();
-            web.Dispose();
-        }
-
-        private void GetStats_Click(object sender, EventArgs e)
-        {
-            WebClient web = new WebClient();
-            string manipulirano, webadresa;
-            webadresa = "https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/" + game_appid_edit.Text + "/stats_db.json";
-            //Primjer "https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/244450/stats_db.json"
             try
             {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(webadresa);
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                System.IO.Stream stream = web.OpenRead(webadresa);
-                using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+                dlc_list_box.Text = "Please wait while searching for DLCs..." + Environment.NewLine;
+                int mainAppId = int.Parse(game_appid_box.Text);
+
+                // Fetch Steam API data concurrently
+                dlc_list_box.AppendText("Querying Steam Store API and Nemirtingas db..." + Environment.NewLine);
+                string appDetailsUrl = $"https://store.steampowered.com/api/appdetails?appids={mainAppId}&filters=basic";
+                string githubUrl = $"https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/{mainAppId}/{mainAppId}.json";
+                string appListUrl = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
+
+                var tasks = new List<Task<string>>
                 {
-                    manipulirano = reader.ReadToEnd();
-                    stat_add.Text = "";
-                    List<Stats> rjecnik = JsonConvert.DeserializeObject<List<Stats>>(manipulirano);
-                    if (rjecnik.Count > 0)
+                    httpClient.GetStringAsync(appDetailsUrl),
+                    httpClient.GetStringAsync(appListUrl)
+                };
+
+                try
+                {
+                    tasks.Add(httpClient.GetStringAsync(githubUrl));
+                }
+                catch { }
+
+                var results = await Task.WhenAll(tasks);
+                var appDetails = JObject.Parse(results[0]);
+                var appListData = JObject.Parse(results[1]);
+                var githubDlcData = results.Length > 2 ? JsonConvert.DeserializeObject<Prvi>(results[2]) : null;
+
+                var appData = appDetails[mainAppId.ToString()]?["data"];
+                var dlcIds = appData?["dlc"]?.ToObject<List<int>>() ?? new List<int>();
+                var packageIds = appData?["packages"]?.ToObject<List<int>>() ?? new List<int>();
+
+                // Process GitHub data
+                var githubDlcIds = githubDlcData?.Dlcs?.Values.Select(d => d.AppId).ToList() ?? new List<long>();
+                var githubDlcNames = githubDlcData?.Dlcs?.Values.ToDictionary(d => d.AppId, d => d.Name) ?? new Dictionary<long, string>();
+
+                // Parse Global Steam App List
+                dlc_list_box.AppendText("Processing Steam App List..." + Environment.NewLine);
+                var steamAppList = appListData["applist"]?["apps"]?.ToObject<List<JObject>>() ?? new List<JObject>();
+
+                var appListDictionary = new Dictionary<long, string>();
+                foreach (var app in steamAppList)
+                {
+                    long appId = app["appid"].ToObject<long>();
+                    string appName = app["name"].ToString();
+
+                    if (!appListDictionary.ContainsKey(appId))
                     {
-                        for (int brojac = 0; brojac < rjecnik.Count; brojac++)
+                        appListDictionary[appId] = appName;
+                    }
+                }
+                var allIds = dlcIds.Select(x => (long)x)
+                                   .Concat(packageIds.Select(x => (long)x))
+                                   .Concat(githubDlcIds)
+                                   .Distinct()
+                                   .ToList();
+
+                if (!allIds.Any())
+                {
+                    dlc_list_box.Clear();
+                    MessageBox.Show("No DLCs or packages found for this app.", "SteamAPI", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                var dlcList = new List<(long Id, string Name, string Type)>();
+
+                var fetchTasks = allIds.Select(async id =>
+                {
+                    string name = null;
+                    string type = "Unknown";
+
+                    try
+                    {
+                        string idDetailsUrl = $"https://store.steampowered.com/api/appdetails?appids={id}&filters=basic";
+                        string idDetailsResponse = await httpClient.GetStringAsync(idDetailsUrl);
+                        var idDetails = JObject.Parse(idDetailsResponse);
+                        name = idDetails[id.ToString()]?["data"]?["name"]?.ToString();
+                        type = idDetails[id.ToString()]?["data"]?["type"]?.ToString() ?? "Unknown";
+                    }
+                    catch
+                    {
+                    }
+
+                    if (string.IsNullOrEmpty(name) && githubDlcNames.TryGetValue(id, out var githubName))
+                    {
+                        name = githubName;
+                    }
+
+                    if (string.IsNullOrEmpty(name) && appListDictionary.TryGetValue(id, out var appName))
+                    {
+                        name = appName;
+                    }
+
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        name = $"https://store.steampowered.com/app/{id}";
+                    }
+
+                    var nonInGameKeywordsLocal = new[] { "wallpaper", "artbook", "ost", "sound track", "soundtrack" };
+                    if (!string.IsNullOrEmpty(name)
+                        && nonInGameKeywordsLocal.Any(k => name.IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0))
+                    {
+                        type = "non-ingame";
+                    }
+
+                    lock (dlcList)
+                    {
+                        dlcList.Add((id, name, type));
+                    }
+                });
+
+                await Task.WhenAll(fetchTasks);
+
+                var sortedList = dlcList.OrderBy(d => d.Type != "dlc" && d.Type != "game" && d.Type != "Unknown")
+                                         .ThenBy(d => d.Id)
+                                         .ToList();
+                dlc_list_box.Clear();
+
+                foreach (var (id, name, type) in sortedList)
+                {
+                    if (type == "dlc" || type == "game" || type == "Unknown")
+                    {
+                        dlc_list_box.AppendText(id + " = " + name + Environment.NewLine);
+                    }
+                }
+                if (!string.IsNullOrEmpty(dlc_list_box.Text))
+                {
+                    dlc_list_box.AppendText(Environment.NewLine);
+                }
+
+                var nonInGameContent = sortedList.Where(d => d.Type != "dlc" && d.Type != "game" && d.Type != "Unknown").ToList();
+                if (nonInGameContent.Any())
+                {
+                    dlc_list_box.AppendText("-- Non in-game content DLC's below --" + Environment.NewLine);
+                    foreach (var (id, name, type) in nonInGameContent)
+                    {
+                        dlc_list_box.AppendText("# " + id + " = " + name + " (" + type + ")" + Environment.NewLine);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error retrieving DLC information:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void FetchAppidFromTxt(object sender, EventArgs e)
+        {
+            string gameExePath = game_gameExe_box.Text.Trim();
+            if (string.IsNullOrEmpty(gameExePath)) return;
+
+            string exeDirectory = Path.GetDirectoryName(gameExePath);
+            if (string.IsNullOrEmpty(exeDirectory)) return;
+
+            string appidFilePath = Path.Combine(exeDirectory, "steam_appid.txt");
+
+            game_appid_box.Text = "";
+
+            if (!File.Exists(appidFilePath))
+            {
+                MessageBox.Show("steam_appid.txt was not found in the game directory.");
+                return;
+            }
+
+            string appidContent = File.ReadAllText(appidFilePath).Trim();
+
+            game_appid_box.Text = int.TryParse(appidContent, out int appid) ? appidContent : "";
+        }
+
+        private void FeachNameFromAppid(object sender, EventArgs e) // Fetch game name from Steam API
+        {
+            if (string.IsNullOrWhiteSpace(game_appid_box.Text) || game_appid_box.Text == "0")
+            {
+                MessageBox.Show("No appid was provided", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (WebClient web = new WebClient())
+            {
+                string webadresa = $"https://store.steampowered.com/api/appdetails?appids={game_appid_box.Text}&filters=basic";
+
+                try
+                {
+                    using (System.IO.Stream stream = web.OpenRead(webadresa))
+                    using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+                    {
+                        string manipulirano = reader.ReadToEnd();
+                        var rjecnik = JsonConvert.DeserializeObject<Dictionary<string, Drugi>>(manipulirano);
+
+                        if (rjecnik.TryGetValue(game_appid_box.Text, out var appData) && appData?.Data != null)
                         {
-                            Stats name = rjecnik[brojac];
-                            stat_add.AppendText(name.Name + "=" + name.Type + "=" + name.Defaultvalue + System.Environment.NewLine);
+                            game_name_box.Text = appData.Data.Name;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Appid is not valid?", "Not valid Appid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
-                    reader.Dispose();
                 }
-                stream.Dispose();
-                response.Dispose();
-            }
-            catch (WebException ex)
-            {
-                HttpWebResponse webResponse = (HttpWebResponse)ex.Response;
-                if (webResponse.StatusCode == HttpStatusCode.NotFound)
+                catch (Exception ex)
                 {
+                    MessageBox.Show($"An error occurred while fetching data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                webResponse.Dispose();
             }
-            web.Dispose();
         }
-
-        private void DLCinfo_gameinfo_Click(object sender, EventArgs e)
+        private void GetStats_Click(object sender, EventArgs e) // Fetch game stats from GitHub
         {
-            WebClient web = new WebClient();
-            string manipulirano, webadresa;
-            webadresa = "https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/" + game_appid_edit.Text + "/" + game_appid_edit.Text + ".json";
-            //Stranica "https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/244450/244450.json"
-            System.IO.Stream stream = web.OpenRead(webadresa);
-            using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+            string webadresa = $"https://raw.githubusercontent.com/Nemirtingas/games-infos-datas/main/steam/{game_appid_box.Text}/stats_db.json";
+
+            try
             {
-                manipulirano = reader.ReadToEnd();
-                var rjecnik = JsonConvert.DeserializeObject<Prvi>(manipulirano);
-                DLC_add.Text = "";
-                foreach (var Dlcs in rjecnik.Dlcs.Values) {
-                    DLC_add.AppendText(Dlcs.AppId+"="+Dlcs.Name + System.Environment.NewLine);
+                using (WebClient web = new WebClient())
+                using (System.IO.Stream stream = web.OpenRead(webadresa))
+                using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
+                {
+                    string manipulirano = reader.ReadToEnd();
+                    stats_custom_box.Text = "";
+
+                    List<Stats> rjecnik = JsonConvert.DeserializeObject<List<Stats>>(manipulirano);
+                    if (rjecnik?.Count > 0)
+                    {
+                        foreach (Stats stat in rjecnik)
+                        {
+                            stats_custom_box.AppendText($"{stat.Name}={stat.Type}={stat.Defaultvalue}{Environment.NewLine}");
+                        }
+                    }
                 }
             }
-            stream.Dispose();
-            web.Dispose();
+            catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            {
+                // Handle 404 error silently
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while fetching stats: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-
 
         //spent too much time for proper serialisation but im too retarded to do it so i will bruteforce it
-        private void ModFolderButton_Click(object sender, EventArgs e)
+        private void ModFolderButton_Click(object sender, EventArgs e) // Save mod folder paths to JSON
         {
-            string game_emu_folder = Path.Combine("games", game_appid_edit.Text);
-            if (!Directory.Exists(Path.Combine(game_emu_folder, "steam_settings")))
+            string game_emu_folder = Path.Combine("games", game_appid_box.Text);
+            string steam_settings_path = Path.Combine(game_emu_folder, "steam_settings");
+            string mods_json_path = Path.Combine(steam_settings_path, "mods.json");
+
+            if (!Directory.Exists(steam_settings_path))
             {
-                Directory.CreateDirectory(Path.Combine(game_emu_folder, "steam_settings"));
+                Directory.CreateDirectory(steam_settings_path);
             }
-            if (game_appid_edit.Text != "0")
+
+            if (game_appid_box.Text != "0")
             {
-                using (var modspath = new System.Windows.Forms.FolderBrowserDialog())
+                using (var modspath = new FolderBrowserDialog())
                 {
                     if (modspath.ShowDialog() == DialogResult.OK)
                     {
-                        TextWriter tw = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "mods.json"), FileMode.Create), Encoding.ASCII);
-                        tw.WriteLine("{");
-                        string[] directories = System.IO.Directory.GetDirectories(modspath.SelectedPath);
-                        foreach (string directory in directories)
+                        var mods = new Dictionary<string, object>();
+                        foreach (string directory in Directory.GetDirectories(modspath.SelectedPath))
                         {
-                            string promjenjeno = directory.Replace(@"\", @"\\");
-                            tw.WriteLine("\t" + "\"" + Path.GetFileName(directory) + "\": {");
-                            tw.WriteLine("\t\t" + "\"name\": " + "\"" + Path.GetFileName(directory) + "\",");
-                            if (game_appid_edit.Text == "564310")
-                            {
-                                tw.WriteLine("\t\t" + "\"primary_filename\": " + "\"" +"zz"+ Path.GetFileName(directory) + ".gro\",");
-                                tw.WriteLine("\t\t" + "\"preview_filename\": " + "\"" + "zz" + Path.GetFileName(directory) + ".jpg\",");
-                            }  
-                            tw.WriteLine("\t\t" + "\"path\": " + "\"" + promjenjeno + "\"");
-                            tw.WriteLine("\t" + "},");
-                        }
-                        tw.Close();
-                    }
-                    string read = ""; 
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "mods.json"), FileMode.Open), Encoding.ASCII))
+                            var modData = new Dictionary<string, string>
                     {
-                        read = streamReader.ReadToEnd();  
+                        { "name", Path.GetFileName(directory) },
+                        { "path", directory.Replace(@"\", @"\\") }
+                    };
+
+                            if (game_appid_box.Text == "564310")
+                            {
+                                string modName = "zz" + Path.GetFileName(directory);
+                                modData["primary_filename"] = $"{modName}.gro";
+                                modData["preview_filename"] = $"{modName}.jpg";
+                            }
+
+                            mods[Path.GetFileName(directory)] = modData;
+                        }
+
+                        File.WriteAllText(mods_json_path, JsonConvert.SerializeObject(mods, Formatting.Indented), Encoding.ASCII);
                     }
-                    read = read.Remove(read.LastIndexOf("\t"));
-                    TextWriter delete = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "mods.json"), FileMode.Create), Encoding.ASCII);
-                    delete.WriteLine(read+ "\t"+"}");
-                    delete.WriteLine("}");
-                    delete.Close();
                 }
             }
         }
+
         public partial class Prvi
         {
             [JsonProperty("Dlcs")]
@@ -1470,6 +1536,45 @@ namespace SmartGoldbergEmu
 
             [JsonProperty("defaultvalue")]
             public long Defaultvalue { get; set; }
+        }
+
+        private void clan_tag_add_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DLC_desc_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DLC_add_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void GameSettingsForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dlc_unlockAllDlc_bttn_CheckedChanged(object sender, EventArgs e)
+        {
+            if (dlc_unlockAllDlc_bttn.Checked)
+            {
+                dlc_list_box.Enabled = !dlc_unlockAllDlc_bttn.Checked;
+                dlc_generateList_bttn.Enabled = !dlc_unlockAllDlc_bttn.Checked;
+            }
+            else
+            {
+                dlc_list_box.Enabled = !dlc_unlockAllDlc_bttn.Checked;
+                dlc_generateList_bttn.Enabled = !dlc_unlockAllDlc_bttn.Checked;
+            }
+        }
+
+        private void game_customIconClear_bttn_Click(object sender, EventArgs e)
+        {
+            game_customIcon_box.Text = string.Empty;
         }
     }
 }

@@ -91,7 +91,7 @@ namespace HeaderReader
             /// 64-bit objects
             /// </summary>
             ELFCLASS64 = 2,
-            ELFCLASSNUM  = 3,
+            ELFCLASSNUM = 3,
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace HeaderReader
             /// 2's complement, big endian
             /// </summary>
             ELFDATA2MSB = 2,
-            ELFDATANUM  = 3,
+            ELFDATANUM = 3,
         }
 
         // Valid Values for e_ident[EI_VERSION] and e_version
@@ -125,63 +125,63 @@ namespace HeaderReader
             /// <summary>
             /// UNIX System V ABI
             /// </summary>
-            ELFOSABI_NONE       = 0,
+            ELFOSABI_NONE = 0,
             /// <summary>
             /// Alias.
             /// </summary>
-            ELFOSABI_SYSV       = 0,
+            ELFOSABI_SYSV = 0,
             /// <summary>
             /// HP-UX
             /// </summary>
-            ELFOSABI_HPUX       = 1,
+            ELFOSABI_HPUX = 1,
             /// <summary>
             /// NetBSD.
             /// </summary>
-            ELFOSABI_NETBSD     = 2,
+            ELFOSABI_NETBSD = 2,
             /// <summary>
             /// Object uses GNU ELF extensions.
             /// </summary>
-            ELFOSABI_GNU        = 3,
+            ELFOSABI_GNU = 3,
             /// <summary>
             /// Compatibility alias.
             /// </summary>
-            ELFOSABI_LINUX      = ELFOSABI_GNU,
+            ELFOSABI_LINUX = ELFOSABI_GNU,
             /// <summary>
             /// Sun Solaris.
             /// </summary>
-            ELFOSABI_SOLARIS    = 6,
+            ELFOSABI_SOLARIS = 6,
             /// <summary>
             /// IBM AIX.
             /// </summary>
-            ELFOSABI_AIX        = 7,
+            ELFOSABI_AIX = 7,
             /// <summary>
             ///  SGI Irix.
             /// </summary>
-            ELFOSABI_IRIX       = 8,
+            ELFOSABI_IRIX = 8,
             /// <summary>
             ///  FreeBSD.
             /// </summary>
-            ELFOSABI_FREEBSD    = 9,
+            ELFOSABI_FREEBSD = 9,
             /// <summary>
             /// Compaq TRU64 UNIX.
             /// </summary>
-            ELFOSABI_TRU64      = 10,
+            ELFOSABI_TRU64 = 10,
             /// <summary>
             /// Novell Modesto.
             /// </summary>
-            ELFOSABI_MODESTO    = 11,
+            ELFOSABI_MODESTO = 11,
             /// <summary>
             /// OpenBSD.
             /// </summary>
-            ELFOSABI_OPENBSD    = 12,
+            ELFOSABI_OPENBSD = 12,
             /// <summary>
             /// ARM EABI
             /// </summary>
-            ELFOSABI_ARM_AEABI  = 64,
+            ELFOSABI_ARM_AEABI = 64,
             /// <summary>
             /// ARM
             /// </summary>
-            ELFOSABI_ARM        = 97,
+            ELFOSABI_ARM = 97,
             /// <summary>
             /// Standalone (embedded) application
             /// </summary>
@@ -196,35 +196,35 @@ namespace HeaderReader
             /// <summary>
             /// No file type
             /// </summary>
-            ET_NONE   = 0,
+            ET_NONE = 0,
             /// <summary>
             /// Relocatable file
             /// </summary>
-            ET_REL    = 1,
+            ET_REL = 1,
             /// <summary>
             /// Executable file
             /// </summary>
-            ET_EXEC   = 2,
+            ET_EXEC = 2,
             /// <summary>
             /// Shared object file
             /// </summary>
-            ET_DYN    = 3,
+            ET_DYN = 3,
             /// <summary>
             /// Core file
             /// </summary>
-            ET_CORE   = 4,
+            ET_CORE = 4,
             /// <summary>
             /// Number of defined types
             /// </summary>
-            ET_NUM    = 5,
+            ET_NUM = 5,
             /// <summary>
             /// OS-specific range start
             /// </summary>
-            ET_LOOS   = 0xfe00,
+            ET_LOOS = 0xfe00,
             /// <summary>
             /// OS-specific range end
             /// </summary>
-            ET_HIOS   = 0xfeff,
+            ET_HIOS = 0xfeff,
             /// <summary>
             /// Processor-specific range start
             /// </summary>
@@ -243,39 +243,39 @@ namespace HeaderReader
             /// <summary>
             /// No machine
             /// </summary>
-            EM_NONE        = 0,
+            EM_NONE = 0,
             /// <summary>
             /// AT&T WE 32100
             /// </summary>
-            EM_M32         = 1,
+            EM_M32 = 1,
             /// <summary>
             /// SUN SPARC
             /// </summary>
-            EM_SPARC       = 2,
+            EM_SPARC = 2,
             /// <summary>
             /// Intel 80386
             /// </summary>
-            EM_386         = 3,
+            EM_386 = 3,
             /// <summary>
             /// Motorola m68k family
             /// </summary>
-            EM_68K         = 4,
+            EM_68K = 4,
             /// <summary>
             /// Motorola m88k family
             /// </summary>
-            EM_88K         = 5,
+            EM_88K = 5,
             /// <summary>
             /// Intel 80860
             /// </summary>
-            EM_860         = 7,
+            EM_860 = 7,
             /// <summary>
             /// MIPS R3000 big-endian
             /// </summary>
-            EM_MIPS        = 8,
+            EM_MIPS = 8,
             /// <summary>
             /// IBM System/370
             /// </summary>
-            EM_S370        = 9,
+            EM_S370 = 9,
             /// <summary>
             /// MIPS R3000 little-endian
             /// </summary>
@@ -283,11 +283,11 @@ namespace HeaderReader
             /// <summary>
             /// HPPA
             /// </summary>
-            EM_PARISC      = 15,
+            EM_PARISC = 15,
             /// <summary>
             /// Fujitsu VPP500
             /// </summary>
-            EM_VPP500      = 17,
+            EM_VPP500 = 17,
             /// <summary>
             // Sun's "v8plus"
             /// </summary>
@@ -295,257 +295,257 @@ namespace HeaderReader
             /// <summary>
             /// Intel 80960
             /// </summary>
-            EM_960         = 19,
+            EM_960 = 19,
             /// <summary>
             /// PowerPC
             /// </summary>
-            EM_PPC         = 20,
+            EM_PPC = 20,
             /// <summary>
             /// PowerPC 64-bit
             /// </summary>
-            EM_PPC64       = 21,
+            EM_PPC64 = 21,
             /// <summary>
             /// IBM S390
             /// </summary>
-            EM_S390        = 22,
-            
+            EM_S390 = 22,
+
             /// <summary>
             /// NEC V800 series
             /// </summary>
-            EM_V800        = 36,
+            EM_V800 = 36,
             /// <summary>
             /// Fujitsu FR20
             /// </summary>
-            EM_FR20        = 37,
+            EM_FR20 = 37,
             /// <summary>
             /// TRW RH-32
             /// </summary>
-            EM_RH32        = 38,
+            EM_RH32 = 38,
             /// <summary>
             /// Motorola RCE
             /// </summary>
-            EM_RCE         = 39,
+            EM_RCE = 39,
             /// <summary>
             /// ARM
             /// </summary>
-            EM_ARM         = 40,
+            EM_ARM = 40,
             /// <summary>
             /// Digital Alpha
             /// </summary>
-            EM_FAKE_ALPHA  = 41,
+            EM_FAKE_ALPHA = 41,
             /// <summary>
             /// Hitachi SH
             /// </summary>
-            EM_SH          = 42,
+            EM_SH = 42,
             /// <summary>
             /// SPARC v9 64-bit
             /// </summary>
-            EM_SPARCV9     = 43,
+            EM_SPARCV9 = 43,
             /// <summary>
             /// Siemens Tricore
             /// </summary>
-            EM_TRICORE     = 44,
+            EM_TRICORE = 44,
             /// <summary>
             /// Argonaut RISC Core
             /// </summary>
-            EM_ARC         = 45,
+            EM_ARC = 45,
             /// <summary>
             /// Hitachi H8/300
             /// </summary>
-            EM_H8_300      = 46,
+            EM_H8_300 = 46,
             /// <summary>
             /// Hitachi H8/300H
             /// </summary>
-            EM_H8_300H     = 47,
+            EM_H8_300H = 47,
             /// <summary>
             /// Hitachi H8S
             /// </summary>
-            EM_H8S         = 48,
+            EM_H8S = 48,
             /// <summary>
             /// Hitachi H8/500
             /// </summary>
-            EM_H8_500      = 49,
+            EM_H8_500 = 49,
             /// <summary>
             /// Intel Merced
             /// </summary>
-            EM_IA_64       = 50,
+            EM_IA_64 = 50,
             /// <summary>
             /// Stanford MIPS-X
             /// </summary>
-            EM_MIPS_X      = 51,
+            EM_MIPS_X = 51,
             /// <summary>
             /// Motorola Coldfire
             /// </summary>
-            EM_COLDFIRE    = 52,
+            EM_COLDFIRE = 52,
             /// <summary>
             /// Motorola M68HC12
             /// </summary>
-            EM_68HC12      = 53,
+            EM_68HC12 = 53,
             /// <summary>
             /// Fujitsu MMA Multimedia Accelerator
             /// </summary>
-            EM_MMA         = 54,
+            EM_MMA = 54,
             /// <summary>
             /// Siemens PCP
             /// </summary>
-            EM_PCP         = 55,
+            EM_PCP = 55,
             /// <summary>
             /// Sony nCPU embeeded RISC
             /// </summary>
-            EM_NCPU        = 56,
+            EM_NCPU = 56,
             /// <summary>
             /// Denso NDR1 microprocessor
             /// </summary>
-            EM_NDR1        = 57,
+            EM_NDR1 = 57,
             /// <summary>
             /// Motorola Start*Core processor
             /// </summary>
-            EM_STARCORE    = 58,
+            EM_STARCORE = 58,
             /// <summary>
             /// Toyota ME16 processor
             /// </summary>
-            EM_ME16        = 59,
+            EM_ME16 = 59,
             /// <summary>
             /// STMicroelectronic ST100 processor
             /// </summary>
-            EM_ST100       = 60,
+            EM_ST100 = 60,
             /// <summary>
             /// Advanced Logic Corp. Tinyj emb.fa
             /// </summary>
-            EM_TINYJ       = 61,
+            EM_TINYJ = 61,
             /// <summary>
             /// AMD x86-64 architecture
             /// </summary>
-            EM_X86_64      = 62,
+            EM_X86_64 = 62,
             /// <summary>
             /// Sony DSP Processor
             /// </summary>
-            EM_PDSP        = 63,
-            
+            EM_PDSP = 63,
+
             /// <summary>
             /// Siemens FX66 microcontroller
             /// </summary>
-            EM_FX66       = 66,
+            EM_FX66 = 66,
             /// <summary>
             /// STMicroelectronics ST9+ 8/16 mc
             /// </summary>
-            EM_ST9PLUS    = 67,
+            EM_ST9PLUS = 67,
             /// <summary>
             /// STmicroelectronics ST7 8 bit mc
             /// </summary>
-            EM_ST7        = 68,
+            EM_ST7 = 68,
             /// <summary>
             /// Motorola MC68HC16 microcontroller
             /// </summary>
-            EM_68HC16     = 69,
+            EM_68HC16 = 69,
             /// <summary>
             /// Motorola MC68HC11 microcontroller
             /// </summary>
-            EM_68HC11     = 70,
+            EM_68HC11 = 70,
             /// <summary>
             /// Motorola MC68HC08 microcontroller
             /// </summary>
-            EM_68HC08     = 71,
+            EM_68HC08 = 71,
             /// <summary>
             /// Motorola MC68HC05 microcontroller
             /// </summary>
-            EM_68HC05     = 72,
+            EM_68HC05 = 72,
             /// <summary>
             /// Silicon Graphics SVx
             /// </summary>
-            EM_SVX        = 73,
+            EM_SVX = 73,
             /// <summary>
             /// STMicroelectronics ST19 8 bit mc
             /// </summary>
-            EM_ST19       = 74,
+            EM_ST19 = 74,
             /// <summary>
             /// Digital VAX
             /// </summary>
-            EM_VAX        = 75,
+            EM_VAX = 75,
             /// <summary>
             /// Axis Communications 32-bit embedded processor
             /// </summary>
-            EM_CRIS       = 76,
+            EM_CRIS = 76,
             /// <summary>
             /// Infineon Technologies 32-bit embedded processor
             /// </summary>
-            EM_JAVELIN    = 77,
+            EM_JAVELIN = 77,
             /// <summary>
             /// Element 14 64-bit DSP Processor
             /// </summary>
-            EM_FIREPATH   = 78,
+            EM_FIREPATH = 78,
             /// <summary>
             /// LSI Logic 16-bit DSP Processor
             /// </summary>
-            EM_ZSP        = 79,
+            EM_ZSP = 79,
             /// <summary>
             /// Donald Knuth's educational 64-bit processor
             /// </summary>
-            EM_MMIX       = 80,
+            EM_MMIX = 80,
             /// <summary>
             /// Harvard University machine-independent object files
             /// </summary>
-            EM_HUANY      = 81,
+            EM_HUANY = 81,
             /// <summary>
             /// SiTera Prism
             /// </summary>
-            EM_PRISM      = 82,
+            EM_PRISM = 82,
             /// <summary>
             /// Atmel AVR 8-bit microcontroller
             /// </summary>
-            EM_AVR        = 83,
+            EM_AVR = 83,
             /// <summary>
             /// Fujitsu FR30
             /// </summary>
-            EM_FR30       = 84,
+            EM_FR30 = 84,
             /// <summary>
             /// Mitsubishi D10V
             /// </summary>
-            EM_D10V       = 85,
+            EM_D10V = 85,
             /// <summary>
             /// Mitsubishi D30V
             /// </summary>
-            EM_D30V       = 86,
+            EM_D30V = 86,
             /// <summary>
             /// NEC v850
             /// </summary>
-            EM_V850       = 87,
+            EM_V850 = 87,
             /// <summary>
             /// Mitsubishi M32R
             /// </summary>
-            EM_M32R       = 88,
+            EM_M32R = 88,
             /// <summary>
             /// Matsushita MN10300
             /// </summary>
-            EM_MN10300    = 89,
+            EM_MN10300 = 89,
             /// <summary>
             /// Matsushita MN10200
             /// </summary>
-            EM_MN10200    = 90,
+            EM_MN10200 = 90,
             /// <summary>
             /// picoJava
             /// </summary>
-            EM_PJ         = 91,
+            EM_PJ = 91,
             /// <summary>
             /// OpenRISC 32-bit embedded processor
             /// </summary>
-            EM_OPENRISC   = 92,
+            EM_OPENRISC = 92,
             /// <summary>
             /// ARC Cores Tangent-A5
             /// </summary>
-            EM_ARC_A5     = 93,
+            EM_ARC_A5 = 93,
             /// <summary>
             /// Tensilica Xtensa Architecture
             /// </summary>
-            EM_XTENSA     = 94,
+            EM_XTENSA = 94,
             /// <summary>
             /// ARM AARCH64
             /// </summary>
-            EM_AARCH64    = 183,
+            EM_AARCH64 = 183,
             /// <summary>
             /// Tilera TILEPro
             /// </summary>
-            EM_TILEPRO    = 188,
+            EM_TILEPRO = 188,
             /// <summary>
             /// Xilinx MicroBlaze
             /// </summary>
@@ -553,9 +553,9 @@ namespace HeaderReader
             /// <summary>
             /// Tilera TILE-Gx
             /// </summary>
-            EM_TILEGX     = 191,
-            EM_NUM        = 192, 
-            EM_ALPHA      = 0x9026,
+            EM_TILEGX = 191,
+            EM_NUM = 192,
+            EM_ALPHA = 0x9026,
         }
 
         /// <summary>
@@ -568,7 +568,7 @@ namespace HeaderReader
             /// </summary>
             EV_NONE = 0,
             EV_CURRENT = 1,
-            EV_NUM     = 2,
+            EV_NUM = 2,
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -578,11 +578,11 @@ namespace HeaderReader
             /// Magic number and other info
             /// </summary>
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = EI_NIDENT)]
-            public char[]     e_ident;
+            public char[] e_ident;
             /// <summary>
             /// Object file type
             /// </summary>
-            public ElfType    e_type;
+            public ElfType e_type;
             /// <summary>
             /// Architecture
             /// </summary>
@@ -594,43 +594,43 @@ namespace HeaderReader
             /// <summary>
             /// Entry point virtual address
             /// </summary>
-            public uint       e_entry;
+            public uint e_entry;
             /// <summary>
             /// Program header table file offset
             /// </summary>
-            public uint       e_phoff;
+            public uint e_phoff;
             /// <summary>
             /// Section header table file offset
             /// </summary>
-            public uint       e_shoff;
+            public uint e_shoff;
             /// <summary>
             /// Processor-specific flags
             /// </summary>
-            public uint       e_flags;
+            public uint e_flags;
             /// <summary>
             /// ELF header size in bytes
             /// </summary>
-            public ushort     e_ehsize;
+            public ushort e_ehsize;
             /// <summary>
             /// Program header table entry size
             /// </summary>
-            public ushort     e_phentsize;
+            public ushort e_phentsize;
             /// <summary>
             /// Program header table entry count
             /// </summary>
-            public ushort     e_phnum;
+            public ushort e_phnum;
             /// <summary>
             /// Section header table entry size
             /// </summary>
-            public ushort     e_shentsize;
+            public ushort e_shentsize;
             /// <summary>
             /// Section header table entry count
             /// </summary>
-            public ushort     e_shnum;
+            public ushort e_shnum;
             /// <summary>
             /// Section header string table index
             /// </summary>
-            public ushort     e_shstrndx;
+            public ushort e_shstrndx;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -640,11 +640,11 @@ namespace HeaderReader
             /// Magic number and other info
             /// </summary>
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = EI_NIDENT)]
-            public char[]     e_ident;
+            public char[] e_ident;
             /// <summary>
             /// Object file type
             /// </summary>
-            public ElfType    e_type;
+            public ElfType e_type;
             /// <summary>
             /// Architecture
             /// </summary>
@@ -656,43 +656,43 @@ namespace HeaderReader
             /// <summary>
             /// Entry point virtual address
             /// </summary>
-            public ulong      e_entry;
+            public ulong e_entry;
             /// <summary>
             /// Program header table file offset
             /// </summary>
-            public ulong      e_phoff;
+            public ulong e_phoff;
             /// <summary>
             /// Section header table file offset
             /// </summary>
-            public ulong      e_shoff;
+            public ulong e_shoff;
             /// <summary>
             /// Processor-specific flags
             /// </summary>
-            public uint       e_flags;
+            public uint e_flags;
             /// <summary>
             /// ELF header size in bytes
             /// </summary>
-            public ushort     e_ehsize;
+            public ushort e_ehsize;
             /// <summary>
             /// Program header table entry size
             /// </summary>
-            public ushort     e_phentsize;
+            public ushort e_phentsize;
             /// <summary>
             /// Program header table entry count
             /// </summary>
-            public ushort     e_phnum;
+            public ushort e_phnum;
             /// <summary>
             /// Section header table entry size
             /// </summary>
-            public ushort     e_shentsize;
+            public ushort e_shentsize;
             /// <summary>
             /// Section header table entry count
             /// </summary>
-            public ushort     e_shnum;
+            public ushort e_shnum;
             /// <summary>
             /// Section header string table index
             /// </summary>
-            public ushort     e_shstrndx;
+            public ushort e_shstrndx;
         }
 
         // Valid Values for sh_type
@@ -701,79 +701,79 @@ namespace HeaderReader
             /// <summary>
             /// Section header table entry unused
             /// </summary>
-            SHT_NULL           = 0,
+            SHT_NULL = 0,
             /// <summary>
             /// Program data
             /// </summary>
-            SHT_PROGBITS       = 1,
+            SHT_PROGBITS = 1,
             /// <summary>
             /// Symbol table
             /// </summary>
-            SHT_SYMTAB         = 2,
+            SHT_SYMTAB = 2,
             /// <summary>
             /// String table
             /// </summary>
-            SHT_STRTAB         = 3,
+            SHT_STRTAB = 3,
             /// <summary>
             /// Relocation entries with addends
             /// </summary>
-            SHT_RELA           = 4,
+            SHT_RELA = 4,
             /// <summary>
             /// Symbol hash table
             /// </summary>
-            SHT_HASH           = 5,
+            SHT_HASH = 5,
             /// <summary>
             /// Dynamic linking information
             /// </summary>
-            SHT_DYNAMIC        = 6,
+            SHT_DYNAMIC = 6,
             /// <summary>
             /// Notes
             /// </summary>
-            SHT_NOTE           = 7,
+            SHT_NOTE = 7,
             /// <summary>
             /// Program space with no data (bss)
             /// </summary>
-            SHT_NOBITS         = 8,
+            SHT_NOBITS = 8,
             /// <summary>
             /// Relocation entries, no addends
             /// </summary>
-            SHT_REL            = 9,
+            SHT_REL = 9,
             /// <summary>
             /// Reserved
             /// </summary>
-            SHT_SHLIB          = 10,
+            SHT_SHLIB = 10,
             /// <summary>
             /// Dynamic linker symbol table
             /// </summary>
-            SHT_DYNSYM         = 11,
+            SHT_DYNSYM = 11,
             /// <summary>
             /// Array of constructors
             /// </summary>
-            SHT_INIT_ARRAY     = 14,
+            SHT_INIT_ARRAY = 14,
             /// <summary>
             /// Array of destructors
             /// </summary>
-            SHT_FINI_ARRAY     = 15,
+            SHT_FINI_ARRAY = 15,
             /// <summary>
             /// Array of pre-constructors
             /// </summary>
-            SHT_PREINIT_ARRAY  = 16,
+            SHT_PREINIT_ARRAY = 16,
             /// <summary>
             /// Section group
             /// </summary>
-            SHT_GROUP          = 17,
+            SHT_GROUP = 17,
             /// <summary>
             /// Extended section indeces
             /// </summary>
-            SHT_SYMTAB_SHNDX   = 18,
+            SHT_SYMTAB_SHNDX = 18,
             /// <summary>
             /// Number of defined types.
             /// </summary>
-            SHT_NUM            = 19,
+            SHT_NUM = 19,
             /// <summary>
             /// Start OS-specific.
             /// </summary>
-            SHT_LOOS           = 0x60000000,
+            SHT_LOOS = 0x60000000,
             /// <summary>
             /// Object attributes.
             /// </summary>
@@ -781,67 +781,67 @@ namespace HeaderReader
             /// <summary>
             /// GNU-style hash table.
             /// </summary>
-            SHT_GNU_HASH       = 0x6ffffff6,
+            SHT_GNU_HASH = 0x6ffffff6,
             /// <summary>
             /// Prelink library list
             /// </summary>
-            SHT_GNU_LIBLIST    = 0x6ffffff7,
+            SHT_GNU_LIBLIST = 0x6ffffff7,
             /// <summary>
             /// Checksum for DSO content.
             /// </summary>
-            SHT_CHECKSUM       = 0x6ffffff8,
+            SHT_CHECKSUM = 0x6ffffff8,
             /// <summary>
             /// Sun-specific low bound.
             /// </summary>
-            SHT_LOSUNW         = 0x6ffffffa,
+            SHT_LOSUNW = 0x6ffffffa,
             /// <summary>
             /// 
             /// </summary>
-            SHT_SUNW_move      = 0x6ffffffa, 
+            SHT_SUNW_move = 0x6ffffffa,
             /// <summary>
             /// 
             /// </summary>
-            SHT_SUNW_COMDAT    = 0x6ffffffb, 
+            SHT_SUNW_COMDAT = 0x6ffffffb,
             /// <summary>
             /// 
             /// </summary>
-            SHT_SUNW_syminfo   = 0x6ffffffc, 
+            SHT_SUNW_syminfo = 0x6ffffffc,
             /// <summary>
             /// Version definition section.
             /// </summary>
-            SHT_GNU_verdef     = 0x6ffffffd,
+            SHT_GNU_verdef = 0x6ffffffd,
             /// <summary>
             /// Version needs section.
             /// </summary>
-            SHT_GNU_verneed    = 0x6ffffffe,
+            SHT_GNU_verneed = 0x6ffffffe,
             /// <summary>
             /// Version symbol table.
             /// </summary>
-            SHT_GNU_versym     = 0x6fffffff,
+            SHT_GNU_versym = 0x6fffffff,
             /// <summary>
             /// Sun-specific high bound.
             /// </summary>
-            SHT_HISUNW         = 0x6fffffff,
+            SHT_HISUNW = 0x6fffffff,
             /// <summary>
             /// End OS-specific type
             /// </summary>
-            SHT_HIOS           = 0x6fffffff,
+            SHT_HIOS = 0x6fffffff,
             /// <summary>
             /// Start of processor-specific
             /// </summary>
-            SHT_LOPROC         = 0x70000000,
+            SHT_LOPROC = 0x70000000,
             /// <summary>
             /// End of processor-specific
             /// </summary>
-            SHT_HIPROC         = 0x7fffffff,
+            SHT_HIPROC = 0x7fffffff,
             /// <summary>
             /// Start of application-specific
             /// </summary>
-            SHT_LOUSER         = 0x80000000,
+            SHT_LOUSER = 0x80000000,
             /// <summary>
             /// End of application-specific
             /// </summary>
-            SHT_HIUSER         = 0x8fffffff,
+            SHT_HIUSER = 0x8fffffff,
         }
 
         [Flags]
@@ -851,32 +851,32 @@ namespace HeaderReader
             /// <summary>
             /// Writable
             /// </summary>
-            SHF_WRITE            = 0x00000001,
+            SHF_WRITE = 0x00000001,
             /// <summary>
             /// Occupies memory during execution
             /// </summary>
-            SHF_ALLOC            = 0x00000002,
+            SHF_ALLOC = 0x00000002,
             /// <summary>
             /// Executable
             /// </summary>
-            SHF_EXECINSTR        = 0x00000004,
+            SHF_EXECINSTR = 0x00000004,
             //                   = 0x00000008, /* */
             /// <summary>
             /// Might be merged
             /// </summary>
-            SHF_MERGE            = 0x00000010,
+            SHF_MERGE = 0x00000010,
             /// <summary>
             /// Contains nul-terminated strings
             /// </summary>
-            SHF_STRINGS          = 0x00000020,
+            SHF_STRINGS = 0x00000020,
             /// <summary>
             /// `sh_info' contains SHT index
             /// </summary>
-            SHF_INFO_LINK        = 0x00000040,
+            SHF_INFO_LINK = 0x00000040,
             /// <summary>
             /// Preserve order after combining
             /// </summary>
-            SHF_LINK_ORDER       = 0x00000080,
+            SHF_LINK_ORDER = 0x00000080,
             /// <summary>
             /// Non-standard OS specific handling required
             /// </summary>
@@ -884,31 +884,31 @@ namespace HeaderReader
             /// <summary>
             /// Section is member of a group.
             /// </summary>
-            SHF_GROUP            = 0x00000200,
+            SHF_GROUP = 0x00000200,
             /// <summary>
             /// Section hold thread-local data.
             /// </summary>
-            SHF_TLS              = 0x00000400,
+            SHF_TLS = 0x00000400,
             /// <summary>
             /// Identifies a section containing compressed data.
             /// </summary>
-            SHF_COMPRESSED       = 0x00000800,
+            SHF_COMPRESSED = 0x00000800,
             /// <summary>
             /// OS-specific.
             /// </summary>
-            SHF_MASKOS           = 0x0ff00000,
+            SHF_MASKOS = 0x0ff00000,
             /// <summary>
             /// Processor-specific
             /// </summary>
-            SHF_MASKPROC         = 0xf0000000,
+            SHF_MASKPROC = 0xf0000000,
             /// <summary>
             /// Special ordering requirement (Solaris).
             /// </summary>
-            SHF_ORDERED	         = 0x40000000,
+            SHF_ORDERED = 0x40000000,
             /// <summary>
             /// Section is excluded unless referenced or allocated(Solaris).
             /// </summary>
-            SHF_EXCLUDE          = 0x80000000,
+            SHF_EXCLUDE = 0x80000000,
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -917,11 +917,11 @@ namespace HeaderReader
             /// <summary>
             /// Section name (string tbl index)
             /// </summary>
-            public uint    sh_name;
+            public uint sh_name;
             /// <summary>
             /// Section type
             /// </summary>
-            public ShType  sh_type;
+            public ShType sh_type;
             /// <summary>
             /// Section flags
             /// </summary>
@@ -929,31 +929,31 @@ namespace HeaderReader
             /// <summary>
             /// Section virtual addr at execution
             /// </summary>
-            public uint    sh_addr;
+            public uint sh_addr;
             /// <summary>
             /// Section file offset
             /// </summary>
-            public uint    sh_offset;
+            public uint sh_offset;
             /// <summary>
             /// Section size in bytes
             /// </summary>
-            public uint    sh_size;
+            public uint sh_size;
             /// <summary>
             /// Link to another section
             /// </summary>
-            public uint    sh_link;
+            public uint sh_link;
             /// <summary>
             /// Additional section information
             /// </summary>
-            public uint    sh_info;
+            public uint sh_info;
             /// <summary>
             /// Section alignment
             /// </summary>
-            public uint    sh_addralign;
+            public uint sh_addralign;
             /// <summary>
             /// Entry size if section holds table
             /// </summary>
-            public uint    sh_entsize;
+            public uint sh_entsize;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -962,7 +962,7 @@ namespace HeaderReader
             /// <summary>
             /// Section name (string tbl index)
             /// </summary>
-            public uint   sh_name;
+            public uint sh_name;
             /// <summary>
             /// Section type (ShFlags)
             /// </summary>
@@ -970,35 +970,35 @@ namespace HeaderReader
             /// <summary>
             /// Section flags
             /// </summary>
-            public ulong  sh_flags;
+            public ulong sh_flags;
             /// <summary>
             /// Section virtual addr at execution
             /// </summary>
-            public ulong  sh_addr;
+            public ulong sh_addr;
             /// <summary>
             /// Section file offset
             /// </summary>
-            public ulong  sh_offset;
+            public ulong sh_offset;
             /// <summary>
             /// Section size in bytes
             /// </summary>
-            public ulong  sh_size;
+            public ulong sh_size;
             /// <summary>
             /// Link to another section
             /// </summary>
-            public uint   sh_link;
+            public uint sh_link;
             /// <summary>
             /// Additional section information
             /// </summary>
-            public uint   sh_info;
+            public uint sh_info;
             /// <summary>
             /// Section alignment
             /// </summary>
-            public ulong  sh_addralign;
+            public ulong sh_addralign;
             /// <summary>
             /// Entry size if section holds table
             /// </summary>
-            public ulong  sh_entsize;
+            public ulong sh_entsize;
         }
 
         public struct Elf32_Reader_Section
@@ -1074,7 +1074,7 @@ namespace HeaderReader
 
                         elf32_sections_hdr = new Elf32_Reader_Section[elf32_hdr.e_shnum];
 
-                        for(int i = 0; i < elf32_hdr.e_shnum; ++i)
+                        for (int i = 0; i < elf32_hdr.e_shnum; ++i)
                         {
                             elf32_sections_hdr[i].section_header = FromBinaryReader<ELF32_SECTION_HEADER>(reader);
                         }
@@ -1086,14 +1086,14 @@ namespace HeaderReader
                         for (int i = 0; i < elf32_hdr.e_shnum; ++i)
                         {
                             int offset = (int)elf32_sections_hdr[i].section_header.sh_name;
-                            elf32_sections_hdr[i].section_name = names.Substring(offset, names.IndexOf('\0', offset)-offset);
+                            elf32_sections_hdr[i].section_name = names.Substring(offset, names.IndexOf('\0', offset) - offset);
                         }
 
-                        switch(elf32_hdr.e_type)
+                        switch (elf32_hdr.e_type)
                         {
                             case ElfType.ET_EXEC: _ExecutableType = ExecutableType.Executable; break;
-                            case ElfType.ET_DYN : _ExecutableType = ExecutableType.Library; break;
-                            default             : _ExecutableType = ExecutableType.Unknown; break;
+                            case ElfType.ET_DYN: _ExecutableType = ExecutableType.Library; break;
+                            default: _ExecutableType = ExecutableType.Unknown; break;
                         }
 
                         _IsValidHeader = true;
@@ -1125,8 +1125,8 @@ namespace HeaderReader
                         switch (elf64_hdr.e_type)
                         {
                             case ElfType.ET_EXEC: _ExecutableType = ExecutableType.Executable; break;
-                            case ElfType.ET_DYN : _ExecutableType = ExecutableType.Library; break;
-                            default             : _ExecutableType = ExecutableType.Unknown; break;
+                            case ElfType.ET_DYN: _ExecutableType = ExecutableType.Library; break;
+                            default: _ExecutableType = ExecutableType.Unknown; break;
                         }
 
                         _IsValidHeader = true;

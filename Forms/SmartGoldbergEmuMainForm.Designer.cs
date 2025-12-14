@@ -63,9 +63,11 @@ namespace SmartGoldbergEmu
             this.capp_contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.generateAchievementsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateItemsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.createShortcutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openGameEmuFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openGameStoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -170,64 +172,78 @@ namespace SmartGoldbergEmu
             this.capp_contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.generateAchievementsToolStripMenuItem,
             this.generateItemsToolStripMenuItem,
-            this.toolStripSeparator2,
+            this.toolStripSeparator3,
             this.createShortcutToolStripMenuItem,
             this.openGameEmuFolderToolStripMenuItem,
+            this.openGameStoreToolStripMenuItem,
+            this.toolStripSeparator2,
             this.propertiesToolStripMenuItem,
             this.toolStripSeparator1,
             this.removeToolStripMenuItem});
             this.capp_contextMenuStrip.Name = "capp_contextMenuStrip";
-            this.capp_contextMenuStrip.Size = new System.Drawing.Size(201, 148);
+            this.capp_contextMenuStrip.Size = new System.Drawing.Size(200, 176);
             // 
             // generateAchievementsToolStripMenuItem
             // 
             this.generateAchievementsToolStripMenuItem.Name = "generateAchievementsToolStripMenuItem";
-            this.generateAchievementsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.generateAchievementsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.generateAchievementsToolStripMenuItem.Text = "Generate Achievements";
             this.generateAchievementsToolStripMenuItem.Click += new System.EventHandler(this.GenerateAchievementsToolStripMenuItem_Click);
             // 
             // generateItemsToolStripMenuItem
             // 
             this.generateItemsToolStripMenuItem.Name = "generateItemsToolStripMenuItem";
-            this.generateItemsToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.generateItemsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.generateItemsToolStripMenuItem.Text = "Generate Items";
             this.generateItemsToolStripMenuItem.Click += new System.EventHandler(this.GenerateItemsToolStripMenuItem_Click);
             // 
-            // toolStripSeparator2
+            // toolStripSeparator3
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(197, 6);
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(196, 6);
             // 
             // createShortcutToolStripMenuItem
             // 
             this.createShortcutToolStripMenuItem.Name = "createShortcutToolStripMenuItem";
-            this.createShortcutToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.createShortcutToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.createShortcutToolStripMenuItem.Text = "Create Shortcut";
             this.createShortcutToolStripMenuItem.Click += new System.EventHandler(this.CreateShortcutToolStripMenuItem_Click);
             // 
             // openGameEmuFolderToolStripMenuItem
             // 
             this.openGameEmuFolderToolStripMenuItem.Name = "openGameEmuFolderToolStripMenuItem";
-            this.openGameEmuFolderToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.openGameEmuFolderToolStripMenuItem.Text = "Open Game Emu Folder";
+            this.openGameEmuFolderToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.openGameEmuFolderToolStripMenuItem.Text = "Settings Folder";
             this.openGameEmuFolderToolStripMenuItem.Click += new System.EventHandler(this.OpenGameEmuFolderToolStripMenuItem_Click);
+            // 
+            // openGameStoreToolStripMenuItem
+            // 
+            this.openGameStoreToolStripMenuItem.Name = "openGameStoreToolStripMenuItem";
+            this.openGameStoreToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.openGameStoreToolStripMenuItem.Text = "Steam Store Page";
+            this.openGameStoreToolStripMenuItem.Click += new System.EventHandler(this.OpenGameStoreToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(196, 6);
             // 
             // propertiesToolStripMenuItem
             // 
             this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.propertiesToolStripMenuItem.Text = "Properties";
             this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.PropertiesToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(196, 6);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.RemoveToolStripMenuItem_Click);
             // 
@@ -242,7 +258,7 @@ namespace SmartGoldbergEmu
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "SmartGoldbergEmuMainForm";
-            this.Text = "SmartGoldbergEmu Launcher";
+            this.Text = "SmartGoldbergEmu Launcher (rev2.2f)";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Zatvaranje);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SmartGoldbergEmuMainForm_FormClosed);
             this.Load += new System.EventHandler(this.Otvaranje);
@@ -277,6 +293,8 @@ namespace SmartGoldbergEmu
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem createShortcutToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem openGameStoreToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator3;
     }
 }
 

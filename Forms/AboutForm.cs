@@ -38,6 +38,33 @@ namespace SmartGoldbergEmu
             this.Close();
         }
 
+        private void NemirtingasUrl_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://cs.rin.ru/forum/viewtopic.php?f=29&t=62935",
+                UseShellExecute = true
+            });
+        }
+        private void KolasUrl_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/Kola124/SmartGoldbergEmu",
+                UseShellExecute = true
+            });
+        }
+        private void GivenToFlysUrl_Clicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://cs.rin.ru/forum/viewtopic.php?p=3221424#p3221424",
+                    UseShellExecute = true
+                });
+            }
+        }
+
         private void ShowEmuFolder(GameConfig app)
         {
             string emu_folder = OSFuncs.GetEmuApiFolder(app.UseX64);
@@ -74,6 +101,11 @@ namespace SmartGoldbergEmu
                 UseX64 = true
             };
             ShowEmuFolder(app);
+        }
+
+        private void about_description_label_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

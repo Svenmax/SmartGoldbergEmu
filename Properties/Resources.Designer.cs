@@ -63,6 +63,36 @@ namespace SmartGoldbergEmu.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap account_avatar {
+            get {
+                object obj = ResourceManager.GetObject("account_avatar", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] rude {
+            get {
+                object obj = ResourceManager.GetObject("rude", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] rude_gray {
+            get {
+                object obj = ResourceManager.GetObject("rude_gray", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap steel_steam_128 {
             get {
                 object obj = ResourceManager.GetObject("steel_steam_128", resourceCulture);

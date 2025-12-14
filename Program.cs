@@ -45,7 +45,7 @@ namespace SmartGoldbergEmu
                     System.Threading.Thread.Sleep(20000); // Sleep for 20 seconds ?
                     SteamEmulator.RestoreSteam();
                 }
-                catch(Exception)
+                catch (Exception)
                 { }
             }
         }

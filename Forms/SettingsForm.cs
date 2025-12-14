@@ -13,14 +13,15 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the SmartGoldbergEmu Launcher; if not, see
-   <http://www.gnu.org/licenses/>.
- */
+   <http://www.gnu.org/licenses/>. */
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using static System.Net.WebRequestMethods;
@@ -30,12 +31,14 @@ namespace SmartGoldbergEmu
 {
     public partial class SettingsForm : Form
     {
-    static public readonly List<string> languages = new List<string>
+        static public readonly List<string> languages = new List<string>
         {
             "arabic",
+            "brazilian",
             "bulgarian",
-            "schinese",
-            "tchinese",
+            "chinese_simplified",
+            "chinese_traditional",
+            "croatian",
             "czech",
             "danish",
             "dutch",
@@ -48,21 +51,20 @@ namespace SmartGoldbergEmu
             "italian",
             "japanese",
             "koreana",
+            "latam",
             "norwegian",
             "polish",
             "portuguese",
-            "brazilian",
             "romanian",
             "russian",
             "spanish",
-            "latam",
             "swedish",
             "thai",
             "turkish",
             "ukrainian",
-            "vietnamese",
-            "croatian"
+            "vietnamese"
         };
+
 
         private EmuConfig _config = new EmuConfig();
 
@@ -70,37 +72,30 @@ namespace SmartGoldbergEmu
         {
             set
             {
-                _config.language = value.language;
-                _config.port = value.port;
-                _config.steamid = value.steamid;
-                _config.username = value.username;
-                _config.webapi_key = value.webapi_key;
-
-                webapi_key_edit.Text = _config.webapi_key;
-                username_edit.Text   = _config.username;
-                port_edit.Text       = _config.port.ToString();
-                steam_id_edit.Text   = _config.steamid;
+                general_webApiKey_box.Text = value.webapi_key;
+                general_username_box.Text = value.username;
+                general_port_box.Text = value.port.ToString();
+                general_steamId_box.Text = value.steamid;
 
                 bool found_prefered_lang = false;
 
                 foreach (string lang in languages)
                 {
-                    language_combo.Items.Add(lang);
+                    general_language_box.Items.Add(lang);
                     if (!found_prefered_lang)
                     {
-                        if (lang.Equals(_config.language))
+                        if (lang.Equals(_config.language, StringComparison.OrdinalIgnoreCase))
                         {
-                            language_combo.SelectedItem = lang;
+                            general_language_box.SelectedItem = lang;
                             found_prefered_lang = true;
                         }
-                        else if (lang.Equals("english"))
+                        else if (lang.Equals("english", StringComparison.OrdinalIgnoreCase))
                         {
-                            language_combo.SelectedItem = lang;
+                            general_language_box.SelectedItem = lang;
                         }
                     }
                 }
             }
-
             get
             {
                 return _config;
@@ -110,28 +105,53 @@ namespace SmartGoldbergEmu
         public SettingsForm()
         {
             InitializeComponent();
-            Ucitavanje();
+            SettingLoad();
         }
 
-        public void Ucitavanje()
+        public void avatarFrameLoader()
         {
-            Image img=null;
+            Image img = null;
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-            if (File.Exists(Path.Combine(save_folder, "account_avatar.png")))
+            try
             {
-                using (var bmpTemp = new Bitmap(Path.Combine(save_folder, "account_avatar.png")))
+                string avatarPngPath = Path.Combine(save_folder, "account_avatar.png");
+                string avatarJpgPath = Path.Combine(save_folder, "account_avatar.jpg");
+
+                if (!File.Exists(avatarPngPath))
                 {
-                    img = new Bitmap(bmpTemp);
+                    img = general_avatar_frame.Image = SmartGoldbergEmu.Properties.Resources.account_avatar;
+                }
+                else
+                {
+                    using (var bmpTemp = new Bitmap(avatarPngPath))
+                    {
+                        img = new Bitmap(bmpTemp);
+                    }
+                }
+
+                if (File.Exists(avatarJpgPath))
+                {
+                    using (var bmpTemp = new Bitmap(avatarJpgPath))
+                    {
+                        img = new Bitmap(bmpTemp);
+                    }
                 }
             }
-            if (File.Exists(Path.Combine(save_folder, "account_avatar.jpg")))
+            catch (Exception ex)
             {
-                using (var bmpTemp = new Bitmap(Path.Combine(save_folder, "account_avatar.jpg")))
-                {
-                    img = new Bitmap(bmpTemp);
-                }
-            };
-            avatar.Image = img;
+                // Log the exception for debugging purposes
+                Console.WriteLine($"Error loading avatar: {ex.Message}");
+            }
+            finally
+            {
+                general_avatar_frame.Image = img;
+            }
+        }
+
+        public void SettingLoad()
+        {
+            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            avatarFrameLoader();
             if (File.Exists(Path.Combine(save_folder, "configs.user.ini")))
             {
                 using (StreamReader streamReader = new StreamReader(Path.Combine(save_folder, "configs.user.ini")))
@@ -147,21 +167,21 @@ namespace SmartGoldbergEmu
                             //FontsizeText.Text = prosliline;
                             prosliline = prosliline.Replace("account_name=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            username_edit.Text = result.ToString().Replace(",", ".");
+                            general_username_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("account_steamid="))
                         {
                             //FontsizeText.Text = prosliline;
                             prosliline = prosliline.Replace("account_steamid=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            steam_id_edit.Text = result.ToString().Replace(",", ".");
+                            general_steamId_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("language="))
                         {
                             //FontsizeText.Text = prosliline;
                             prosliline = prosliline.Replace("language=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            language_combo.Text = result.ToString().Replace(",", ".");
+                            general_language_box.Text = result.ToString().Replace(",", ".");
                         }
                     }
                     streamReader.Close();
@@ -182,7 +202,7 @@ namespace SmartGoldbergEmu
                             //FontsizeText.Text = prosliline;
                             prosliline = prosliline.Replace("listen_port=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            port_edit.Text = result.ToString().Replace(",", ".");
+                            general_port_box.Text = result.ToString().Replace(",", ".");
                         }
                     }
                     streamReader.Close();
@@ -206,7 +226,7 @@ namespace SmartGoldbergEmu
                             //FontsizeText.Text = prosliline;
                             prosliline = prosliline.Replace("Font_Size=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            FontsizeText.Text = result.ToString().Replace(",", ".");
+                            appearance_fontSize_box.Text = result.ToString().Replace(",", ".");
                         }
 
 
@@ -214,17 +234,17 @@ namespace SmartGoldbergEmu
                         {
                             prosliline = prosliline.Replace("Icon_Size=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            ImgSizeText.Text = result.ToString().Replace(",", ".");
+                            appearance_imageSize_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Font_Glyph_Extra_Spacing_x="))
                         {
                             prosliline = prosliline.Replace("Font_Glyph_Extra_Spacing_x=", "");
-                            fontspacingXText.Text = prosliline;
+                            sounds_fontSpacingX_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Font_Glyph_Extra_Spacing_y="))
                         {
                             prosliline = prosliline.Replace("Font_Glyph_Extra_Spacing_y=", "");
-                            fontspacingYText.Text = prosliline;
+                            sounds_fontSpacingY_box.Text = prosliline;
                         }
 
                         if (prosliline.Contains("Notification_R="))
@@ -233,7 +253,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            NotifColourText.Text = result.ToString().Replace(",", ".");
+                            appearance_notification_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Notification_G="))
                         {
@@ -241,7 +261,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            NotifColourText.Text = NotifColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_notification_box.Text = appearance_notification_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Notification_B="))
                         {
@@ -249,54 +269,54 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            NotifColourText.Text = NotifColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_notification_box.Text = appearance_notification_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Notification_A="))
                         {
                             prosliline = prosliline.Replace("Notification_A=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            NotifColourText.Text = NotifColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_notification_box.Text = appearance_notification_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
 
                         if (prosliline.Contains("Notification_Rounding="))
                         {
                             prosliline = prosliline.Replace("Notification_Rounding=", "");
-                            notifround_text.Text = prosliline;
+                            notification_rounding_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Margin_x="))
                         {
                             prosliline = prosliline.Replace("Notification_Margin_x=", "");
-                            notifmarginx_text.Text = prosliline;
+                            notification_marginX_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Margin_y="))
                         {
                             prosliline = prosliline.Replace("Notification_Margin_y=", "");
-                            notifmarginy_text.Text = prosliline;
+                            notification_marginY_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Animation="))
                         {
                             prosliline = prosliline.Replace("Notification_Animation=", "");
-                            notifanim_text.Text = prosliline;
+                            notification_animation_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Duration_Progress="))
                         {
                             prosliline = prosliline.Replace("Notification_Duration_Progress=", "");
-                            progressduration_text.Text = prosliline;
+                            notification_progressDuration_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Duration_Achievement="))
                         {
                             prosliline = prosliline.Replace("Notification_Duration_Achievement=", "");
-                            achduration_text.Text = prosliline;
+                            notification_achDuration_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Duration_Invitation="))
                         {
                             prosliline = prosliline.Replace("Notification_Duration_Invitation=", "");
-                            inviteduration_text.Text = prosliline;
+                            notification_inviteDuration_box.Text = prosliline;
                         }
                         if (prosliline.Contains("Notification_Duration_Chat="))
                         {
                             prosliline = prosliline.Replace("Notification_Duration_Chat=", "");
-                            chatduration_text.Text = prosliline;
+                            notification_chatDuration_box.Text = prosliline;
                         }
 
                         if (prosliline.Contains("Background_R="))
@@ -305,7 +325,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            BackColourText.Text = result.ToString().Replace(",", ".");
+                            appearance_background_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Background_G="))
                         {
@@ -313,7 +333,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            BackColourText.Text = BackColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_background_box.Text = appearance_background_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Background_B="))
                         {
@@ -321,24 +341,21 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            BackColourText.Text = BackColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_background_box.Text = appearance_background_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Background_A="))
                         {
                             prosliline = prosliline.Replace("Background_A=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            BackColourText.Text = BackColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_background_box.Text = appearance_background_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
-
-
-
                         if (prosliline.Contains("Element_R="))
                         {
                             prosliline = prosliline.Replace("Element_R=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            ElementColourText.Text = result.ToString().Replace(",", ".");
+                            appearance_element_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Element_G="))
                         {
@@ -346,7 +363,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            ElementColourText.Text = ElementColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_element_box.Text = appearance_element_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Element_B="))
                         {
@@ -354,13 +371,13 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            ElementColourText.Text = ElementColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_element_box.Text = appearance_element_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("Element_A="))
                         {
                             prosliline = prosliline.Replace("Element_A=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            ElementColourText.Text = ElementColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_element_box.Text = appearance_element_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
 
 
@@ -370,7 +387,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            ElementHovColourText.Text = result.ToString().Replace(",", ".");
+                            appearance_hover_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("ElementHovered_G="))
                         {
@@ -378,7 +395,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            ElementHovColourText.Text = ElementHovColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_hover_box.Text = appearance_hover_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("ElementHovered_B="))
                         {
@@ -386,13 +403,13 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            ElementHovColourText.Text = ElementHovColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_hover_box.Text = appearance_hover_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("ElementHovered_A="))
                         {
                             prosliline = prosliline.Replace("ElementHovered_A=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            ElementHovColourText.Text = ElementHovColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_hover_box.Text = appearance_hover_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
 
 
@@ -402,7 +419,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            EleActColourText.Text = result.ToString().Replace(",", ".");
+                            appearance_active_box.Text = result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("ElementActive_G="))
                         {
@@ -410,7 +427,7 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            EleActColourText.Text = EleActColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_active_box.Text = appearance_active_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("ElementActive_B="))
                         {
@@ -418,28 +435,28 @@ namespace SmartGoldbergEmu
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
                             result = result * 255;
                             result = Math.Round(result);
-                            EleActColourText.Text = EleActColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_active_box.Text = appearance_active_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("ElementActive_A="))
                         {
                             prosliline = prosliline.Replace("ElementActive_A=", "");
                             double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            EleActColourText.Text = EleActColourText.Text + ", " + result.ToString().Replace(",", ".");
+                            appearance_active_box.Text = appearance_active_box.Text + ", " + result.ToString().Replace(",", ".");
                         }
                         if (prosliline.Contains("PosAchievement="))
                         {
                             prosliline = prosliline.Replace("PosAchievement=", "");
-                            PosAch_Dropdown.Text = prosliline;
+                            appearance_achPos_box.Text = prosliline;
                         }
                         if (prosliline.Contains("PosInvitation="))
                         {
                             prosliline = prosliline.Replace("PosInvitation=", "");
-                            PosInv_Dropdown.Text = prosliline;
+                            appearance_invPos_box.Text = prosliline;
                         }
                         if (prosliline.Contains("PosChatMsg="))
                         {
                             prosliline = prosliline.Replace("PosChatMsg=", "");
-                            PosMsg_Dropdown.Text = prosliline;
+                            appearance_chatPos_box.Text = prosliline;
                         }
                     }
                     streamReader.Close();
@@ -449,17 +466,17 @@ namespace SmartGoldbergEmu
 
         public void Spremanje()
         {
-            double R,G,B,A;
+            double R, G, B, A;
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-            if (!string.IsNullOrWhiteSpace(ImgSizeText.Text) | !string.IsNullOrWhiteSpace(FontsizeText.Text) 
-                | !string.IsNullOrWhiteSpace(PosAch_Dropdown.Text) | !string.IsNullOrWhiteSpace(PosInv_Dropdown.Text) | !string.IsNullOrWhiteSpace(PosMsg_Dropdown.Text)
-                | !string.IsNullOrWhiteSpace(fontspacingXText.Text) | !string.IsNullOrWhiteSpace(fontspacingYText.Text)
-                | !string.IsNullOrWhiteSpace(NotifColourText.Text) | !string.IsNullOrWhiteSpace(BackColourText.Text) 
-                | !string.IsNullOrWhiteSpace(ElementColourText.Text) | !string.IsNullOrWhiteSpace(ElementHovColourText.Text) 
-                | !string.IsNullOrWhiteSpace(EleActColourText.Text) 
-                | !string.IsNullOrWhiteSpace(notifround_text.Text) | !string.IsNullOrWhiteSpace(notifanim_text.Text) | !string.IsNullOrWhiteSpace(notifmarginx_text.Text) | !string.IsNullOrWhiteSpace(notifmarginy_text.Text) 
-                | !string.IsNullOrWhiteSpace(achduration_text.Text) | !string.IsNullOrWhiteSpace(progressduration_text.Text)
-                | !string.IsNullOrWhiteSpace(inviteduration_text.Text) | !string.IsNullOrWhiteSpace(chatduration_text.Text)
+            if (!string.IsNullOrWhiteSpace(appearance_imageSize_box.Text) | !string.IsNullOrWhiteSpace(appearance_fontSize_box.Text)
+                | !string.IsNullOrWhiteSpace(appearance_achPos_box.Text) | !string.IsNullOrWhiteSpace(appearance_invPos_box.Text) | !string.IsNullOrWhiteSpace(appearance_chatPos_box.Text)
+                | !string.IsNullOrWhiteSpace(sounds_fontSpacingX_box.Text) | !string.IsNullOrWhiteSpace(sounds_fontSpacingY_box.Text)
+                | !string.IsNullOrWhiteSpace(appearance_notification_box.Text) | !string.IsNullOrWhiteSpace(appearance_background_box.Text)
+                | !string.IsNullOrWhiteSpace(appearance_element_box.Text) | !string.IsNullOrWhiteSpace(appearance_hover_box.Text)
+                | !string.IsNullOrWhiteSpace(appearance_active_box.Text)
+                | !string.IsNullOrWhiteSpace(notification_rounding_box.Text) | !string.IsNullOrWhiteSpace(notification_animation_box.Text) | !string.IsNullOrWhiteSpace(notification_marginX_box.Text) | !string.IsNullOrWhiteSpace(notification_marginY_box.Text)
+                | !string.IsNullOrWhiteSpace(notification_achDuration_box.Text) | !string.IsNullOrWhiteSpace(notification_progressDuration_box.Text)
+                | !string.IsNullOrWhiteSpace(notification_inviteDuration_box.Text) | !string.IsNullOrWhiteSpace(notification_chatDuration_box.Text)
                 | File.Exists(Path.Combine(save_folder, "fonts", "dinamo.ttf")))
             {
                 using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "configs.overlay.ini"), FileMode.Create), Encoding.ASCII))
@@ -467,32 +484,32 @@ namespace SmartGoldbergEmu
                     streamWriter.WriteLine("[overlay::general]");
                     streamWriter.WriteLine("enable_experimental_overlay=0");
                     streamWriter.WriteLine("[overlay::appearance]");
-                    if(File.Exists(Path.Combine(save_folder, "fonts", "dinamo.ttf")))
+                    if (File.Exists(Path.Combine(save_folder, "fonts", "dinamo.ttf")))
                     {
                         streamWriter.WriteLine("Font_Override=dinamo.ttf");
                     }
-                    if (!string.IsNullOrWhiteSpace(FontsizeText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_fontSize_box.Text))
                     {
-                        streamWriter.Write("Font_Size="+FontsizeText.Text+".0"+"\n");
+                        streamWriter.Write("Font_Size=" + appearance_fontSize_box.Text + ".0" + "\n");
                     }
-                    if (!string.IsNullOrWhiteSpace(ImgSizeText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_imageSize_box.Text))
                     {
-                        streamWriter.Write("Icon_Size="+ImgSizeText.Text + ".0"+"\n");
+                        streamWriter.Write("Icon_Size=" + appearance_imageSize_box.Text + ".0" + "\n");
                     }
-                    if (!string.IsNullOrWhiteSpace(fontspacingXText.Text))
+                    if (!string.IsNullOrWhiteSpace(sounds_fontSpacingX_box.Text))
                     {
-                        streamWriter.WriteLine("Font_Glyph_Extra_Spacing_x=" + fontspacingXText.Text);
+                        streamWriter.WriteLine("Font_Glyph_Extra_Spacing_x=" + sounds_fontSpacingX_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(fontspacingYText.Text))
+                    if (!string.IsNullOrWhiteSpace(sounds_fontSpacingY_box.Text))
                     {
-                        streamWriter.WriteLine("Font_Glyph_Extra_Spacing_y=" + fontspacingYText.Text);
+                        streamWriter.WriteLine("Font_Glyph_Extra_Spacing_y=" + sounds_fontSpacingY_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(NotifColourText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_notification_box.Text))
                     {
-                        string lajna = NotifColourText.Text.Replace(" ", "");
+                        string lajna = appearance_notification_box.Text.Replace(" ", "");
                         string[] clanovi = lajna.Split(',');
 
-                        
+
                         double.TryParse(clanovi[0], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out R);
                         double.TryParse(clanovi[1], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out G);
                         double.TryParse(clanovi[2], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out B);
@@ -516,42 +533,42 @@ namespace SmartGoldbergEmu
                         streamWriter.Write("Notification_R=" + R1 + "\n" + "Notification_G=" + G1 + "\n" + "Notification_B=" + B1 + "\n" + "Notification_A=" + A1 + "\n");
 
                     }
-                    if (!string.IsNullOrWhiteSpace(notifround_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_rounding_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Rounding=" + notifround_text.Text);
+                        streamWriter.WriteLine("Notification_Rounding=" + notification_rounding_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(notifmarginx_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_marginX_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Margin_x=" + notifmarginx_text.Text);
+                        streamWriter.WriteLine("Notification_Margin_x=" + notification_marginX_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(notifmarginy_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_marginY_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Margin_y=" + notifmarginy_text.Text);
+                        streamWriter.WriteLine("Notification_Margin_y=" + notification_marginY_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(notifanim_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_animation_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Animation=" + notifanim_text.Text);
+                        streamWriter.WriteLine("Notification_Animation=" + notification_animation_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(progressduration_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_progressDuration_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Duration_Progress=" + progressduration_text.Text);
+                        streamWriter.WriteLine("Notification_Duration_Progress=" + notification_progressDuration_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(achduration_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_achDuration_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Duration_Achievement=" + achduration_text.Text);
+                        streamWriter.WriteLine("Notification_Duration_Achievement=" + notification_achDuration_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(inviteduration_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_inviteDuration_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Duration_Invitation=" + inviteduration_text.Text);
+                        streamWriter.WriteLine("Notification_Duration_Invitation=" + notification_inviteDuration_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(chatduration_text.Text))
+                    if (!string.IsNullOrWhiteSpace(notification_chatDuration_box.Text))
                     {
-                        streamWriter.WriteLine("Notification_Duration_Chat=" + chatduration_text.Text);
+                        streamWriter.WriteLine("Notification_Duration_Chat=" + notification_chatDuration_box.Text);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(BackColourText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_background_box.Text))
                     {
-                        string lajna = BackColourText.Text.Replace(" ", "");
+                        string lajna = appearance_background_box.Text.Replace(" ", "");
                         string[] clanovi = lajna.Split(',');
 
                         double.TryParse(clanovi[0], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out R);
@@ -576,9 +593,9 @@ namespace SmartGoldbergEmu
                         streamWriter.Write("Background_R=" + R1 + "\n" + "Background_G=" + G1 + "\n" + "Background_B=" + B1 + "\n" + "Background_A=" + A1 + "\n");
 
                     }
-                    if (!string.IsNullOrWhiteSpace(ElementColourText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_element_box.Text))
                     {
-                        string lajna = ElementColourText.Text.Replace(" ", "");
+                        string lajna = appearance_element_box.Text.Replace(" ", "");
                         string[] clanovi = lajna.Split(',');
 
                         double.TryParse(clanovi[0], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out R);
@@ -602,9 +619,9 @@ namespace SmartGoldbergEmu
 
                         streamWriter.Write("Element_R=" + R1 + "\n" + "Element_G=" + G1 + "\n" + "Element_B=" + B1 + "\n" + "Element_A=" + A1 + "\n");
                     }
-                    if (!string.IsNullOrWhiteSpace(ElementHovColourText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_hover_box.Text))
                     {
-                        string lajna = ElementHovColourText.Text.Replace(" ", "");
+                        string lajna = appearance_hover_box.Text.Replace(" ", "");
                         string[] clanovi = lajna.Split(',');
 
                         double.TryParse(clanovi[0], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out R);
@@ -628,9 +645,9 @@ namespace SmartGoldbergEmu
 
                         streamWriter.Write("ElementHovered_R=" + R1 + "\n" + "ElementHovered_G=" + G1 + "\n" + "ElementHovered_B=" + B1 + "\n" + "ElementHovered_A=" + A1 + "\n");
                     }
-                    if (!string.IsNullOrWhiteSpace(EleActColourText.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_active_box.Text))
                     {
-                        string lajna = EleActColourText.Text.Replace(" ", "");
+                        string lajna = appearance_active_box.Text.Replace(" ", "");
                         string[] clanovi = lajna.Split(',');
 
                         double.TryParse(clanovi[0], NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out R);
@@ -655,49 +672,49 @@ namespace SmartGoldbergEmu
                         streamWriter.Write("ElementActive_R=" + R1 + "\n" + "ElementActive_G=" + G1 + "\n" + "ElementActive_B=" + B1 + "\n" + "ElementActive_A=" + A1 + "\n");
 
                     }
-                    if (!string.IsNullOrWhiteSpace(PosAch_Dropdown.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_achPos_box.Text))
                     {
-                        streamWriter.WriteLine("PosAchievement=" + PosAch_Dropdown.Text);
+                        streamWriter.WriteLine("PosAchievement=" + appearance_achPos_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(PosInv_Dropdown.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_invPos_box.Text))
                     {
-                        streamWriter.WriteLine("PosInvitation=" + PosInv_Dropdown.Text);
+                        streamWriter.WriteLine("PosInvitation=" + appearance_invPos_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(PosMsg_Dropdown.Text))
+                    if (!string.IsNullOrWhiteSpace(appearance_chatPos_box.Text))
                     {
-                        streamWriter.WriteLine("PosChatMsg=" + PosMsg_Dropdown.Text);
+                        streamWriter.WriteLine("PosChatMsg=" + appearance_chatPos_box.Text);
                     }
                     streamWriter.Close();
                 }
             }
-            if (!string.IsNullOrWhiteSpace(username_edit.Text) | !string.IsNullOrWhiteSpace(steam_id_edit.Text) | !string.IsNullOrWhiteSpace(language_combo.Text))
+            if (!string.IsNullOrWhiteSpace(general_username_box.Text) | !string.IsNullOrWhiteSpace(general_steamId_box.Text) | !string.IsNullOrWhiteSpace(general_language_box.Text))
             {
                 using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "configs.user.ini"), FileMode.Create), Encoding.ASCII))
                 {
                     streamWriter.WriteLine("[user::general]");
-                    if (!string.IsNullOrWhiteSpace(username_edit.Text))
+                    if (!string.IsNullOrWhiteSpace(general_username_box.Text))
                     {
-                        streamWriter.WriteLine("account_name=" + username_edit.Text);
+                        streamWriter.WriteLine("account_name=" + general_username_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(username_edit.Text))
+                    if (!string.IsNullOrWhiteSpace(general_username_box.Text))
                     {
-                        streamWriter.WriteLine("account_steamid=" + steam_id_edit.Text);
+                        streamWriter.WriteLine("account_steamid=" + general_steamId_box.Text);
                     }
-                    if (!string.IsNullOrWhiteSpace(username_edit.Text))
+                    if (!string.IsNullOrWhiteSpace(general_username_box.Text))
                     {
-                        streamWriter.WriteLine("language=" + language_combo.Text);
+                        streamWriter.WriteLine("language=" + general_language_box.Text);
                     }
                     streamWriter.Close();
                 }
             }
-            if (!string.IsNullOrWhiteSpace(port_edit.Text))
+            if (!string.IsNullOrWhiteSpace(general_port_box.Text))
             {
                 using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "configs.main.ini"), FileMode.Create), Encoding.ASCII))
                 {
                     streamWriter.WriteLine("[main::general]\nenable_account_avatar=1\n[main::connectivity]");
-                    if (!string.IsNullOrWhiteSpace(port_edit.Text))
+                    if (!string.IsNullOrWhiteSpace(general_port_box.Text))
                     {
-                        streamWriter.WriteLine("listen_port=" + port_edit.Text);
+                        streamWriter.WriteLine("listen_port=" + general_port_box.Text);
                     }
                     else
                     {
@@ -708,10 +725,16 @@ namespace SmartGoldbergEmu
             }
         }
 
+        private void ApiKeyBttn_Click(object sender, EventArgs e)
+        {
+            // Open the URL in the default web browser
+            System.Diagnostics.Process.Start("https://steamcommunity.com/dev/apikey");
+        }
+
         private void Save_button_Click(object sender, EventArgs e)
         {
             Spremanje();
-            if( Check_settings() )
+            if (Check_settings())
             {
                 DialogResult = DialogResult.OK;
                 this.Close();
@@ -728,24 +751,24 @@ namespace SmartGoldbergEmu
         {
             try
             {
-                Config.port = Convert.ToUInt16(port_edit.Text);
+                Config.port = Convert.ToUInt16(general_port_box.Text);
             }
             catch
             {
                 MessageBox.Show("The port must be a number >1024", "Port invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            Config.steamid = steam_id_edit.Text;
-            Config.username = username_edit.Text;
-            Config.webapi_key = webapi_key_edit.Text;
-            Config.language = language_combo.SelectedItem.ToString();
+            Config.steamid = general_steamId_box.Text;
+            Config.username = general_username_box.Text;
+            Config.webapi_key = general_webApiKey_box.Text;
+            Config.language = general_language_box.SelectedItem.ToString();
 
-            if (Config.webapi_key.Length != 0 && Config.webapi_key.Length != 32 )
+            if (Config.webapi_key.Length != 0 && Config.webapi_key.Length != 32)
             {
-                MessageBox.Show("The webapi key consists of 32 alphanum char in upper case.\n\nMore infos at https://steamcommunity.com/dev/apikey", "Webapi Key invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("The webapi key consists of 32 alphanum char in upper case.\n\nCheck settings menu to get yours.", "Webapi Key invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            if(Config.port != 0 && Config.port < 1024 )
+            if (Config.port != 0 && Config.port < 1024)
             {
                 MessageBox.Show("The port must be a number >1024", "Port invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
@@ -754,26 +777,30 @@ namespace SmartGoldbergEmu
             return true;
         }
 
-        private void Avatarchng_Click(object sender, EventArgs e)
+        private void AvatarChange_Click(object sender, EventArgs e)
         {
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            Directory.CreateDirectory(save_folder);
+
             OpenFileDialog dijalog = new OpenFileDialog
             {
-                Filter = "PNG|*.png|JPG|*.jpg|All files|*.*",
-                FilterIndex = 3
+                Filter = "Image Files (*.png, *.jpg)|*.png;*.jpg",
+                FilterIndex = 1
             };
+
             if (dijalog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    File.Copy(dijalog.FileName, Path.Combine(save_folder, "account_avatar.png"), true);
+                    string destinationPath = Path.Combine(save_folder, "account_avatar.png");
+                    File.Copy(dijalog.FileName, destinationPath, true);
+                    avatarFrameLoader();
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
-                    // File in use and can't be deleted; no permission etc.
+                    MessageBox.Show("Error setting avatar image: " + ex.Message, "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            Ucitavanje();
         }
 
         private void addfriendsoundbutton_Click(object sender, EventArgs e)
@@ -788,15 +815,21 @@ namespace SmartGoldbergEmu
             {
                 try
                 {
-                    File.Copy(dijalog.FileName, Path.Combine(save_folder, "overlay_friend_notification.wav"), true);
+                    if (!Directory.Exists(Path.Combine(save_folder, "sounds")))
+                    {
+                        DirectoryInfo di = Directory.CreateDirectory(Path.Combine(save_folder, "sounds"));
+                    }
+                    File.Copy(dijalog.FileName, Path.Combine(save_folder, "sounds", "overlay_friend_notification.wav"), true);
+                    MessageBox.Show("Friend notification sound set.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
-                    // File in use and can't be deleted; no permission etc.
+                    MessageBox.Show($"Error setting friend notification sound: {ex.Message}", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
-        private void addachsoundbutton_Click(object sender, EventArgs e)
+
+        private void AddAchSoundButton_Click(object sender, EventArgs e)
         {
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             OpenFileDialog dijalog = new OpenFileDialog
@@ -808,78 +841,248 @@ namespace SmartGoldbergEmu
             {
                 try
                 {
-                    File.Copy(dijalog.FileName, Path.Combine(save_folder, "overlay_achievement_notification.wav"), true);
+                    if (!Directory.Exists(Path.Combine(save_folder, "sounds")))
+                    {
+                        DirectoryInfo di = Directory.CreateDirectory(Path.Combine(save_folder, "sounds"));
+                    }
+                    File.Copy(dijalog.FileName, Path.Combine(save_folder, "sounds", "overlay_achievement_notification.wav"), true);
+                    MessageBox.Show("Achievement sound set.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
-                    // File in use and can't be deleted; no permission etc.
+                    MessageBox.Show($"Error setting Achievement sound: {ex.Message}", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-        }
-        private void delfriendsoundbutton_Click(object sender, EventArgs e)
-        {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-            if (File.Exists(Path.Combine(save_folder, "overlay_friend_notification.wav")))
-            {
-                File.Delete(Path.Combine(save_folder, "overlay_friend_notification.wav"));
-                MessageBox.Show("File was successfully deleted", "File Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("File doesn't exist", "File doesn't exist", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-        private void delachsoundbutton_Click(object sender, EventArgs e)
-        {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-            if (File.Exists(Path.Combine(save_folder, "overlay_achievement_notification.wav"))) {
-                File.Delete(Path.Combine(save_folder, "overlay_achievement_notification.wav"));
-                MessageBox.Show("File was successfully deleted", "File Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("File doesn't exist", "File doesn't exist", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
-        private void addFontbutton_Click(object sender, EventArgs e)
+        private void DelFriendSundButton_Click(object sender, EventArgs e)
         {
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            if (File.Exists(Path.Combine(save_folder, "sounds", "overlay_friend_notification.wav")))
+            {
+                File.Delete(Path.Combine(save_folder, "sounds", "overlay_friend_notification.wav"));
+                MessageBox.Show("Friend notification sound removed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("No Friend notification sound set yet.", "Fail", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        private void DelAchSoundButton_Click(object sender, EventArgs e)
+        {
+            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            if (File.Exists(Path.Combine(save_folder, "sounds", "overlay_achievement_notification.wav")))
+            {
+                File.Delete(Path.Combine(save_folder, "sounds", "overlay_achievement_notification.wav"));
+                MessageBox.Show("Achievement sound removed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("No achievement sound has been set yet.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void AddFontButton_Click(object sender, EventArgs e)
+        {
+            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string fontFolder = Path.Combine(save_folder, "fonts");
+            string iniFilePath = Path.Combine(save_folder, "configs.overlay.ini");
+
             OpenFileDialog dijalog = new OpenFileDialog
             {
                 Filter = "TTF|*.ttf|All files|*.*",
                 FilterIndex = 2
             };
+
             if (dijalog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    if (!Directory.Exists(Path.Combine(save_folder, "fonts")))
+                    if (!Directory.Exists(fontFolder))
                     {
-                        DirectoryInfo di = Directory.CreateDirectory(Path.Combine(save_folder, "fonts"));
+                        Directory.CreateDirectory(fontFolder);
                     }
-                    File.Copy(dijalog.FileName, Path.Combine(save_folder,"fonts", "dinamo.ttf"), true);
+
+                    string fontFileName = Path.GetFileName(dijalog.FileName);
+                    File.Copy(dijalog.FileName, Path.Combine(fontFolder, fontFileName), true);
+
+                    string[] lines = File.Exists(iniFilePath) ? File.ReadAllLines(iniFilePath) : new string[0];
+                    bool categoryFound = false;
+                    bool fontOverrideFound = false;
+
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        if (lines[i].Trim() == "[overlay::appearance]")
+                        {
+                            categoryFound = true;
+
+                            for (int j = i + 1; j < lines.Length; j++)
+                            {
+                                if (lines[j].StartsWith("Font_Override="))
+                                {
+                                    lines[j] = "Font_Override=" + fontFileName;
+                                    fontOverrideFound = true;
+                                    break;
+                                }
+                                if (lines[j].StartsWith("["))
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (!fontOverrideFound)
+                            {
+                                List<string> lineList = lines.ToList();
+                                lineList.Insert(i + 1, "Font_Override=" + fontFileName);
+                                lines = lineList.ToArray();
+                            }
+
+                            break;
+                        }
+                    }
+                    if (!categoryFound)
+                    {
+                        List<string> lineList = lines.ToList();
+                        lineList.Add("");
+                        lineList.Add("[overlay::appearance]");
+                        lineList.Add("Font_Override=" + fontFileName);
+                        lines = lineList.ToArray();
+                    }
+                    File.WriteAllLines(iniFilePath, lines);
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
-                    // File in use and can't be deleted; no permission etc.
+                    MessageBox.Show("Error: " + ex.Message);
                 }
             }
         }
 
-        private void delfontbutton_Click(object sender, EventArgs e)
+        private void DelFontButton_Click(object sender, EventArgs e)
         {
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-            if (File.Exists(Path.Combine(save_folder, "fonts", "dinamo.ttf")))
+            string fontFolder = Path.Combine(save_folder, "fonts");
+            string iniFilePath = Path.Combine(save_folder, "configs.overlay.ini");
+
+            bool filesNotDeleted = false;
+
+            if (Directory.Exists(fontFolder))
             {
-                File.Delete(Path.Combine(save_folder, "fonts", "dinamo.ttf"));
-                Directory.Delete(Path.Combine(save_folder, "fonts"));
-                MessageBox.Show("File was successfully deleted", "File Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                foreach (string file in Directory.GetFiles(fontFolder))
+                {
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        filesNotDeleted = true;
+                    }
+                    catch (IOException)
+                    {
+                        filesNotDeleted = true;
+                    }
+                    catch (Exception)
+                    {
+                        filesNotDeleted = true;
+                    }
+                }
+            }
+
+            try
+            {
+                string[] lines = File.Exists(iniFilePath) ? File.ReadAllLines(iniFilePath) : new string[0];
+                bool categoryFound = false;
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].Trim() == "[overlay::appearance]")
+                    {
+                        categoryFound = true;
+
+                        for (int j = i + 1; j < lines.Length; j++)
+                        {
+                            if (lines[j].StartsWith("Font_Override="))
+                            {
+                                lines[j] = "Font_Override=";
+                                break;
+                            }
+                            if (lines[j].StartsWith("["))
+                            {
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (categoryFound)
+                {
+                    File.WriteAllLines(iniFilePath, lines);
+                }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            if (filesNotDeleted)
+            {
+                MessageBox.Show("Fonts folder could not be cleared because\n some files where in use or access was denied.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("File doesn't exist", "File doesn't exist", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Fonts folder successfully cleared.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        private void PosMsg_Dropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void webapi_key_edit_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void fontSpacingY_settings_sound_edit_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void sounds_fontSpacingX_box_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void setting_sound_tab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void inviteduration_text_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void appearance_background_box_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void setting_randomizePort_bttn_Click(object sender, EventArgs e)
+        {
+            // Generate a random port number between 1024 and 65535
+            ushort randomPort = (ushort)new Random().Next(1024, 65535);
+            
+            // Update the port text box with the new random port
+            general_port_box.Text = randomPort.ToString();
+        }
+
+        private void ramoveAvatar_bttn_Click(object sender, EventArgs e)
+        {
+            // Set the avatar image to the default one from resources
+            general_avatar_frame.Image = SmartGoldbergEmu.Properties.Resources.account_avatar;
+            
+            //MessageBox.Show("Avatar successfully reset to default.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

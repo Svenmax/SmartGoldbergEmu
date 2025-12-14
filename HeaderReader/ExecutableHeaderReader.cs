@@ -28,9 +28,9 @@ namespace HeaderReader
 
         public enum ExecutableType
         {
-            Unknown    = 0x00,
+            Unknown = 0x00,
             Executable = 0x01,
-            Library    = 0x02,
+            Library = 0x02,
         }
 
         protected bool _Is32BitHeader;

@@ -1,19 +1,38 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.Xml.Serialization;
-using Newtonsoft.Json.Linq;
+﻿/* Copyright (C) 2019-2020 Nemirtingas
+   This file is part of the SmartGoldbergEmu Launcher
+
+   The SmartGoldbergEmu Launcher is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   The SmartGoldbergEmu Launcher is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the SmartGoldbergEmu Launcher; if not, see
+   <http://www.gnu.org/licenses/>.
+ */
+using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OSUtility;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows.Forms;
+using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Linq;
 
-using Microsoft.Win32;
 
-using OSUtility;
 
 namespace SmartGoldbergEmu
 {
@@ -28,116 +47,145 @@ namespace SmartGoldbergEmu
 
         public static void Initialize()
         {
-            LoadSave();
+            LoadSmartGoldbergEmuCfg();
 
+            // Checks if configs.user.ini exits, else it creates it.
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-                //string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
-                if (File.Exists(Path.Combine(save_folder, "configs.user.ini")))
+            if (!File.Exists(Path.Combine(save_folder, "configs.user.ini")))
+            {
+                string file_path = Path.Combine(save_folder, "configs.user.ini");
+
+                if (!File.Exists(file_path))
                 {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(save_folder, "configs.user.ini"), FileMode.Open), Encoding.UTF8))
+                    // Failsafe
+                    Directory.CreateDirectory(Path.GetDirectoryName(file_path));
+                    File.WriteAllText(file_path, string.Empty, Encoding.UTF8);
+                }
+            }
+            // Checks if configs.overlay.ini exits, else it creates it.
+            if (!File.Exists(Path.Combine(save_folder, "configs.overlay.ini")))
+            {
+                string file_path = Path.Combine(save_folder, "configs.overlay.ini");
+
+                if (!File.Exists(file_path))
+                {
+                    Directory.CreateDirectory(save_folder);
+                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(file_path, FileMode.Create), Encoding.UTF8))
                     {
-                        while (!streamReader.EndOfStream)
+                        streamWriter.WriteLine("[overlay::general]");
+                        streamWriter.WriteLine("enable_experimental_overlay = 1");
+                    }
+                }
+            }
+
+            // Loads configs.user.ini
+            if (File.Exists(Path.Combine(save_folder, "configs.user.ini")))
+            {
+                var lines = File.ReadAllLines(Path.Combine(save_folder, "configs.user.ini"));
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("account_name=")) Config.username = line.Substring("account_name=".Length);
+                    else if (line.StartsWith("account_steamid=")) Config.steamid = line.Substring("account_steamid=".Length);
+                    else if (line.StartsWith("language=")) Config.language = line.Substring("language=".Length);
+                }
+            }
+
+            // Loads configs.user.ini
+            if (File.Exists(Path.Combine(save_folder, "configs.main.ini")))
+            {
+                using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(save_folder, "configs.main.ini"), FileMode.Open), Encoding.UTF8))
+                {
+                    while (!streamReader.EndOfStream)
+                    {
+                        var line = streamReader.ReadLine();
+                        if (line.StartsWith("listen_port="))
                         {
-                            var line = streamReader.ReadLine();
-                            if (line.StartsWith("account_name="))
-                            {
-                                var popravni = line.Replace("account_name=", "");
-                                Config.username = popravni;
-                            }
-                            if (line.StartsWith("account_steamid="))
-                            {
-                                var popravni = line.Replace("account_steamid=", "");
-                                Config.steamid = popravni;
-                            }
-                            if (line.StartsWith("language="))
-                            {
-                                var popravni = line.Replace("language=", "");
-                                Config.language = popravni;
-                            }
+                            var popravni = line.Replace("listen_port=", "");
+                            Config.port = ushort.Parse(popravni);
                         }
                     }
                 }
-                if (File.Exists(Path.Combine(save_folder, "configs.main.ini")))
-                {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(save_folder, "configs.main.ini"), FileMode.Open), Encoding.UTF8))
-                    {
-                        while (!streamReader.EndOfStream)
-                        {
-                            var line = streamReader.ReadLine();
-                            if (line.StartsWith("listen_port="))
-                            {
-                                var popravni = line.Replace("listen_port=", "");
-                                Config.port = ushort.Parse(popravni);
-                            }
-                        }
-                    }
-                }
+            }
         }
-        
+
         private static RegistryKey CreateOrOpenKey(string keyPath)
         {
             RegistryKey key = Registry.CurrentUser.OpenSubKey(keyPath, true);
+
             if (key == null)
             {
                 string[] split = keyPath.Split('\\');
-                key = CreateOrOpenKey(string.Join("\\", split.Take(split.Length - 1)));
-                key.CreateSubKey(split.Last());
-                key.Close();
+                key = CreateOrOpenKey(string.Join("\\", split.Take(split.Length - 1)))
+                            .CreateSubKey(split.Last());
             }
-            return Registry.CurrentUser.OpenSubKey(keyPath, true);
+
+            return key;
         }
+
 
         public static bool SetupEmu(GameConfig app)
         {
             string game_emu_folder = app.GetGameEmuFolder();
             string save_folder;
 
-            if (!app.LocalSave.Equals(""))
+            // Check for valid save path
+            if (!string.IsNullOrEmpty(app.LocalSave))
             {
                 save_folder = Path.Combine(game_emu_folder, app.LocalSave, "settings");
             }
             else
             {
                 save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Goldberg SteamEmu Saves", "settings");
+                // Alternative save path (uncomment if needed)
+                // save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             }
+
             try
             {
+                // Ensure directory exists
                 if (!Directory.Exists(save_folder))
+                {
                     Directory.CreateDirectory(save_folder);
+                }
 
-                using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "account_name.txt"), FileMode.Create), Encoding.ASCII))
-                {
-                    streamWriter.Write(Config.username);
-                }
-                using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "language.txt"), FileMode.Create), Encoding.ASCII))
-                {
-                    streamWriter.Write(Config.language);
-                }
+                // Write configuration values
+                //WriteToFile(Path.Combine(save_folder, "account_name.txt"), Config.username);
+                WriteToFile(Path.Combine(save_folder, "language.txt"), Config.language);
+
                 if (Config.port != 0)
                 {
-                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "listen_port.txt"), FileMode.Create), Encoding.ASCII))
-                    {
-                        streamWriter.Write(Config.port);
-                    }
+                    WriteToFile(Path.Combine(save_folder, "listen_port.txt"), Config.port.ToString());
                 }
-                if (!Config.steamid.Equals(""))
+
+                if (!string.IsNullOrEmpty(Config.steamid))
                 {
-                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(save_folder, "user_steam_id.txt"), FileMode.Create), Encoding.ASCII))
-                    {
-                        streamWriter.Write(Config.steamid);
-                    }
+                    WriteToFile(Path.Combine(save_folder, "user_steam_id.txt"), Config.steamid);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Log the exception if needed
+                Console.WriteLine($"Error setting up the emulator: {ex.Message}");
                 return false;
             }
-
 
             return true;
         }
 
-        public static void LoadSave()
+        // Helper method for writing to files
+        private static void WriteToFile(string filePath, string content)
+        {
+            if (!string.IsNullOrEmpty(content))
+            {
+                using (StreamWriter streamWriter = new StreamWriter(new FileStream(filePath, FileMode.Create), Encoding.ASCII))
+                {
+                    streamWriter.Write(content);
+                }
+            }
+        }
+
+
+        public static void LoadSmartGoldbergEmuCfg()
         {
             try
             {
@@ -209,11 +257,14 @@ namespace SmartGoldbergEmu
             Save();
         }
 
+        // Creates necessary directories and symbolic links for Steam settings in the game emulator folder.
         private static void Create_steam_settings_folder(GameConfig app)
         {
             string game_emu_folder = app.GetGameEmuFolder();
+
             if (!Directory.Exists(Path.Combine(game_emu_folder, "steam_settings") + Path.DirectorySeparatorChar))
                 Directory.CreateDirectory(Path.Combine(game_emu_folder, "steam_settings") + Path.DirectorySeparatorChar);
+
             if (OSDetector.IsLinux())
             {
                 if (!Directory.Exists(Path.Combine(game_emu_folder, ".steam") + Path.DirectorySeparatorChar))
@@ -230,6 +281,7 @@ namespace SmartGoldbergEmu
                         p.WaitForExit();
                     }
                 }
+
                 if (!Directory.Exists(Path.Combine(game_emu_folder, ".steam", (app.UseX64 ? "sdk64" : "sdk32"))))
                 {
                     using (var p = Process.Start(new ProcessStartInfo
@@ -247,25 +299,40 @@ namespace SmartGoldbergEmu
             }
         }
 
+        // Opens the game emulator folder using the appropriate file explorer for the operating system (Windows or Linux).
+        // If opening the folder fails, it shows the folder path in a message box.
+
         public static void ShowGameEmuFolder(GameConfig app)
         {
             string emu_folder = app.GetGameEmuFolder();
 
+            // Ensure that the steam settings folder is created if needed
             SteamEmulator.Create_steam_settings_folder(app);
 
             try
             {
+                // Open the emulator folder with the appropriate file explorer based on the OS
                 if (OSDetector.IsWindows())
+                {
                     Process.Start("explorer.exe", emu_folder);
+                }
                 else if (OSDetector.IsLinux())
+                {
                     Process.Start("nautilus", emu_folder);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unsupported OS.");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Folder: " + emu_folder, "Folder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // If an error occurs (e.g., explorer/nautilus fails), show the folder path in a message box
+                MessageBox.Show($"Failed to open the folder: {ex.Message}\nPath: {emu_folder}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        // Sets up the Steam Emulator by modifying registry keys on Windows or setting environment variables on Linux. Returns true if successful.
         private static bool SetupSteamEmu(GameConfig app)
         {
             try
@@ -282,7 +349,7 @@ namespace SmartGoldbergEmu
 
                     if (steamPid == 0)
                     {
-                        steamPid = (int?)key.GetValue("pid") ?? (int?)0;
+                        steamPid = (int?)key.GetValue("pid") ?? 0;
                         steamClientDll = key.GetValue("SteamClientDll")?.ToString() ?? string.Empty;
                         steamClientDll64 = key.GetValue("SteamClientDll64")?.ToString() ?? string.Empty;
                     }
@@ -295,15 +362,14 @@ namespace SmartGoldbergEmu
                 else if (OSDetector.IsLinux())
                 {
                     Environment.SetEnvironmentVariable("HOME", app.GetGameEmuFolder());
-                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(app.GetGameEmuFolder(), "steam.pid"), FileMode.Create), Encoding.ASCII))
-                    {
-                        streamWriter.Write(Process.GetCurrentProcess().Id);
-                    }
-                    // On linux, steam_api.so checks for steamclient.so in $HOME/.steam/sdk(32|64)
-                    // So if we set the HOME env variable before starting the game, it should use our steamclient.so
+
+                    string pidFilePath = Path.Combine(app.GetGameEmuFolder(), "steam.pid");
+                    File.WriteAllText(pidFilePath, Process.GetCurrentProcess().Id.ToString(), Encoding.ASCII);
+
+                    // On Linux, setting the HOME env variable ensures Steam uses our custom steamclient.so library
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
             }
@@ -315,124 +381,256 @@ namespace SmartGoldbergEmu
         {
             string os_folder = OSFuncs.GetEmuApiFolder(app.UseX64);
 
-            if (os_folder == string.Empty)
+            if (string.IsNullOrEmpty(os_folder))
             {
+                MessageBox.Show("OS folder path is empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
-            string emu_path = os_folder + OSFuncs.GetSteamAPIName(app.UseX64);
-            if (!File.Exists(emu_path))
+            string emu_api_name = OSFuncs.GetSteamAPIName(app.UseX64);
+            string emu_api_path = Path.Combine(os_folder, emu_api_name);
+
+            if (!File.Exists(emu_api_path))
             {
-                MessageBox.Show("Cannot find SmartGoldbergEmu Launcher: " + emu_path);
+                MessageBox.Show($"Cannot find Goldberg's DLL: {emu_api_name}.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
             try
             {
                 string game_emu_folder = app.GetGameEmuFolder();
-
                 Create_steam_settings_folder(app);
 
-                if (app.LocalSave.Equals(""))
+                string localSaveFilePath = Path.Combine(game_emu_folder, "local_save.txt");
+                if (string.IsNullOrEmpty(app.LocalSave))
                 {
-                    if (File.Exists(Path.Combine(game_emu_folder, "local_save.txt")))
-                        File.Delete(Path.Combine(game_emu_folder, "local_save.txt"));
+                    if (File.Exists(localSaveFilePath))
+                    {
+                        File.Delete(localSaveFilePath);
+                    }
                 }
                 else
                 {
-                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "local_save.txt"), FileMode.Create), Encoding.ASCII))
-                    {
-                        streamWriter.Write(app.LocalSave);
-                        streamWriter.Close();
-                    }
+                    File.WriteAllText(localSaveFilePath, app.LocalSave, Encoding.ASCII);
                 }
 
                 if (app.CustomBroadcasts.Count > 0)
                 {
-                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "custom_broadcasts.txt"), FileMode.Create), Encoding.ASCII))
+                    string customBroadcastsFilePath = Path.Combine(game_emu_folder, "steam_settings", "custom_broadcasts.txt");
+                    File.WriteAllLines(customBroadcastsFilePath, app.CustomBroadcasts, Encoding.ASCII);
+                }
+
+                File.Copy(emu_api_path, Path.Combine(game_emu_folder, emu_api_name), true);
+
+                string emu_api_companion = OSFuncs.GetSteamAPICompanion(app.UseX64);
+                string emu_api_companion_path = Path.Combine(os_folder, emu_api_companion);
+                if (File.Exists(emu_api_companion_path))
+                {
+                    File.Copy(emu_api_companion_path, Path.Combine(game_emu_folder, emu_api_companion), true);
+                }
+
+                string[] overlayDlls = { "GameOverlayRenderer64.dll", "GameOverlayRenderer.dll" };
+                foreach (string overlayDll in overlayDlls)
+                {
+                    string overlayPath = Path.Combine(os_folder, overlayDll);
+                    if (File.Exists(overlayPath))
                     {
-                        foreach (string ip in app.CustomBroadcasts) streamWriter.WriteLine(ip);
-                        streamWriter.Close();
+                        File.Copy(overlayPath, Path.Combine(game_emu_folder, overlayDll), true);
                     }
                 }
-                File.Copy(emu_path, Path.Combine(game_emu_folder, OSFuncs.GetSteamAPIName(app.UseX64)), true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                MessageBox.Show($"An error occurred during setup: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
             return SetupSteamEmu(app);
         }
 
-        public static void GenerateGameAchievements(GameConfig app)
+        private static async Task<string> GetSteamApiResponseWithRetryAsync(string url, int maxRetries = 3, int initialDelayMs = 2000)
         {
-            if (Config.webapi_key.Equals(""))
+            int currentRetry = 0;
+            int delayMs = initialDelayMs;
+
+            while (currentRetry <= maxRetries)
             {
-                MessageBox.Show("Can't generate achievements definition file, webapi key is missing.\n\nSee https://steamcommunity.com/dev/apikey to get yours.",
-                    "Webapi Key error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            string game_emu_folder = app.GetGameEmuFolder();
-            string achievements_file = Path.Combine(game_emu_folder, "steam_settings", "achievements.json");
-
-            Create_steam_settings_folder(app);
-
-            string url = "http://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?l=" + Config.language + "&key=";
-            url += Config.webapi_key + "&appid=" + app.AppId.ToString();
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            try
-            {
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
                 {
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    try
                     {
-                        MessageBox.Show("Failed to get achievements definition (wrong webapi key ?)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    Stream sresult = response.GetResponseStream();
-
-                    StreamReader streamReader = new StreamReader(sresult);
-
-                    string buffer = streamReader.ReadToEnd();
-
-                    CSteamGameSchema schema = JsonConvert.DeserializeObject<CSteamGameSchema>(buffer);
-
-                    string img_folder = Path.Combine(app.GetGameEmuFolder(), "steam_settings", "achievement_images");
-
-                    foreach (CAchievement ach in schema.game.availableGameStats.achievements)
-                    {
-                        Directory.CreateDirectory(img_folder);
-                        // download icon
-                        using(WebClient wc = new WebClient())
+                        HttpResponseMessage response = await client.GetAsync(url);
+                        if (!response.IsSuccessStatusCode)
                         {
-                            wc.DownloadFile(ach.icon, Path.Combine(img_folder, ach.name + ".jpg"));
+                            if (response.StatusCode == HttpStatusCode.BadGateway && currentRetry < maxRetries)
+                            {
+                                currentRetry++;
+                                await Task.Delay(delayMs);
+                                delayMs *= 2;
+                                continue;
+                            }
+                            else
+                            {
+                                return $"ERROR:{(int)response.StatusCode}";
+                            }
                         }
-                        ach.icon = Path.Combine(ach.name + ".jpg");
-                        // download icon gray
-                        using (WebClient wc = new WebClient())
-                        {
-                            wc.DownloadFile(ach.icongray, Path.Combine(img_folder, ach.name + "_gray.jpg"));
-                        }
-                        ach.icongray = Path.Combine(ach.name + "_gray.jpg");
-                        ach.icon_gray = ach.icongray;
+                        return await response.Content.ReadAsStringAsync();
                     }
-
-                    using (StreamWriter streamWriter = new StreamWriter(new FileStream(achievements_file, FileMode.Create), Encoding.UTF8))
+                    catch (HttpRequestException)
                     {
-                        buffer = JsonConvert.SerializeObject(schema.game.availableGameStats.achievements, Newtonsoft.Json.Formatting.Indented);
-                        streamWriter.Write(buffer);
+                        if (currentRetry < maxRetries)
+                        {
+                            currentRetry++;
+                            await Task.Delay(delayMs);
+                            delayMs *= 2;
+                            continue;
+                        }
+                        throw;
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        throw;
                     }
                 }
-                MessageBox.Show("Achievements definition file created", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception)
+            throw new Exception("Max retries reached.");
+        }
+
+        private static async Task DownloadAchievementImagesAsync(List<CAchievement> achievements, string imagesFolder)
+        {
+            Directory.CreateDirectory(imagesFolder);
+            using (var imgClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
             {
-                MessageBox.Show("Error, is appid wrong ?", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                foreach (var achievement in achievements)
+                {
+                    try
+                    {
+                        string iconPath = Path.Combine(imagesFolder, achievement.name + ".jpg");
+                        string iconGrayPath = Path.Combine(imagesFolder, achievement.name + "_gray.jpg");
+                        byte[] iconData = await imgClient.GetByteArrayAsync(achievement.icon);
+                        byte[] iconGrayData = await imgClient.GetByteArrayAsync(achievement.icongray);
+
+                        await Task.Run(() => File.WriteAllBytes(iconPath, iconData));
+                        await Task.Run(() => File.WriteAllBytes(iconGrayPath, iconGrayData));
+
+                        achievement.icon = Path.Combine("achievement_images", achievement.name + ".jpg").Replace("\\", "/");
+                        achievement.icongray = Path.Combine("achievement_images", achievement.name + "_gray.jpg").Replace("\\", "/");
+                        achievement.icon_gray = achievement.icongray;
+                    }
+                    catch
+                    {
+                        achievement.icon = achievement.icon ?? "";
+                        achievement.icongray = achievement.icongray ?? "";
+                        achievement.icon_gray = achievement.icon_gray ?? "";
+                    }
+                }
             }
         }
 
+        // ...existing code...
+        public static async Task AchievementGenerator(GameConfig app)
+        {
+            if (string.IsNullOrWhiteSpace(Config.webapi_key))
+            {
+                MessageBox.Show(
+                    "Can't generate achievements definition file, webapi key is missing.\n\nSee https://steamcommunity.com/dev/apikey to get yours.",
+                    "WebAPI Key Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string gameFolder = app.GetGameEmuFolder();
+            string achievementsFile = Path.Combine(gameFolder, "steam_settings", "achievements.json");
+            string imagesFolder = Path.Combine(gameFolder, "steam_settings", "achievement_images");
+
+            try
+            {
+                if (File.Exists(achievementsFile)) File.Delete(achievementsFile);
+                if (Directory.Exists(imagesFolder)) Directory.Delete(imagesFolder, true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to clean up existing files: {ex.Message}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            Create_steam_settings_folder(app);
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+            string url = $"https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?l={Config.language}&key={Config.webapi_key}&appid={app.AppId}";
+            string result;
+            try
+            {
+                result = await GetSteamApiResponseWithRetryAsync(url);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                MessageBox.Show($"Web request error: {httpEx.Message}\n\nIs your internet connection working? The AppID might also be incorrect.",
+                    "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            catch (TaskCanceledException)
+            {
+                MessageBox.Show("The request timed out. Steam servers might be busy or your internet connection is slow.",
+                    "Timeout Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (result.StartsWith("ERROR:"))
+            {
+                var statusCode = result.Substring("ERROR:".Length);
+                string msg = $"Failed to get achievements definition. Error code: {statusCode}";
+                if (statusCode == "401" || statusCode == "403")
+                    msg += "\n\nYour WebAPI key may be invalid or has expired. Go to setting menu to update your key.";
+                else if (statusCode == "404")
+                    msg += $"\n\nThe AppID {app.AppId} might be incorrect or the game may not have achievements.";
+                else if (statusCode == "502")
+                    msg = "Bad Gateway error while trying to access Steam API.\n\nPlease try again later.";
+                MessageBox.Show(msg, "API Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            CSteamGameSchema schema;
+            try
+            {
+                schema = JsonConvert.DeserializeObject<CSteamGameSchema>(result);
+            }
+            catch (JsonException jsonEx)
+            {
+                MessageBox.Show($"Failed to parse achievement data: {jsonEx.Message}\n\nThe API response format may have changed.",
+                    "Data Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var achievements = schema?.game?.availableGameStats?.achievements;
+            if (achievements == null || achievements.Count == 0)
+            {
+                achievements = new List<CAchievement>
+                {
+                    new CAchievement
+                    {
+                        name = "Fake_Achievement",
+                        displayName = "This game has no achievements",
+                        description = "Still, this fake achievement was generated to prevent a crash when you click the Test achievement button.",
+                        icon = "", icongray = "", icon_gray = ""
+                    }
+                };
+                MessageBox.Show("No achievements found for this game.", "Achievement Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                await DownloadAchievementImagesAsync(achievements, imagesFolder);
+                MessageBox.Show("Achievements definition file created successfully!", "Achievement Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            File.WriteAllText(achievementsFile, Newtonsoft.Json.JsonConvert.SerializeObject(achievements, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        // Generates a game items definition file by retrieving item data from the Steam API. 
+        // If successful, saves the items data as a JSON file and notifies the user.
         public static void GenerateGameItems(GameConfig app)
         {
             if (Config.webapi_key.Equals(""))
@@ -451,121 +649,128 @@ namespace SmartGoldbergEmu
             string url = "https://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
             url += Config.webapi_key + "&appid=" + app.AppId.ToString();
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
 
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    MessageBox.Show("Failed to get items definition", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                Stream sresult = response.GetResponseStream();
-                using (StreamReader streamReader = new StreamReader(sresult))
-                {
-                    buffer = streamReader.ReadToEnd();
-                }
-            }
-
-            CSteamMetaResponse metaResponse;
             try
             {
-                metaResponse = JsonConvert.DeserializeObject<CSteamMetaResponse>(buffer);
-                if (metaResponse.response.digest == null ||
-                metaResponse.response.digest.Equals(""))
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-                    MessageBox.Show("No items for this game", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-            }
-            catch(Exception)
-            {
-                MessageBox.Show("No items for this game: Invalid meta answer.", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        MessageBox.Show("Failed to get items definition", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
 
-            url = "https://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid=";
-            url += app.AppId + "&digest=" + metaResponse.response.digest;
-
-            request = (HttpWebRequest)WebRequest.Create(url);
-            request.Headers.Add("Accept-encoding:gzip, deflate, br");
-            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    Stream sresult = response.GetResponseStream();
+                    using (Stream sresult = response.GetResponseStream())
                     using (StreamReader streamReader = new StreamReader(sresult))
                     {
                         buffer = streamReader.ReadToEnd();
                     }
+                }
 
-                    JObject new_json = new JObject();
-                    try
+                CSteamMetaResponse metaResponse = JsonConvert.DeserializeObject<CSteamMetaResponse>(buffer);
+                if (string.IsNullOrEmpty(metaResponse?.response?.digest))
+                {
+                    MessageBox.Show("No items for this game", "Item Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                url = "https://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid=";
+                url += app.AppId + "&digest=" + metaResponse.response.digest;
+
+                request = (HttpWebRequest)WebRequest.Create(url);
+                request.Headers.Add("Accept-encoding", "gzip, deflate, br");
+                request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        JArray json = JArray.Parse(buffer);
-                        foreach (JObject item in json.Cast<JObject>())
+                        using (Stream sresult = response.GetResponseStream())
+                        using (StreamReader streamReader = new StreamReader(sresult))
                         {
-                            string itemid = item["itemdefid"].Value<string>();
-                            new_json.Add(itemid, new JObject());
-                            foreach (KeyValuePair<string, JToken> attr in item)
+                            buffer = streamReader.ReadToEnd();
+                        }
+
+                        JObject new_json = new JObject();
+                        try
+                        {
+                            JArray json = JArray.Parse(buffer);
+                            foreach (JObject item in json.Cast<JObject>())
                             {
-                                switch (attr.Value.Type)
+                                string itemid = item["itemdefid"].Value<string>();
+                                new_json.Add(itemid, new JObject());
+                                foreach (KeyValuePair<string, JToken> attr in item)
                                 {
-                                    case JTokenType.Boolean:
-                                        new_json[itemid][attr.Key] = attr.Value.Value<bool>().ToString();
-                                        break;
+                                    switch (attr.Value.Type)
+                                    {
+                                        case JTokenType.Boolean:
+                                            new_json[itemid][attr.Key] = attr.Value.Value<bool>().ToString();
+                                            break;
 
-                                    case JTokenType.Float:
-                                        new_json[itemid][attr.Key] = attr.Value.Value<float>().ToString();
-                                        break;
+                                        case JTokenType.Float:
+                                            new_json[itemid][attr.Key] = attr.Value.Value<float>().ToString();
+                                            break;
 
-                                    case JTokenType.Integer:
-                                        new_json[itemid][attr.Key] = attr.Value.Value<long>().ToString();
-                                        break;
+                                        case JTokenType.Integer:
+                                            new_json[itemid][attr.Key] = attr.Value.Value<long>().ToString();
+                                            break;
 
-                                    default:
-                                        new_json[itemid][attr.Key] = attr.Value;
-                                        break;
+                                        default:
+                                            new_json[itemid][attr.Key] = attr.Value;
+                                            break;
+                                    }
                                 }
                             }
-                        }
 
-                        using (StreamWriter streamWriter = new StreamWriter(new FileStream(items_file, FileMode.Create), Encoding.UTF8))
-                        {
-                            buffer = JsonConvert.SerializeObject(new_json, Newtonsoft.Json.Formatting.Indented);
-                            streamWriter.Write(buffer);
+                            using (StreamWriter streamWriter = new StreamWriter(new FileStream(items_file, FileMode.Create), Encoding.UTF8))
+                            {
+                                buffer = JsonConvert.SerializeObject(new_json, Newtonsoft.Json.Formatting.Indented);
+                                streamWriter.Write(buffer);
+                            }
                         }
-                    }
-                    catch(Exception)
-                    {
-                        MessageBox.Show("No items for this game: Invalid items answer.", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        return;
+                        catch (Exception)
+                        {
+                            MessageBox.Show("No items for this game: Invalid items answer.", "Item Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
                     }
                 }
-            }
 
-            MessageBox.Show("Items definition file created", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            SteamEmulator.Save();
+                MessageBox.Show("Items definition file created", "Item Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SteamEmulator.Save();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Error occurred while retrieving item data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
-        /// Setups the Emu and starts the game
+        /// Sets up the emulator and starts the game by configuring the necessary environment and launching the game process.
         /// </summary>
-        /// <param name="app">The emu configuration for the game</param>
         public static void StartGame(GameConfig app)
         {
             if (app.AppId == 0)
             {
-                MessageBox.Show("You need to set up game app id first. You can find your game app id on steam store url: http://store.steampowered.com/app/<AppId>", "Invalid app id", MessageBoxButtons.OK);
+                DialogResult result = MessageBox.Show(
+                    "App Id for this game is set to 0.\n\nSearch for your game´s page in Steam Store and copy the App Id from the url.\n\nExample: \nHalf-Life's store page URL is https://store.steampowered.com/app/70/HalfLife/\nwhere '70' would be Half-Life´s App Id.\n\nOnce you have it you can manually set it on the game´s settings.\n\nAlternatively you can save it in 'steam_appid.txt' besides your game´s executable for autodetection.\n\nWould you like to open the Steam Store?\r\n",
+                    "Smart Goldberg Emu Launcher",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Error);
+
+                if (result == DialogResult.OK)
+                {
+                    Process.Start("https://store.steampowered.com/search/");
+                }
                 return;
             }
 
+            // Setup the emulator and game configuration
             if (SetupEmu(app) && SetupGameEmu(app))
             {
                 try
                 {
+                    // Prepare the process start information
                     ProcessStartInfo psi = new ProcessStartInfo
                     {
                         CreateNoWindow = false,
@@ -576,6 +781,7 @@ namespace SmartGoldbergEmu
                         WorkingDirectory = app.StartFolder
                     };
 
+                    // Add environment variables for the game
                     foreach (string var in app.EnvVars)
                     {
                         int pos = var.IndexOf('=');
@@ -587,52 +793,78 @@ namespace SmartGoldbergEmu
                         }
                     }
 
+                    // Add Steam App ID to the environment variables
                     psi.EnvironmentVariables.Add("SteamAppId", app.AppId.ToString());
 
+                    // Start the game process
                     Process p = new Process
                     {
                         EnableRaisingEvents = true,
                         StartInfo = psi
                     };
+
+                    // Handle the process exit event
                     p.Exited += OnProcessExited;
                     emuGamesProcess.Add(p);
 
+                    // Start the game process
                     p.Start();
                 }
                 catch (Exception e)
                 {
+                    // Show an error message if game launch fails
                     MessageBox.Show("Cannot launch game: " + e.Message, "Game Launch Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
+        public static void RemoveDllsOnGameExit()
+        {
+            string currentDirectory = Environment.CurrentDirectory;
+            string gamesDirectory = Path.Combine(currentDirectory, "games").Replace("\\", "/");
+
+            if (!Directory.Exists(gamesDirectory))
+            {
+                return;
+            }
+
+            string[] subdirectories = Directory.GetDirectories(gamesDirectory);
+            string[] dllFiles = { "steamclient64.dll", "GameOverlayRenderer.dll", "GameOverlayRenderer64.dll", "steamclient.dll" };
+
+            foreach (string subdirectory in subdirectories)
+            {
+                string subdirectoryWithSlash = subdirectory.Replace("\\", "/");
+
+                foreach (string dll in dllFiles)
+                {
+                    string dllPath = Path.Combine(subdirectoryWithSlash, dll);
+                    if (File.Exists(dllPath))
+                    {
+                        try
+                        {
+                            File.Delete(dllPath);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+        }
+
+        // Handles the process exit event and restores Steam if no more emulated game processes are running.
         private static void OnProcessExited(object sender, EventArgs e)
         {
-            Type x = sender.GetType();
             emuGamesProcess.RemoveAll(p => p.HasExited);
 
             if (emuGamesProcess.Count == 0)
             {
                 RestoreSteam();
+                RemoveDllsOnGameExit();
             }
         }
 
-        public static void CreateShortcut(GameConfig app)
-        {
-            if(!OSDetector.IsWindows())
-            {
-                MessageBox.Show("This feature is only available on Windows for the moment", "Unsupported", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            string launcherPath = Path.GetFullPath(Environment.GetCommandLineArgs()[0]);
-            string desktopDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + Path.DirectorySeparatorChar;
-
-
-            SharpShortcut.Shortcut.Create(desktopDir + app.AppName + ".lnk", launcherPath, app.GameGuid.ToString(), 
-                Path.GetDirectoryName(launcherPath), "Starts " + app.AppName + " with the steam emulator", 
-                string.Empty, app.Path);
-        }
+        // Restores Steam by setting the saved process ID and Steam client DLL paths.
         public static void RestoreSteam()
         {
             if (steamPid != 0)
@@ -650,5 +882,6 @@ namespace SmartGoldbergEmu
                 }
             }
         }
+
     }
 }

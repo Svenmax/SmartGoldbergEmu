@@ -34,11 +34,11 @@ namespace HeaderReader
             /// <summary>
             /// the mach magic number
             /// </summary>
-            MH_MAGIC    = 0xfeedface,
+            MH_MAGIC = 0xfeedface,
             /// <summary>
             /// NXSwapInt(MH_MAGIC)
             /// </summary>
-            MH_CIGAM    = 0xcefaedfe,
+            MH_CIGAM = 0xcefaedfe,
             /// <summary>
             /// the 64-bit mach magic number
             /// </summary>
@@ -46,7 +46,7 @@ namespace HeaderReader
             /// <summary>
             /// NXSwapInt(MH_MAGIC_64)
             /// </summary>
-            MH_CIGAM_64 = 0xcffaedfe, 
+            MH_CIGAM_64 = 0xcffaedfe,
         }
 
         public enum CpuArch : uint
@@ -54,7 +54,7 @@ namespace HeaderReader
             /// <summary>
             /// mask for architecture bits
             /// </summary>
-            CPU_ARCH_MASK  = 0xff000000,
+            CPU_ARCH_MASK = 0xff000000,
             /// <summary>
             /// 64 bit ABI
             /// </summary>
@@ -63,31 +63,31 @@ namespace HeaderReader
 
         public enum CpuType : int
         {
-            CPU_TYPE_ANY       = -1,
-            CPU_TYPE_VAX       = 1,
+            CPU_TYPE_ANY = -1,
+            CPU_TYPE_VAX = 1,
             /* skip                     ((cpu_type_t) 2)    */
             /* skip                     ((cpu_type_t) 3)    */
             /* skip                     ((cpu_type_t) 4)    */
             /* skip                     ((cpu_type_t) 5)    */
-            CPU_TYPE_MC680x0   = 6,
-            CPU_TYPE_X86       = 7,
+            CPU_TYPE_MC680x0 = 6,
+            CPU_TYPE_X86 = 7,
             /// <summary>
             /// compatibility
             /// </summary>
-            CPU_TYPE_I386      = CPU_TYPE_X86, 
-            CPU_TYPE_X86_64    = (CPU_TYPE_X86 | (int)CpuArch.CPU_ARCH_ABI64),
+            CPU_TYPE_I386 = CPU_TYPE_X86,
+            CPU_TYPE_X86_64 = (CPU_TYPE_X86 | (int)CpuArch.CPU_ARCH_ABI64),
             /* skip CPU_TYPE_MIPS       ((cpu_type_t) 8)    */
             /* skip                     ((cpu_type_t) 9)    */
-            CPU_TYPE_MC98000   = 10,
-            CPU_TYPE_HPPA      = 11,
-            CPU_TYPE_ARM       = 12,
-            CPU_TYPE_ARM64     = (CPU_TYPE_ARM | (int)CpuArch.CPU_ARCH_ABI64),
-            CPU_TYPE_MC88000   = 13,
-            CPU_TYPE_SPARC     = 14,
-            CPU_TYPE_I860      = 15,
+            CPU_TYPE_MC98000 = 10,
+            CPU_TYPE_HPPA = 11,
+            CPU_TYPE_ARM = 12,
+            CPU_TYPE_ARM64 = (CPU_TYPE_ARM | (int)CpuArch.CPU_ARCH_ABI64),
+            CPU_TYPE_MC88000 = 13,
+            CPU_TYPE_SPARC = 14,
+            CPU_TYPE_I860 = 15,
             /* skip CPU_TYPE_ALPHA      ((cpu_type_t) 16)   */
             /* skip                     ((cpu_type_t) 17)   */
-            CPU_TYPE_POWERPC   = 18,
+            CPU_TYPE_POWERPC = 18,
             CPU_TYPE_POWERPC64 = (CPU_TYPE_POWERPC | (int)CpuArch.CPU_ARCH_ABI64),
         }
 
@@ -99,7 +99,7 @@ namespace HeaderReader
             /// <summary>
             /// mask for feature flags
             /// </summary>
-            CPU_SUBTYPE_MASK  = 0xff000000,
+            CPU_SUBTYPE_MASK = 0xff000000,
             /// <summary>
             /// 64 bit libraries
             /// </summary>
@@ -119,25 +119,25 @@ namespace HeaderReader
              *  It is the responsibility of the implementor to make sure the
              *  software handles unsupported implementations elegantly.
              */
-            CPU_SUBTYPE_MULTIPLE      = -1,
+            CPU_SUBTYPE_MULTIPLE = -1,
             CPU_SUBTYPE_LITTLE_ENDIAN = 0,
-            CPU_SUBTYPE_BIG_ENDIAN    = 1,
+            CPU_SUBTYPE_BIG_ENDIAN = 1,
             /*
              *     Machine threadtypes.
              *     This is none - not defined - for most machine types/subtypes.
              */
-            CPU_THREADTYPE_NONE       = 0,
+            CPU_THREADTYPE_NONE = 0,
             /*
              *  VAX subtypes (these do *not* necessary conform to the actual cpu
              *  ID assigned by DEC available via the SID register).
              */
             CPU_SUBTYPE_VAX_ALL = 0,
-            CPU_SUBTYPE_VAX780  = 1,
-            CPU_SUBTYPE_VAX785  = 2,
-            CPU_SUBTYPE_VAX750  = 3,
-            CPU_SUBTYPE_VAX730  = 4,
-            CPU_SUBTYPE_UVAXI   = 5,
-            CPU_SUBTYPE_UVAXII  = 6,
+            CPU_SUBTYPE_VAX780 = 1,
+            CPU_SUBTYPE_VAX785 = 2,
+            CPU_SUBTYPE_VAX750 = 3,
+            CPU_SUBTYPE_VAX730 = 4,
+            CPU_SUBTYPE_UVAXI = 5,
+            CPU_SUBTYPE_UVAXII = 6,
             CPU_SUBTYPE_VAX8200 = 7,
             CPU_SUBTYPE_VAX8500 = 8,
             CPU_SUBTYPE_VAX8600 = 9,
@@ -160,35 +160,35 @@ namespace HeaderReader
              *  CPU_SUBTYPE_MC68030_ONLY has been added to allow new object
              *  files to be tagged as containing 68030-specific instructions.
              */
-            CPU_SUBTYPE_MC680x0_ALL  = 1,
-            CPU_SUBTYPE_MC68030      = 1, /* compat */
-            CPU_SUBTYPE_MC68040      = 2,
+            CPU_SUBTYPE_MC680x0_ALL = 1,
+            CPU_SUBTYPE_MC68030 = 1, /* compat */
+            CPU_SUBTYPE_MC68040 = 2,
             CPU_SUBTYPE_MC68030_ONLY = 3,
             /*
              *  I386 subtypes
              */
             // CPU_SUBTYPE_INTEL(f, m) ((cpu_subtype_t) (f) + ((m) << 4))
-            CPU_SUBTYPE_I386_ALL       = (3  + (0 << 4)),
-            CPU_SUBTYPE_386            = (3  + (0 << 4)),
-            CPU_SUBTYPE_486            = (4  + (0 << 4)),
-            CPU_SUBTYPE_486SX          = (4  + (8 << 4)), // 8 << 4 = 128
-            CPU_SUBTYPE_586            = (5  + (0 << 4)),
-            CPU_SUBTYPE_PENT           = (5  + (0 << 4)),
-            CPU_SUBTYPE_PENTPRO        = (6  + (1 << 4)),
-            CPU_SUBTYPE_PENTII_M3      = (6  + (3 << 4)),
-            CPU_SUBTYPE_PENTII_M5      = (6  + (5 << 4)),
-            CPU_SUBTYPE_CELERON        = (7  + (6 << 4)),
-            CPU_SUBTYPE_CELERON_MOBILE = (7  + (7 << 4)),
-            CPU_SUBTYPE_PENTIUM_3      = (8  + (0 << 4)),
-            CPU_SUBTYPE_PENTIUM_3_M    = (8  + (1 << 4)),
-            CPU_SUBTYPE_PENTIUM_3_XEON = (8  + (2 << 4)),
-            CPU_SUBTYPE_PENTIUM_M      = (9  + (0 << 4)),
-            CPU_SUBTYPE_PENTIUM_4      = (10 + (0 << 4)),
-            CPU_SUBTYPE_PENTIUM_4_M    = (10 + (1 << 4)),
-            CPU_SUBTYPE_ITANIUM        = (11 + (0 << 4)),
-            CPU_SUBTYPE_ITANIUM_2      = (11 + (1 << 4)),
-            CPU_SUBTYPE_XEON           = (12 + (0 << 4)),
-            CPU_SUBTYPE_XEON_MP        = (12 + (1 << 4)),
+            CPU_SUBTYPE_I386_ALL = (3 + (0 << 4)),
+            CPU_SUBTYPE_386 = (3 + (0 << 4)),
+            CPU_SUBTYPE_486 = (4 + (0 << 4)),
+            CPU_SUBTYPE_486SX = (4 + (8 << 4)), // 8 << 4 = 128
+            CPU_SUBTYPE_586 = (5 + (0 << 4)),
+            CPU_SUBTYPE_PENT = (5 + (0 << 4)),
+            CPU_SUBTYPE_PENTPRO = (6 + (1 << 4)),
+            CPU_SUBTYPE_PENTII_M3 = (6 + (3 << 4)),
+            CPU_SUBTYPE_PENTII_M5 = (6 + (5 << 4)),
+            CPU_SUBTYPE_CELERON = (7 + (6 << 4)),
+            CPU_SUBTYPE_CELERON_MOBILE = (7 + (7 << 4)),
+            CPU_SUBTYPE_PENTIUM_3 = (8 + (0 << 4)),
+            CPU_SUBTYPE_PENTIUM_3_M = (8 + (1 << 4)),
+            CPU_SUBTYPE_PENTIUM_3_XEON = (8 + (2 << 4)),
+            CPU_SUBTYPE_PENTIUM_M = (9 + (0 << 4)),
+            CPU_SUBTYPE_PENTIUM_4 = (10 + (0 << 4)),
+            CPU_SUBTYPE_PENTIUM_4_M = (10 + (1 << 4)),
+            CPU_SUBTYPE_ITANIUM = (11 + (0 << 4)),
+            CPU_SUBTYPE_ITANIUM_2 = (11 + (1 << 4)),
+            CPU_SUBTYPE_XEON = (12 + (0 << 4)),
+            CPU_SUBTYPE_XEON_MP = (12 + (1 << 4)),
 
             // CPU_SUBTYPE_INTEL_FAMILY(x) ((x) & 15)
             CPU_SUBTYPE_INTEL_FAMILY_MAX = 15,
@@ -201,40 +201,40 @@ namespace HeaderReader
              */
             CPU_SUBTYPE_X86_ALL = 3,
             CPU_SUBTYPE_X86_64_ALL = 3,
-            CPU_SUBTYPE_X86_ARCH1  = 4,
-            CPU_SUBTYPE_X86_64_H   = 8,  /* Haswell feature subset */
+            CPU_SUBTYPE_X86_ARCH1 = 4,
+            CPU_SUBTYPE_X86_64_H = 8,  /* Haswell feature subset */
 
             CPU_THREADTYPE_INTEL_HTT = 1,
 
             /*
              *  Mips subtypes.
              */
-            CPU_SUBTYPE_MIPS_ALL    = 0,
-            CPU_SUBTYPE_MIPS_R2300  = 1,
-            CPU_SUBTYPE_MIPS_R2600  = 2,
-            CPU_SUBTYPE_MIPS_R2800  = 3,
+            CPU_SUBTYPE_MIPS_ALL = 0,
+            CPU_SUBTYPE_MIPS_R2300 = 1,
+            CPU_SUBTYPE_MIPS_R2600 = 2,
+            CPU_SUBTYPE_MIPS_R2800 = 3,
             CPU_SUBTYPE_MIPS_R2000a = 4, /* pmax */
-            CPU_SUBTYPE_MIPS_R2000  = 5,
+            CPU_SUBTYPE_MIPS_R2000 = 5,
             CPU_SUBTYPE_MIPS_R3000a = 6, /* 3max */
-            CPU_SUBTYPE_MIPS_R3000  = 7,
+            CPU_SUBTYPE_MIPS_R3000 = 7,
             /*
              *  MC98000 (PowerPC) subtypes
              */
             CPU_SUBTYPE_MC98000_ALL = 0,
-            CPU_SUBTYPE_MC98601     = 1,
+            CPU_SUBTYPE_MC98601 = 1,
             /*
              *  HPPA subtypes for Hewlett-Packard HP-PA family of
              *  risc processors. Port by NeXT to 700 series.
              */
             CPU_SUBTYPE_HPPA_ALL = 0,
-            CPU_SUBTYPE_HPPA_7100   = 0, /* compat */
+            CPU_SUBTYPE_HPPA_7100 = 0, /* compat */
             CPU_SUBTYPE_HPPA_7100LC = 1,
             /*
              *  MC88000 subtypes.
              */
             CPU_SUBTYPE_MC88000_ALL = 0,
-            CPU_SUBTYPE_MC88100     = 1,
-            CPU_SUBTYPE_MC88110     = 2,
+            CPU_SUBTYPE_MC88100 = 1,
+            CPU_SUBTYPE_MC88110 = 2,
             /*
              *  SPARC subtypes
              */
@@ -247,40 +247,40 @@ namespace HeaderReader
             /*
              *  PowerPC subtypes
              */
-            CPU_SUBTYPE_POWERPC_ALL   = 0,
-            CPU_SUBTYPE_POWERPC_601   = 1,
-            CPU_SUBTYPE_POWERPC_602   = 2,
-            CPU_SUBTYPE_POWERPC_603   = 3,
-            CPU_SUBTYPE_POWERPC_603e  = 4,
+            CPU_SUBTYPE_POWERPC_ALL = 0,
+            CPU_SUBTYPE_POWERPC_601 = 1,
+            CPU_SUBTYPE_POWERPC_602 = 2,
+            CPU_SUBTYPE_POWERPC_603 = 3,
+            CPU_SUBTYPE_POWERPC_603e = 4,
             CPU_SUBTYPE_POWERPC_603ev = 5,
-            CPU_SUBTYPE_POWERPC_604   = 6,
-            CPU_SUBTYPE_POWERPC_604e  = 7,
-            CPU_SUBTYPE_POWERPC_620   = 8,
-            CPU_SUBTYPE_POWERPC_750   = 9,
-            CPU_SUBTYPE_POWERPC_7400  = 10,
-            CPU_SUBTYPE_POWERPC_7450  = 11,
-            CPU_SUBTYPE_POWERPC_970   = 100,
+            CPU_SUBTYPE_POWERPC_604 = 6,
+            CPU_SUBTYPE_POWERPC_604e = 7,
+            CPU_SUBTYPE_POWERPC_620 = 8,
+            CPU_SUBTYPE_POWERPC_750 = 9,
+            CPU_SUBTYPE_POWERPC_7400 = 10,
+            CPU_SUBTYPE_POWERPC_7450 = 11,
+            CPU_SUBTYPE_POWERPC_970 = 100,
             /*
              *  ARM subtypes
              */
-            CPU_SUBTYPE_ARM_ALL    = 0,
-            CPU_SUBTYPE_ARM_V4T    = 5,
-            CPU_SUBTYPE_ARM_V6     = 6,
-            CPU_SUBTYPE_ARM_V5TEJ  = 7,
+            CPU_SUBTYPE_ARM_ALL = 0,
+            CPU_SUBTYPE_ARM_V4T = 5,
+            CPU_SUBTYPE_ARM_V6 = 6,
+            CPU_SUBTYPE_ARM_V5TEJ = 7,
             CPU_SUBTYPE_ARM_XSCALE = 8,
-            CPU_SUBTYPE_ARM_V7     = 9,
-            CPU_SUBTYPE_ARM_V7F    = 10, /* Cortex A9 */
-            CPU_SUBTYPE_ARM_V7S    = 11, /* Swift */
-            CPU_SUBTYPE_ARM_V7K    = 12,
-            CPU_SUBTYPE_ARM_V6M    = 14, /* Not meant to be run under xnu */
-            CPU_SUBTYPE_ARM_V7M    = 15, /* Not meant to be run under xnu */
-            CPU_SUBTYPE_ARM_V7EM   = 16, /* Not meant to be run under xnu */
-            CPU_SUBTYPE_ARM_V8     = 13,
+            CPU_SUBTYPE_ARM_V7 = 9,
+            CPU_SUBTYPE_ARM_V7F = 10, /* Cortex A9 */
+            CPU_SUBTYPE_ARM_V7S = 11, /* Swift */
+            CPU_SUBTYPE_ARM_V7K = 12,
+            CPU_SUBTYPE_ARM_V6M = 14, /* Not meant to be run under xnu */
+            CPU_SUBTYPE_ARM_V7M = 15, /* Not meant to be run under xnu */
+            CPU_SUBTYPE_ARM_V7EM = 16, /* Not meant to be run under xnu */
+            CPU_SUBTYPE_ARM_V8 = 13,
             /*
              *  ARM64 subtypes
              */
             CPU_SUBTYPE_ARM64_ALL = 0,
-            CPU_SUBTYPE_ARM64_V8  = 1,
+            CPU_SUBTYPE_ARM64_V8 = 1,
         }
 
         /// <summary>
@@ -291,44 +291,44 @@ namespace HeaderReader
             /// <summary>
             /// relocatable object file
             /// </summary>
-            MH_OBJECT      = 0x1,
+            MH_OBJECT = 0x1,
             /// <summary>
             /// demand paged executable file
             /// </summary>
-            MH_EXECUTE     = 0x2,
+            MH_EXECUTE = 0x2,
             /// <summary>
             /// fixed VM shared library file
             /// </summary>
-            MH_FVMLIB      = 0x3,
+            MH_FVMLIB = 0x3,
             /// <summary>
             /// core file
             /// </summary>
-            MH_CORE        = 0x4,
+            MH_CORE = 0x4,
             /// <summary>
             /// preloaded executable file
             /// </summary>
-            MH_PRELOAD     = 0x5,
+            MH_PRELOAD = 0x5,
             /// <summary>
             /// dynamically bound shared library
             /// </summary>
-            MH_DYLIB       = 0x6,
+            MH_DYLIB = 0x6,
             /// <summary>
             /// dynamic link editor
             /// </summary>
-            MH_DYLINKER    = 0x7,
+            MH_DYLINKER = 0x7,
             /// <summary>
             /// dynamically bound bundle file
             /// </summary>
-            MH_BUNDLE      = 0x8,
+            MH_BUNDLE = 0x8,
             /// <summary>
             /// shared library stub for static
             /// </summary>
-            MH_DYLIB_STUB  = 0x9,
+            MH_DYLIB_STUB = 0x9,
             /// <summary>
             /// linking only, no section contents
             /// companion file with only debug
             /// </summary>
-            MH_DSYM        = 0xa,
+            MH_DSYM = 0xa,
             /// <summary>
             /// sections
             /// x86_64 kexts
@@ -345,112 +345,112 @@ namespace HeaderReader
             /// <summary>
             /// the object file has no undefined references
             /// </summary>
-            MH_NOUNDEFS                      = 0x1,
+            MH_NOUNDEFS = 0x1,
             /// <summary>
             /// the object file is the output of an incremental link against a base file and can't be link edited again
             /// </summary>
-            MH_INCRLINK                      = 0x2,
+            MH_INCRLINK = 0x2,
             /// <summary>
             /// the object file is input for the dynamic linker and can't be staticly link edited again
             /// </summary>
-            MH_DYLDLINK                      = 0x4,
+            MH_DYLDLINK = 0x4,
             /// <summary>
             /// the object file's undefined references are bound by the dynamic linker when loaded.
             /// </summary>
-            MH_BINDATLOAD                    = 0x8,
+            MH_BINDATLOAD = 0x8,
             /// <summary>
             /// the file has its dynamic undefined references prebound.
             /// </summary>
-            MH_PREBOUND                      = 0x10,
+            MH_PREBOUND = 0x10,
             /// <summary>
             /// the file has its read-only and read-write segments split
             /// </summary>
-            MH_SPLIT_SEGS                    = 0x20,
+            MH_SPLIT_SEGS = 0x20,
             /// <summary>
             /// the shared library init routine is to be run lazily via catching memory faults to its writeable segments (obsolete)
             /// </summary>
-            MH_LAZY_INIT                     = 0x40,
+            MH_LAZY_INIT = 0x40,
             /// <summary>
             /// the image is using two-level name space bindings
             /// </summary>
-            MH_TWOLEVEL                      = 0x80,
+            MH_TWOLEVEL = 0x80,
             /// <summary>
             /// the executable is forcing all images to use flat name space bindings
             /// </summary>
-            MH_FORCE_FLAT                    = 0x100,
+            MH_FORCE_FLAT = 0x100,
             /// <summary>
             /// this umbrella guarantees no multiple defintions of symbols in its sub-images so the two-level namespace hints can always be used.
             /// </summary>
-            MH_NOMULTIDEFS                   = 0x200,
+            MH_NOMULTIDEFS = 0x200,
             /// <summary>
             /// do not have dyld notify the prebinding agent about this executable
             /// </summary>
-            MH_NOFIXPREBINDING               = 0x400,
+            MH_NOFIXPREBINDING = 0x400,
             /// <summary>
             /// the binary is not prebound but can have its prebinding redone. only used when MH_PREBOUND is not set.
             /// </summary>
-            MH_PREBINDABLE                   = 0x800,
+            MH_PREBINDABLE = 0x800,
             /// <summary>
             /// indicates that this binary binds to all two-level namespace modules of its dependent libraries.only used when MH_PREBINDABLE and MH_TWOLEVEL are both set.
             /// </summary>
-            MH_ALLMODSBOUND                  = 0x1000,
+            MH_ALLMODSBOUND = 0x1000,
             /// <summary>
             /// safe to divide up the sections into sub-sections via symbols for dead code stripping
             /// </summary>
-            MH_SUBSECTIONS_VIA_SYMBOLS       = 0x2000,
+            MH_SUBSECTIONS_VIA_SYMBOLS = 0x2000,
             /// <summary>
             /// the binary has been canonicalized via the unprebind operation
             /// </summary>
-            MH_CANONICAL                     = 0x4000,
+            MH_CANONICAL = 0x4000,
             /// <summary>
             /// the final linked image contains external weak symbols
             /// </summary>
-            MH_WEAK_DEFINES                  = 0x8000,
+            MH_WEAK_DEFINES = 0x8000,
             /// <summary>
             /// the final linked image uses weak symbols
             /// </summary>
-            MH_BINDS_TO_WEAK                 = 0x10000,
+            MH_BINDS_TO_WEAK = 0x10000,
             /// <summary>
             /// When this bit is set, all stacks in the task will be given stack execution privilege. Only used in MH_EXECUTE filetypes.
             /// </summary>
-            MH_ALLOW_STACK_EXECUTION         = 0x20000,
+            MH_ALLOW_STACK_EXECUTION = 0x20000,
             /// <summary>
             /// When this bit is set, the binary declares it is safe for use in processes with uid zero
             /// </summary>
-            MH_ROOT_SAFE                     = 0x40000,
+            MH_ROOT_SAFE = 0x40000,
             /// <summary>
             /// When this bit is set, the binary declares it is safe for use in processes when issetugid() is true
             /// </summary>
-            MH_SETUID_SAFE                   = 0x80000,
+            MH_SETUID_SAFE = 0x80000,
             /// <summary>
             /// When this bit is set on a dylib, the static linker does not need to examine dependent dylibs to see if any are re-exporte
             /// </summary>
-            MH_NO_REEXPORTED_DYLIBS          = 0x100000,
+            MH_NO_REEXPORTED_DYLIBS = 0x100000,
             /// <summary>
             /// When this bit is set, the OS will load the main executable at a random address.Only used in MH_EXECUTE filetypes.
             /// </summary>
-            MH_PIE                           = 0x200000,
+            MH_PIE = 0x200000,
             /// <summary>
             /// Only for use on dylibs. When linking against a dylib that has this bit set, the static linker will automatically not create a LC_LOAD_DYLIB load command to the dylib if no symbols are being referenced from the dylib.
             /// </summary>
-            MH_DEAD_STRIPPABLE_DYLIB         = 0x400000,
+            MH_DEAD_STRIPPABLE_DYLIB = 0x400000,
             /// <summary>
             /// Contains a section of type S_THREAD_LOCAL_VARIABLES
             /// </summary>
-            MH_HAS_TLV_DESCRIPTORS           = 0x800000,
+            MH_HAS_TLV_DESCRIPTORS = 0x800000,
             /// <summary>
             /// When this bit is set, the OS will run the main executable with a non-executable heap even on platforms (e.g.i386) that don't require it. Only used in MH_EXECUTE filetypes.
             /// </summary>
-            MH_NO_HEAP_EXECUTION             = 0x1000000,
+            MH_NO_HEAP_EXECUTION = 0x1000000,
             /// <summary>
             /// The code was linked for use in an application extension.
             /// </summary>
-            MH_APP_EXTENSION_SAFE            = 0x02000000,
+            MH_APP_EXTENSION_SAFE = 0x02000000,
             /// <summary>
             /// The external symbols listed in the nlist symbol table do not include all the symbols listed in the dyld info.
             /// </summary>
             MH_NLIST_OUTOFSYNC_WITH_DYLDINFO = 0x04000000,
-    }
+        }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MACHO32_HDR
@@ -462,27 +462,27 @@ namespace HeaderReader
             /// <summary>
             /// cpu specifier
             /// </summary>
-            public CpuType     cputype;
+            public CpuType cputype;
             /// <summary>
             /// machine specifier
             /// </summary>
-            public CpuSubType  cpusubtype;
+            public CpuSubType cpusubtype;
             /// <summary>
             /// type of file
             /// </summary>
-            public FileType    filetype;
+            public FileType filetype;
             /// <summary>
             /// number of load commands
             /// </summary>
-            public uint        ncmds;
+            public uint ncmds;
             /// <summary>
             /// the size of all the load commands
             /// </summary>
-            public uint        sizeofcmds;
+            public uint sizeofcmds;
             /// <summary>
             /// flags
             /// </summary>
-            public HeaderFlags       flags;
+            public HeaderFlags flags;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -495,31 +495,31 @@ namespace HeaderReader
             /// <summary>
             /// cpu specifier
             /// </summary>
-            public CpuType     cputype;
+            public CpuType cputype;
             /// <summary>
             /// machine specifier
             /// </summary>
-            public CpuSubType  cpusubtype;
+            public CpuSubType cpusubtype;
             /// <summary>
             /// type of file
             /// </summary>
-            public FileType    filetype;
+            public FileType filetype;
             /// <summary>
             /// number of load commands
             /// </summary>
-            public uint        ncmds;
+            public uint ncmds;
             /// <summary>
             /// the size of all the load commands
             /// </summary>
-            public uint        sizeofcmds;
+            public uint sizeofcmds;
             /// <summary>
             /// flags
             /// </summary>
-            public HeaderFlags       flags;
+            public HeaderFlags flags;
             /// <summary>
             /// reserved
             /// </summary>
-            public uint        reserved;
+            public uint reserved;
         }
 
         /// <summary>
@@ -536,193 +536,193 @@ namespace HeaderReader
             /// image.  Other load commands without this bit that are not understood will
             /// simply be ignored.
             /// </summary>
-            LC_REQ_DYLD                 = 0x80000000,
+            LC_REQ_DYLD = 0x80000000,
 
             /// <summary>
             /// segment of this file to be mapped
             /// </summary>
-            LC_SEGMENT                  = 0x1,
+            LC_SEGMENT = 0x1,
             /// <summary>
             /// link-edit stab symbol table info
             /// </summary>
-            LC_SYMTAB                   = 0x2,
+            LC_SYMTAB = 0x2,
             /// <summary>
             /// link-edit gdb symbol table info (obsolete)
             /// </summary>
-            LC_SYMSEG                   = 0x3,
+            LC_SYMSEG = 0x3,
             /// <summary>
             /// thread
             /// </summary>
-            LC_THREAD                   = 0x4,
+            LC_THREAD = 0x4,
             /// <summary>
             /// unix thread (includes a stack)
             /// </summary>
-            LC_UNIXTHREAD               = 0x5,
+            LC_UNIXTHREAD = 0x5,
             /// <summary>
             /// load a specified fixed VM shared library
             /// </summary>
-            LC_LOADFVMLIB               = 0x6,
+            LC_LOADFVMLIB = 0x6,
             /// <summary>
             /// fixed VM shared library identification
             /// </summary>
-            LC_IDFVMLIB                 = 0x7,
+            LC_IDFVMLIB = 0x7,
             /// <summary>
             /// object identification info (obsolete)
             /// </summary>
-            LC_IDENT                    = 0x8,
+            LC_IDENT = 0x8,
             /// <summary>
             /// fixed VM file inclusion (internal use)
             /// </summary>
-            LC_FVMFILE                  = 0x9,
+            LC_FVMFILE = 0x9,
             /// <summary>
             /// prepage command (internal use)
             /// </summary>
-            LC_PREPAGE                  = 0xa,
+            LC_PREPAGE = 0xa,
             /// <summary>
             /// dynamic link-edit symbol table info
             /// </summary>
-            LC_DYSYMTAB                 = 0xb,
+            LC_DYSYMTAB = 0xb,
             /// <summary>
             /// load a dynamically linked shared library
             /// </summary>
-            LC_LOAD_DYLIB               = 0xc,
+            LC_LOAD_DYLIB = 0xc,
             /// <summary>
             /// dynamically linked shared lib ident
             /// </summary>
-            LC_ID_DYLIB                 = 0xd,
+            LC_ID_DYLIB = 0xd,
             /// <summary>
             /// load a dynamic linker
             /// </summary>
-            LC_LOAD_DYLINKER            = 0xe,
+            LC_LOAD_DYLINKER = 0xe,
             /// <summary>
             /// dynamic linker identification
             /// </summary>
-            LC_ID_DYLINKER              = 0xf,
+            LC_ID_DYLINKER = 0xf,
             /// <summary>
             /// modules prebound for a dynamically
             /// </summary>
-            LC_PREBOUND_DYLIB           = 0x10,
+            LC_PREBOUND_DYLIB = 0x10,
             // linked shared library
             /// <summary>
             /// image routines
             /// </summary>
-            LC_ROUTINES                 = 0x11,
+            LC_ROUTINES = 0x11,
             /// <summary>
             /// sub framework
             /// </summary>
-            LC_SUB_FRAMEWORK            = 0x12,
+            LC_SUB_FRAMEWORK = 0x12,
             /// <summary>
             /// sub umbrella
             /// </summary>
-            LC_SUB_UMBRELLA             = 0x13,
+            LC_SUB_UMBRELLA = 0x13,
             /// <summary>
             /// sub client
             /// </summary>
-            LC_SUB_CLIENT               = 0x14,
+            LC_SUB_CLIENT = 0x14,
             /// <summary>
             /// sub library
             /// </summary>
-            LC_SUB_LIBRARY              = 0x15,
+            LC_SUB_LIBRARY = 0x15,
             /// <summary>
             /// two-level namespace lookup hints
             /// </summary>
-            LC_TWOLEVEL_HINTS           = 0x16,
+            LC_TWOLEVEL_HINTS = 0x16,
             /// <summary>
             /// prebind checksum
             /// </summary>
-            LC_PREBIND_CKSUM            = 0x17,
+            LC_PREBIND_CKSUM = 0x17,
             /// <summary>
             /// load a dynamically linked shared library that is allowed to be missing all symbols are weak imported).
             /// </summary>
-            LC_LOAD_WEAK_DYLIB          = (0x18 | LC_REQ_DYLD),
+            LC_LOAD_WEAK_DYLIB = (0x18 | LC_REQ_DYLD),
             /// <summary>
             /// 64-bit segment of this file to be mapped
             /// </summary>
-            LC_SEGMENT_64               = 0x19,
+            LC_SEGMENT_64 = 0x19,
             /// <summary>
             /// 64-bit image routines
             /// </summary>
-            LC_ROUTINES_64              = 0x1a,
+            LC_ROUTINES_64 = 0x1a,
             /// <summary>
             /// the uuid
             /// </summary>
-            LC_UUID                     = 0x1b,
+            LC_UUID = 0x1b,
             /// <summary>
             /// runpath additions
             /// </summary>
-            LC_RPATH                    = (0x1c | LC_REQ_DYLD),
+            LC_RPATH = (0x1c | LC_REQ_DYLD),
             /// <summary>
             /// local of code signature
             /// </summary>
-            LC_CODE_SIGNATURE           = 0x1d,
+            LC_CODE_SIGNATURE = 0x1d,
             /// <summary>
             /// local of info to split segments
             /// </summary>
-            LC_SEGMENT_SPLIT_INFO       = 0x1e,
+            LC_SEGMENT_SPLIT_INFO = 0x1e,
             /// <summary>
             /// load and re-export dylib
             /// </summary>
-            LC_REEXPORT_DYLIB           = (0x1f | LC_REQ_DYLD),
+            LC_REEXPORT_DYLIB = (0x1f | LC_REQ_DYLD),
             /// <summary>
             ///  */
             /// </summary>
-            LC_LAZY_LOAD_DYLIB          = 0x20,
+            LC_LAZY_LOAD_DYLIB = 0x20,
             /// <summary>
             /// encrypted segment information
             /// </summary>
-            LC_ENCRYPTION_INFO          = 0x21,
+            LC_ENCRYPTION_INFO = 0x21,
             /// <summary>
             /// compressed dyld information
             /// </summary>
-            LC_DYLD_INFO                = 0x22,
+            LC_DYLD_INFO = 0x22,
             /// <summary>
             /// compressed dyld information only
             /// </summary>
-            LC_DYLD_INFO_ONLY           = (0x22|LC_REQ_DYLD),
+            LC_DYLD_INFO_ONLY = (0x22 | LC_REQ_DYLD),
             /// <summary>
             /// load upward dylib
             /// </summary>
-            LC_LOAD_UPWARD_DYLIB        = (0x23 | LC_REQ_DYLD),
+            LC_LOAD_UPWARD_DYLIB = (0x23 | LC_REQ_DYLD),
             /// <summary>
             /// build for MacOSX min OS version
             /// </summary>
-            LC_VERSION_MIN_MACOSX       = 0x24,
+            LC_VERSION_MIN_MACOSX = 0x24,
             /// <summary>
             /// build for iPhoneOS min OS version
             /// </summary>
-            LC_VERSION_MIN_IPHONEOS     = 0x25,
+            LC_VERSION_MIN_IPHONEOS = 0x25,
             /// <summary>
             /// compressed table of function start addresses
             /// </summary>
-            LC_FUNCTION_STARTS          = 0x26,
+            LC_FUNCTION_STARTS = 0x26,
             /// <summary>
             /// string for dyld to treat like environment variable
             /// </summary>
-            LC_DYLD_ENVIRONMENT         = 0x27,
+            LC_DYLD_ENVIRONMENT = 0x27,
             /// <summary>
             /// replacement for LC_UNIXTHREAD
             /// </summary>
-            LC_MAIN                     = (0x28|LC_REQ_DYLD),
+            LC_MAIN = (0x28 | LC_REQ_DYLD),
             /// <summary>
             /// table of non-instructions in __text
             /// </summary>
-            LC_DATA_IN_CODE             = 0x29,
+            LC_DATA_IN_CODE = 0x29,
             /// <summary>
             /// source version used to build binary
             /// </summary>
-            LC_SOURCE_VERSION           = 0x2A,
+            LC_SOURCE_VERSION = 0x2A,
             /// <summary>
             /// Code signing DRs copied from linked dylibs
             /// </summary>
-            LC_DYLIB_CODE_SIGN_DRS      = 0x2B,
+            LC_DYLIB_CODE_SIGN_DRS = 0x2B,
             /// <summary>
             /// 64-bit encrypted segment information
             /// </summary>
-            LC_ENCRYPTION_INFO_64       = 0x2C,
+            LC_ENCRYPTION_INFO_64 = 0x2C,
             /// <summary>
             /// linker options in MH_OBJECT files
             /// </summary>
-            LC_LINKER_OPTION            = 0x2D,
+            LC_LINKER_OPTION = 0x2D,
             /// <summary>
             /// optimization hints in MH_OBJECT files
             /// </summary>
@@ -730,19 +730,19 @@ namespace HeaderReader
             /// <summary>
             /// build for AppleTV min OS version
             /// </summary>
-            LC_VERSION_MIN_TVOS         = 0x2F,
+            LC_VERSION_MIN_TVOS = 0x2F,
             /// <summary>
             /// build for Watch min OS version
             /// </summary>
-            LC_VERSION_MIN_WATCHOS      = 0x30,
+            LC_VERSION_MIN_WATCHOS = 0x30,
             /// <summary>
             /// arbitrary data included within a Mach-O file
             /// </summary>
-            LC_NOTE                     = 0x31,
+            LC_NOTE = 0x31,
             /// <summary>
             ///  */
             /// </summary>
-            LC_BUILD_VERSION            = 0x32,
+            LC_BUILD_VERSION = 0x32,
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -763,32 +763,32 @@ namespace HeaderReader
         /// </summary>
         public enum VmProt : int
         {
-            VM_PROT_NONE       = 0x00,
+            VM_PROT_NONE = 0x00,
             /// <summary>
             /// read permission
             /// </summary>
-            VM_PROT_READ       = 0x01,
+            VM_PROT_READ = 0x01,
             /// <summary>
             /// write permission
             /// </summary>
-            VM_PROT_WRITE      = 0x02,
+            VM_PROT_WRITE = 0x02,
             /// <summary>
             /// execute permission
             /// </summary>
-            VM_PROT_EXECUTE    = 0x04,
+            VM_PROT_EXECUTE = 0x04,
             /// <summary>
             /// The default protection for newly-created virtual memory
             /// </summary>
-            VM_PROT_DEFAULT    = (VM_PROT_READ|VM_PROT_WRITE),
+            VM_PROT_DEFAULT = (VM_PROT_READ | VM_PROT_WRITE),
             /// <summary>
             /// The maximum privileges possible, for parameter checking.
             /// </summary>
-            VM_PROT_ALL        = (VM_PROT_READ|VM_PROT_WRITE|VM_PROT_EXECUTE),
+            VM_PROT_ALL = (VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE),
             /// <summary>
             /// An invalid protection value. Used only by memory_object_lock_request to indicate no change to page locks.
             /// Using -1 here is a bad idea because it looks like VM_PROT_ALL and then some.
             /// </summary>
-            VM_PROT_NO_CHANGE  = 0x08,
+            VM_PROT_NO_CHANGE = 0x08,
             /// <summary>
             /// When a caller finds that he cannot obtain write permission on a
             /// mapped entry, the following flag can be used.  The entry will
@@ -796,7 +796,7 @@ namespace HeaderReader
             /// and write permission will be added to the maximum protections
             /// for the associated entry.
             /// </summary>
-            VM_PROT_COPY       = 0x10,
+            VM_PROT_COPY = 0x10,
             /// <summary>
             /// Another invalid protection value.
             /// Used only by memory_object_data_request upon an object
@@ -807,13 +807,13 @@ namespace HeaderReader
             /// being pushed up by the memory manager and the kernel
             /// walking down the shadow chain.
             /// </summary>
-            VM_PROT_WANTS_COPY  = 0x10,
+            VM_PROT_WANTS_COPY = 0x10,
             /// <summary>
             /// Another invalid protection value.
             /// Indicates that the other protection bits are to be applied as a mask
             /// against the actual protection bits of the map entry.
             /// </summary>
-            VM_PROT_IS_MASK     = 0x40,
+            VM_PROT_IS_MASK = 0x40,
             /// <summary>
             /// Another invalid protection value to support execute-only protection.
             /// VM_PROT_STRIP_READ is a special marker that tells mprotect to not
@@ -823,8 +823,8 @@ namespace HeaderReader
             /// the memory should be executable and explicitly not readable. It will
             /// be ignored on platforms that do not support this type of protection.
             /// </summary>
-            VM_PROT_STRIP_READ   = 0x80,
-            VM_PROT_EXECUTE_ONLY = (VM_PROT_EXECUTE|VM_PROT_STRIP_READ),
+            VM_PROT_STRIP_READ = 0x80,
+            VM_PROT_EXECUTE_ONLY = (VM_PROT_EXECUTE | VM_PROT_STRIP_READ),
         }
 
         /// <summary>
@@ -836,11 +836,11 @@ namespace HeaderReader
             /// <summary>
             /// the file contents for this segment is for the high part of the VM space, the low part is zero filled (for stacks in core files)
             /// </summary>
-            SG_HIGHVM   = 0x1,
+            SG_HIGHVM = 0x1,
             /// <summary>
             /// this segment is the VM that is allocated by a fixed VM library, for overlap checking in the link editor
             /// </summary>
-            SG_FVMLIB   = 0x2,
+            SG_FVMLIB = 0x2,
             /// <summary>
             /// this segment has nothing that was relocated in it and nothing relocated to it, that is it maybe safely replaced without relocation
             /// </summary>
@@ -870,7 +870,7 @@ namespace HeaderReader
             /// <summary>
             /// LC_SEGMENT
             /// </summary>
-            public Cmd     cmd;
+            public Cmd cmd;
             /// <summary>
             /// includes sizeof section_64 structs
             /// </summary>
@@ -879,7 +879,7 @@ namespace HeaderReader
             /// segment name
             /// </summary>
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-            public char[]   segname;
+            public char[] segname;
             /// <summary>
             /// memory address of this segment
             /// </summary>
@@ -939,19 +939,19 @@ namespace HeaderReader
             /// <summary>
             /// memory address of this segment
             /// </summary>
-            public ulong  vmaddr;
+            public ulong vmaddr;
             /// <summary>
             /// memory size of this segment
             /// </summary>
-            public ulong  vmsize;
+            public ulong vmsize;
             /// <summary>
             /// file offset of this segment
             /// </summary>
-            public ulong  fileoff;
+            public ulong fileoff;
             /// <summary>
             /// amount to map from the file
             /// </summary>
-            public ulong  filesize;
+            public ulong filesize;
             /// <summary>
             /// maximum VM protection
             /// </summary>
@@ -1154,18 +1154,18 @@ namespace HeaderReader
                         }
                     }
 
-                    switch(macho32_hdr.filetype)
+                    switch (macho32_hdr.filetype)
                     {
                         case FileType.MH_EXECUTE: _ExecutableType = ExecutableType.Executable; break;
-                        case FileType.MH_DYLIB  : _ExecutableType = ExecutableType.Library; break;
-                        default                 : _ExecutableType = ExecutableType.Unknown; break;
+                        case FileType.MH_DYLIB: _ExecutableType = ExecutableType.Library; break;
+                        default: _ExecutableType = ExecutableType.Unknown; break;
                     }
 
                     _IsValidHeader = true;
                     _Is32BitHeader = true;
                     _TargetOS = OsId.MacOSX;
                 }
-                else if(macho_magic == HeaderMagic.MH_MAGIC_64)
+                else if (macho_magic == HeaderMagic.MH_MAGIC_64)
                 {
                     macho64_hdr = FromBinaryReader<MACHO64_HDR>(reader);
 
@@ -1183,8 +1183,8 @@ namespace HeaderReader
                     switch (macho64_hdr.filetype)
                     {
                         case FileType.MH_EXECUTE: _ExecutableType = ExecutableType.Executable; break;
-                        case FileType.MH_DYLIB  : _ExecutableType = ExecutableType.Library; break;
-                        default                 : _ExecutableType = ExecutableType.Unknown; break;
+                        case FileType.MH_DYLIB: _ExecutableType = ExecutableType.Library; break;
+                        default: _ExecutableType = ExecutableType.Unknown; break;
                     }
 
                     _IsValidHeader = true;
