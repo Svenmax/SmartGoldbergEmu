@@ -26,9 +26,9 @@ class CueTextBox : TextBox
         {
             if (OSDetector.IsWindows())
             {
-                // Set dark background and light font for placeholder
-                this.BackColor = Color.FromArgb(45, 45, 48);
-                this.ForeColor = Color.FromArgb(200, 200, 200);
+                // Use system colors for normal appearance
+                this.BackColor = SystemColors.Window;
+                this.ForeColor = SystemColors.WindowText;
                 SendMessage(this.Handle, EM_SETCUEBANNER, (IntPtr)1, mCue);
             }
             else
@@ -37,7 +37,7 @@ class CueTextBox : TextBox
                 if (string.IsNullOrEmpty(this.Text))
                 {
                     this.Text = mCue;
-                    this.ForeColor = Color.FromArgb(200, 200, 200);
+                    this.ForeColor = SystemColors.GrayText;
                 }
             }
         }

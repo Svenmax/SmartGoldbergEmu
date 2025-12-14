@@ -80,7 +80,7 @@ namespace SmartGoldbergEmu
             _feedbackReporter = new FeedbackReporter(feedbackProgressBar, feedbackLabel, this);
 
             SteamEmulator.Initialize();
-            LoadSortedGames();
+            _ = LoadSortedGames(); // Fire and forget since we can't make constructor async
             this.Opacity = 0; // Hide until ready
 
             this.app_list_view.ColumnClick += new ColumnClickEventHandler(this.AppListView_ColumnClick);
@@ -163,7 +163,7 @@ namespace SmartGoldbergEmu
             }
         }
 
-        private void LoadSortedGames()
+        private async Task LoadSortedGames()
         {
             ValidateAndFixAppIds();
             SteamEmulator.Initialize();
@@ -184,13 +184,10 @@ namespace SmartGoldbergEmu
             }
 
             // If in tile view, reload tile images
-            if (app_list_view.View == View.Tile)
-            {
-                if (currentViewMode == "CapsuleTile")
-                    CapsuleTileToolStripMenuItem_Click_Handler(null, null);
-                else
-                    TileToolStripMenuItem_Click_Handler(null, null);
-            }
+            if (currentViewMode == "CapsuleTile")
+                await CapsuleTileToolStripMenuItem_Click(null, null);
+            else if (app_list_view.View == View.Tile)
+                await TileToolStripMenuItem_Click(null, null);
 
             UpdateSortMenuChecks();
         }
@@ -200,14 +197,27 @@ namespace SmartGoldbergEmu
             AskGamePath();
         }
 
-        private void EditGameToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void EditGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            EditGame();
+            await EditGame();
         }
 
-        private void DeleteGameToolStripMenuItem_Click(object sender, EventArgs e)
+        private async Task DeleteGame()
         {
-            DeleteGame();
+            if (app_list_view.FocusedItem == null)
+                return;
+            if (!(app_list_view.FocusedItem.Tag is GameConfig app))
+                return;
+            int appsIndex = SteamEmulator.Apps.IndexOf(app);
+            if (appsIndex >= 0)
+            {
+                // Check if this is the last entry for this AppID
+                var appId = app.AppId;
+                int countWithSameAppId = SteamEmulator.Apps.Count(a => a.AppId == appId && a != app);
+                bool isLastWithAppId = countWithSameAppId == 0;
+                SteamEmulator.RemoveGame(SteamEmulator.Apps[appsIndex], isLastWithAppId);
+            }
+            await LoadSortedGames();
         }
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -363,7 +373,7 @@ namespace SmartGoldbergEmu
             }
 
             SteamEmulator.AddGame(app);
-            LoadSortedGames();
+            await LoadSortedGames();
 
             // Ensure dummy achievement and files (now centralized)
             SteamEmulator.EnsureDummyAchievementAndFiles(app);
@@ -377,6 +387,8 @@ namespace SmartGoldbergEmu
                 string itemsFile = Path.Combine(steamSettings, "items.json");
                 bool needAchievements = false;
                 bool needItems = false;
+                bool achievementsGenerated = false;
+                bool itemsGenerated = false;
 
                 // Check achievements.json
                 if (!File.Exists(achievementsFile))
@@ -411,7 +423,7 @@ namespace SmartGoldbergEmu
                     _feedbackReporter.Reset();
                     _feedbackReporter.SetMessage("Generating achievements...");
                     _feedbackReporter.SetProgress(0, 100);
-                    await SteamEmulator.AchievementGenerator(app, _feedbackReporter);
+                    achievementsGenerated = await SteamEmulator.AchievementGenerator(app, _feedbackReporter);
                     feedbackProgressBar.Visible = false;
                 }
                 if (needItems)
@@ -428,25 +440,42 @@ namespace SmartGoldbergEmu
                         _feedbackReporter.Reset();
                         _feedbackReporter.SetMessage("Generating items...");
                         _feedbackReporter.SetProgress(0, 100);
-                        await Task.Run(() => SteamEmulator.GenerateGameItems(app, _feedbackReporter));
+                        itemsGenerated = await Task.Run(() => SteamEmulator.GenerateGameItems(app, _feedbackReporter));
                         feedbackProgressBar.Visible = false;
+                    }
+                    else
+                    {
+                        // If there's no work to do, check if items file exists and has content
+                        if (File.Exists(itemsFile))
+                        {
+                            try
+                            {
+                                var json = File.ReadAllText(itemsFile);
+                                var items = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                                itemsGenerated = items != null && items.Count > 0;
+                            }
+                            catch { }
+                        }
                     }
                 }
                 app_list_view.Enabled = true;
+
+                // Show simplified feedback about achievements generated
+                ShowGenerationFeedback(app, achievementsGenerated, itemsGenerated);
             }
         }
 
-        private void EditGame()
+        private async Task EditGame()
         {
             if (app_list_view.FocusedItem == null)
                 return;
             if (!(app_list_view.FocusedItem.Tag is GameConfig app))
                 return;
 
-            using (GameSettingsForm gsform = new GameSettingsForm())
+            using (var gsform = new GameSettingsForm())
             {
                 gsform.SetApp(app);
-                DialogResult res = gsform.ShowDialog();
+                var res = gsform.ShowDialog();
                 gsform.Dispose();
                 if (res != DialogResult.OK)
                     return;
@@ -456,26 +485,8 @@ namespace SmartGoldbergEmu
                 if (appsIndex >= 0)
                     SteamEmulator.SetGame(appsIndex, gsform.Modified_app);
 
-                LoadSortedGames();
+                await LoadSortedGames();
             }
-        }
-
-        private void DeleteGame()
-        {
-            if (app_list_view.FocusedItem == null)
-                return;
-            if (!(app_list_view.FocusedItem.Tag is GameConfig app))
-                return;
-            int appsIndex = SteamEmulator.Apps.IndexOf(app);
-            if (appsIndex >= 0)
-            {
-                // Check if this is the last entry for this AppID
-                var appId = app.AppId;
-                int countWithSameAppId = SteamEmulator.Apps.Count(a => a.AppId == appId && a != app);
-                bool isLastWithAppId = countWithSameAppId == 0;
-                SteamEmulator.RemoveGame(SteamEmulator.Apps[appsIndex], isLastWithAppId);
-            }
-            LoadSortedGames();
         }
 
         private void EditSettings()
@@ -517,16 +528,16 @@ namespace SmartGoldbergEmu
             }
         }
 
-        private void PropertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void PropertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            EditGame();
+            await EditGame();
         }
 
-        private void RemoveToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void RemoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to remove this game?", "SmartGoldberEmu Launcher", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                DeleteGame();
+                await DeleteGame();
             }
         }
 
@@ -546,11 +557,7 @@ namespace SmartGoldbergEmu
             _feedbackReporter.SetMessage("Generating achievements...");
             _feedbackReporter.SetProgress(0, 100);
 
-            bool success = await SteamEmulator.AchievementGenerator(SteamEmulator.Apps[appsIndex], _feedbackReporter);
-            if (!success)
-            {
-                _feedbackReporter.SetMessage("No achievements to generate.");
-            }
+            await SteamEmulator.AchievementGenerator(SteamEmulator.Apps[appsIndex], _feedbackReporter);
             feedbackProgressBar.Visible = false;
             app_list_view.Enabled = true;
         }
@@ -624,13 +631,13 @@ namespace SmartGoldbergEmu
                 this.Enabled = enable;
         }
 
-        private void App_list_view_DragDrop(object sender, DragEventArgs e)
+        private async void App_list_view_DragDrop(object sender, DragEventArgs e)
         {
             EnableForm(false);
 
             dragndrop_files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            Task.Factory.StartNew(async () =>
+            await Task.Run(async () =>
             {
                 foreach (string file in dragndrop_files)
                 {
@@ -638,8 +645,9 @@ namespace SmartGoldbergEmu
                         this.BeginInvoke(new Action<string>(AddGame), file);
                     });
                 }
-            })
-                .ContinueWith(t => EnableForm(true));
+            });
+            
+            EnableForm(true);
         }
 
         private void App_list_view_DragEnter(object sender, DragEventArgs e)
@@ -650,10 +658,10 @@ namespace SmartGoldbergEmu
                 e.Effect = DragDropEffects.None;
         }
 
-        private void App_list_view_KeyUp(object sender, KeyEventArgs e)
+        private async void App_list_view_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
-                DeleteGame();
+                await DeleteGame();
         }
 
         private void SmartGoldbergEmuMainForm_SizeChanged(object sender, EventArgs e)
@@ -800,18 +808,17 @@ namespace SmartGoldbergEmu
             {
                 case nameof(View.LargeIcon):
                     app_list_view.View = View.LargeIcon;
-                    LoadSortedGames();
+                    await LoadSortedGames();
                     break;
                 case nameof(View.List):
                     app_list_view.View = View.List;
-                    LoadSortedGames();
+                    await LoadSortedGames();
                     break;
                 case nameof(View.Details):
                     app_list_view.View = View.Details;
-                    LoadSortedGames();
+                    await LoadSortedGames();
                     break;
                 case nameof(View.Tile):
-                    app_list_view.View = View.Tile;
                     await TileToolStripMenuItem_Click(null, null);
                     this.Opacity = 1; // Show form after all is ready
                     return;
@@ -1221,54 +1228,141 @@ namespace SmartGoldbergEmu
 
         private async Task RefreshTileViewIfNeededAsync()
         {
-            if (app_list_view.View == View.Tile)
-                await TileToolStripMenuItem_Click(null, null);
+            // Store current view mode
+            var currentView = app_list_view.View;
+            var currentMode = currentViewMode;
+
+            // Update the app order
+            UpdateCurrentAppOrder();
+
+            // Clear and rebuild items while maintaining current view
+            app_list_view.Items.Clear();
+            for (int i = 0; i < currentAppOrder.Count; i++)
+            {
+                var app = currentAppOrder[i];
+                LoadIcons(app);
+                AddAppToList(app);
+            }
+
+            // Refresh images based on current view mode
+            if (currentView == View.Tile)
+            {
+                if (currentMode == "CapsuleTile")
+                {
+                    _image_list_capsule_tile.Images.Clear();
+                    foreach (ListViewItem item in app_list_view.Items)
+                    {
+                        if (item.Tag is GameConfig app)
+                        {
+                            string appId = app.AppId.ToString();
+                            Image capsuleImg = await GetCapsuleTileImageAsync(appId);
+                            if (capsuleImg != null)
+                            {
+                                Size tileSize = new Size(120, 48);
+                                Size imageSize = new Size(120, 45);
+                                int targetW = imageSize.Width;
+                                int targetH = imageSize.Height;
+                                float ratio = Math.Min((float)targetW / capsuleImg.Width, (float)targetH / capsuleImg.Height);
+                                int drawW = (int)(capsuleImg.Width * ratio);
+                                int drawH = (int)(capsuleImg.Height * ratio);
+                                int offsetX = (targetW - drawW) / 2;
+                                int offsetY = (targetH - drawH) / 2;
+                                Bitmap tileBitmap = new Bitmap(tileSize.Width, tileSize.Height);
+                                using (Graphics g = Graphics.FromImage(tileBitmap))
+                                {
+                                    g.Clear(Color.Transparent);
+                                    g.DrawImage(capsuleImg, new Rectangle(offsetX, offsetY, drawW, drawH));
+                                }
+                                if (!_image_list_capsule_tile.Images.ContainsKey(appId))
+                                    _image_list_capsule_tile.Images.Add(appId, tileBitmap);
+                                if (item.ListView != null && item.ListView.InvokeRequired)
+                                    item.ListView.Invoke(new Action(() => item.ImageKey = appId));
+                                else
+                                    item.ImageKey = appId;
+                            }
+                        }
+                    }
+                    app_list_view.LargeImageList = _image_list_capsule_tile;
+                    app_list_view.SmallImageList = _image_list_capsule_tile;
+                }
+                else
+                {
+                    _image_list_tile.Images.Clear();
+                    foreach (ListViewItem item in app_list_view.Items)
+                    {
+                        if (item.Tag is GameConfig app)
+                        {
+                            string appId = app.AppId.ToString();
+                            Image tileImg = await GetTileImageAsync(appId);
+                            if (tileImg != null)
+                            {
+                                Size tileSize = new Size(256, 122);
+                                Size imageSize = new Size(256, 119);
+                                int targetW = imageSize.Width;
+                                int targetH = imageSize.Height;
+                                float ratio = Math.Min((float)targetW / tileImg.Width, (float)targetH / tileImg.Height);
+                                int drawW = (int)(tileImg.Width * ratio);
+                                int drawH = (int)(tileImg.Height * ratio);
+                                int offsetX = (targetW - drawW) / 2;
+                                int offsetY = (targetH - drawH) / 2;
+                                Bitmap tileBitmap = new Bitmap(tileSize.Width, tileSize.Height);
+                                using (Graphics g = Graphics.FromImage(tileBitmap))
+                                {
+                                    g.Clear(Color.Transparent);
+                                    g.DrawImage(tileImg, new Rectangle(offsetX, offsetY, drawW, drawH));
+                                }
+                                if (!_image_list_tile.Images.ContainsKey(appId))
+                                    _image_list_tile.Images.Add(appId, tileBitmap);
+                                if (item.ListView != null && item.ListView.InvokeRequired)
+                                    item.ListView.Invoke(new Action(() => item.ImageKey = appId));
+                                else
+                                    item.ImageKey = appId;
+                            }
+                        }
+                    }
+                    app_list_view.LargeImageList = _image_list_tile;
+                    app_list_view.SmallImageList = _image_list_tile;
+                }
+            }
+
+            // Restore view settings
+            app_list_view.View = currentView;
+            currentViewMode = currentMode;
         }
 
         private async void SortByNoneMenuItem_Click(object sender, EventArgs e)
         {
-            currentSortMode = ListSortMode.None;
-            Properties.Settings.Default.SortMode = (int)currentSortMode;
-            Properties.Settings.Default.Save();
-            LoadSortedGames();
+            HandleSorting(-1, true);
+            await LoadSortedGames();
             await RefreshTileViewIfNeededAsync();
-            UpdateSortMenuChecks();
         }
+
         private async void SortByNameAscMenuItem_Click(object sender, EventArgs e)
         {
-            currentSortMode = ListSortMode.NameAsc;
-            Properties.Settings.Default.SortMode = (int)currentSortMode;
-            Properties.Settings.Default.Save();
-            LoadSortedGames();
+            HandleSorting(0, true);
+            await LoadSortedGames();
             await RefreshTileViewIfNeededAsync();
-            UpdateSortMenuChecks();
         }
+
         private async void SortByNameDescMenuItem_Click(object sender, EventArgs e)
         {
-            currentSortMode = ListSortMode.NameDesc;
-            Properties.Settings.Default.SortMode = (int)currentSortMode;
-            Properties.Settings.Default.Save();
-            LoadSortedGames();
+            HandleSorting(0, false);
+            await LoadSortedGames();
             await RefreshTileViewIfNeededAsync();
-            UpdateSortMenuChecks();
         }
+
         private async void SortByAppIDAscMenuItem_Click(object sender, EventArgs e)
         {
-            currentSortMode = ListSortMode.AppIDAsc;
-            Properties.Settings.Default.SortMode = (int)currentSortMode;
-            Properties.Settings.Default.Save();
-            LoadSortedGames();
+            HandleSorting(1, true);
+            await LoadSortedGames();
             await RefreshTileViewIfNeededAsync();
-            UpdateSortMenuChecks();
         }
+
         private async void SortByAppIDDescMenuItem_Click(object sender, EventArgs e)
         {
-            currentSortMode = ListSortMode.AppIDDesc;
-            Properties.Settings.Default.SortMode = (int)currentSortMode;
-            Properties.Settings.Default.Save();
-            LoadSortedGames();
+            HandleSorting(1, false);
+            await LoadSortedGames();
             await RefreshTileViewIfNeededAsync();
-            UpdateSortMenuChecks();
         }
 
         private void AppListView_ColumnClick(object sender, ColumnClickEventArgs e)
@@ -1276,23 +1370,45 @@ namespace SmartGoldbergEmu
             if (app_list_view.View != View.Details)
                 return;
 
-            if (e.Column == lastSortColumn)
+            HandleSorting(e.Column);
+        }
+
+        private void HandleSorting(int column, bool? forceAscending = null)
+        {
+            if (column == lastSortColumn && forceAscending == null)
             {
                 lastSortAscending = !lastSortAscending;
             }
             else
             {
-                lastSortColumn = e.Column;
-                lastSortAscending = true;
+                lastSortColumn = column;
+                lastSortAscending = forceAscending ?? true;
+            }
+
+            // Update sort mode based on column and direction
+            switch (column)
+            {
+                case 0: // Name
+                    currentSortMode = lastSortAscending ? ListSortMode.NameAsc : ListSortMode.NameDesc;
+                    break;
+                case 1: // AppID
+                    currentSortMode = lastSortAscending ? ListSortMode.AppIDAsc : ListSortMode.AppIDDesc;
+                    break;
+                default:
+                    currentSortMode = ListSortMode.None;
+                    break;
             }
 
             // Persist sort state
             Properties.Settings.Default.DetailsSortColumn = lastSortColumn;
             Properties.Settings.Default.DetailsSortAscending = lastSortAscending;
+            Properties.Settings.Default.SortMode = (int)currentSortMode;
             Properties.Settings.Default.Save();
 
-            app_list_view.ListViewItemSorter = new ListViewItemComparer(e.Column, lastSortAscending);
+            // Apply sorting
+            app_list_view.ListViewItemSorter = new ListViewItemComparer(lastSortColumn, lastSortAscending);
             app_list_view.Sort();
+            UpdateSortMenuChecks();
         }
 
         private class ListViewItemComparer : System.Collections.IComparer
@@ -1308,49 +1424,59 @@ namespace SmartGoldbergEmu
 
             public int Compare(object x, object y)
             {
-                string a = ((ListViewItem)x).SubItems[col].Text;
-                string b = ((ListViewItem)y).SubItems[col].Text;
-                int result = 0;
+                ListViewItem itemX = (ListViewItem)x;
+                ListViewItem itemY = (ListViewItem)y;
+
+                // If not in Details view or column index is invalid, compare only the main text
+                if (itemX.ListView.View != View.Details || col < 0 || col >= itemX.SubItems.Count)
+                {
+                    int result = string.Compare(itemX.Text, itemY.Text, StringComparison.OrdinalIgnoreCase);
+                    return ascending ? result : -result;
+                }
+
+                // For Details view, compare the specified column
+                string a = itemX.SubItems[col].Text;
+                string b = itemY.SubItems[col].Text;
+                int comparisonResult = 0;
                 switch (col)
                 {
                     case 0: // Name
-                        result = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+                        comparisonResult = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
                         break;
                     case 1: // AppID
                         if (long.TryParse(a, out long aId) && long.TryParse(b, out long bId))
-                            result = aId.CompareTo(bId);
+                            comparisonResult = aId.CompareTo(bId);
                         else
-                            result = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+                            comparisonResult = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
                         break;
                     case 2: // Parameters
-                        result = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+                        comparisonResult = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
                         break;
                     case 3: // Path
-                        result = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+                        comparisonResult = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
                         break;
                     default:
-                        result = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+                        comparisonResult = string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
                         break;
                 }
-                return ascending ? result : -result;
+                return ascending ? comparisonResult : -comparisonResult;
             }
         }
 
-        private void SortTilesAscMenuItem_Click(object sender, EventArgs e)
+        private async void SortTilesAscMenuItem_Click(object sender, EventArgs e)
         {
             tileSortAscending = true;
-            Properties.Settings.Default.TileSortAscending = tileSortAscending;
+            Properties.Settings.Default.TileSortAscending = true;
             Properties.Settings.Default.Save();
-            if (app_list_view.View == View.Tile)
-                LoadSortedGames();
+            await RefreshTileViewIfNeededAsync();
         }
-        private void SortTilesDescMenuItem_Click(object sender, EventArgs e)
+
+        private async void SortTilesDescMenuItem_Click(object sender, EventArgs e)
         {
             tileSortAscending = false;
-            Properties.Settings.Default.TileSortAscending = tileSortAscending;
+            Properties.Settings.Default.TileSortAscending = false;
             Properties.Settings.Default.Save();
-            if (app_list_view.View == View.Tile)
-                LoadSortedGames();
+            await RefreshTileViewIfNeededAsync();
         }
 
         private void UpdateCurrentAppOrder()
@@ -1374,6 +1500,17 @@ namespace SmartGoldbergEmu
                 default:
                     currentAppOrder = apps;
                     break;
+            }
+
+            // Apply sorting to the ListView if in Tile view
+            if (app_list_view.View == View.Tile)
+            {
+                app_list_view.Items.Clear();
+                foreach (var app in currentAppOrder)
+                {
+                    LoadIcons(app);
+                    AddAppToList(app);
+                }
             }
         }
 
@@ -1403,20 +1540,33 @@ namespace SmartGoldbergEmu
                 return;
             if (!(app_list_view.FocusedItem.Tag is GameConfig app))
                 return;
-            string inventoryFile = System.IO.Path.Combine(app.GetGameEmuFolder(), "steam_settings", "items.json");
+            string steamSettingsFolder = System.IO.Path.Combine(app.GetGameEmuFolder(), "steam_settings");
+            string inventoryFile = System.IO.Path.Combine(steamSettingsFolder, "items.json");
+            string noteFile = System.IO.Path.Combine(steamSettingsFolder, "items_note.txt");
+
             if (File.Exists(inventoryFile))
             {
                 try
                 {
+                    // Open both files
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = inventoryFile,
                         UseShellExecute = true
                     });
+
+                    if (File.Exists(noteFile))
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = noteFile,
+                            UseShellExecute = true
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to open inventory file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Failed to open inventory files: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
@@ -1497,28 +1647,29 @@ namespace SmartGoldbergEmu
                 {
                     string appId = app.AppId.ToString();
                     Image capsuleImg = await GetCapsuleTileImageAsync(appId);
-                    if (capsuleImg != null)
+                    if (capsuleImg == null)
                     {
-                        int targetW = imageSize.Width;
-                        int targetH = imageSize.Height;
-                        float ratio = Math.Min((float)targetW / capsuleImg.Width, (float)targetH / capsuleImg.Height);
-                        int drawW = (int)(capsuleImg.Width * ratio);
-                        int drawH = (int)(capsuleImg.Height * ratio);
-                        int offsetX = (targetW - drawW) / 2;
-                        int offsetY = (targetH - drawH) / 2;
-                        Bitmap tileBitmap = new Bitmap(tileSize.Width, tileSize.Height);
-                        using (Graphics g = Graphics.FromImage(tileBitmap))
-                        {
-                            g.Clear(Color.Transparent);
-                            g.DrawImage(capsuleImg, new Rectangle(offsetX, offsetY, drawW, drawH));
-                        }
-                        if (!_image_list_capsule_tile.Images.ContainsKey(appId))
-                            _image_list_capsule_tile.Images.Add(appId, tileBitmap);
-                        if (item.ListView != null && item.ListView.InvokeRequired)
-                            item.ListView.Invoke(new Action(() => item.ImageKey = appId));
-                        else
-                            item.ImageKey = appId;
+                        capsuleImg = GenerateNamePlaceholder(app.AppName ?? appId, imageSize);
                     }
+                    int targetW = imageSize.Width;
+                    int targetH = imageSize.Height;
+                    float ratio = Math.Min((float)targetW / capsuleImg.Width, (float)targetH / capsuleImg.Height);
+                    int drawW = (int)(capsuleImg.Width * ratio);
+                    int drawH = (int)(capsuleImg.Height * ratio);
+                    int offsetX = (targetW - drawW) / 2;
+                    int offsetY = (targetH - drawH) / 2;
+                    Bitmap tileBitmap = new Bitmap(tileSize.Width, tileSize.Height);
+                    using (Graphics g = Graphics.FromImage(tileBitmap))
+                    {
+                        g.Clear(Color.Transparent);
+                        g.DrawImage(capsuleImg, new Rectangle(offsetX, offsetY, drawW, drawH));
+                    }
+                    if (!_image_list_capsule_tile.Images.ContainsKey(appId))
+                        _image_list_capsule_tile.Images.Add(appId, tileBitmap);
+                    if (item.ListView != null && item.ListView.InvokeRequired)
+                        item.ListView.Invoke(new Action(() => item.ImageKey = appId));
+                    else
+                        item.ImageKey = appId;
                 }
             }
             app_list_view.TileSize = tileSize;
@@ -1590,8 +1741,47 @@ namespace SmartGoldbergEmu
             app_list_view.Columns.Clear();
             app_list_view.Columns.Add("Name", 200, HorizontalAlignment.Left);
             app_list_view.Columns.Add("App ID", 80, HorizontalAlignment.Left);
-            app_list_view.Columns.Add("Launch Parameters", 100, HorizontalAlignment.Left);
+            app_list_view.Columns.Add("Launch Parameters", 80, HorizontalAlignment.Left);
             app_list_view.Columns.Add("Path", 250, HorizontalAlignment.Left);
+        }
+
+        private async void DeleteGameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            await DeleteGame();
+        }
+
+        private void ShowGenerationFeedback(GameConfig app, bool achievementsGenerated, bool itemsGenerated)
+        {
+            string gameFolder = app.GetGameEmuFolder();
+            string steamSettings = Path.Combine(gameFolder, "steam_settings");
+            string achievementsFile = Path.Combine(steamSettings, "achievements.json");
+
+            int achievementCount = 0;
+
+            // Get achievement count
+            if (File.Exists(achievementsFile))
+            {
+                try
+                {
+                    var json = File.ReadAllText(achievementsFile);
+                    var achievements = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CAchievement>>(json);
+                    if (achievements != null)
+                    {
+                        achievementCount = achievements.Count;
+                        // Don't count the fake achievement
+                        if (achievementCount == 1 && achievements[0].name == "Fake_Achievement")
+                        {
+                            achievementCount = 0;
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            if (achievementCount > 0)
+            {
+                _feedbackReporter.SetMessage($"Generated {achievementCount} achievements for {app.AppName}");
+            }
         }
     }
 }

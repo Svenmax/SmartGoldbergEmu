@@ -31,16 +31,20 @@ namespace SmartGoldbergEmu
 {
     public class EmuConfig
     {
-        public string username;
-        public string language;
-        public ushort port;
-        public string steamid;
-        public string webapi_key;
+        // Basic user settings
+        public string username { get; set; } = "SmartGoldberg";
+        public string language { get; set; } = "english";
+        public ushort port { get; set; }
+        public string steamid { get; set; }
+        public string webapi_key { get; set; } = string.Empty;
+
+        // Sound settings
         public string friend_sound_path { get; set; } = string.Empty;
         public bool friend_sound_is_steam_default { get; set; } = false;
         public string achievement_sound_path { get; set; } = string.Empty;
         public bool achievement_sound_is_steam_default { get; set; } = false;
 
+        // File paths
         private readonly string settingsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"GSE Saves\settings");
         private readonly string userConfigFilePath;
         private readonly string mainConfigFilePath;
@@ -59,7 +63,6 @@ namespace SmartGoldbergEmu
         {
             string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
             cfgFilePath = Path.Combine(exeDirectory, "SmartGoldbergEmu.cfg");
-
             userConfigFilePath = Path.Combine(settingsDirectory, "configs.user.ini");
             mainConfigFilePath = Path.Combine(settingsDirectory, "configs.main.ini");
 
@@ -67,17 +70,14 @@ namespace SmartGoldbergEmu
 
             LoadUserConfig();
             LoadMainConfig();
-            LoadWebApiKeyCfg();
-            LoadWebApiKeTxt();
+            LoadApiKeyWithPreference();
             CheckSoundFiles();
             CheckGoldbergFiles().Wait();
         }
 
         private void LoadUserConfig()
         {
-            username = "SmartGoldberg";
             steamid = GenerateRandomSteamId();
-            language = "english";
 
             if (File.Exists(userConfigFilePath))
             {
@@ -106,10 +106,43 @@ namespace SmartGoldbergEmu
             CreateMainConfig();
         }
 
-        private void LoadWebApiKeyCfg()
+        private void LoadApiKeyWithPreference()
         {
-            webapi_key = string.Empty;
+            // First try to load from cfg
+            string cfgKey = LoadWebApiKeyFromCfg();
+            if (!string.IsNullOrWhiteSpace(cfgKey) && cfgKey.Length == 32)
+            {
+                webapi_key = cfgKey;
+                return;
+            }
 
+            // Only check txt if no valid key in cfg
+            string txtKey = LoadWebApiKeyFromTxt();
+            if (!string.IsNullOrWhiteSpace(txtKey) && txtKey.Length == 32)
+            {
+                webapi_key = txtKey;
+                return;
+            }
+
+            webapi_key = string.Empty;
+        }
+
+        private string LoadWebApiKeyFromTxt()
+        {
+            string steamApiKeyFilePath = "steam_apikey.txt";
+            if (File.Exists(steamApiKeyFilePath))
+            {
+                try
+                {
+                    return File.ReadAllText(steamApiKeyFilePath).Trim();
+                }
+                catch { return string.Empty; }
+            }
+            return string.Empty;
+        }
+
+        private string LoadWebApiKeyFromCfg()
+        {
             if (File.Exists(cfgFilePath))
             {
                 try
@@ -122,38 +155,16 @@ namespace SmartGoldbergEmu
                             int endIndex = line.LastIndexOf('<');
                             if (startIndex > 0 && endIndex > startIndex)
                             {
-                                webapi_key = line.Substring(startIndex, endIndex - startIndex).Trim();
+                                return line.Substring(startIndex, endIndex - startIndex).Trim();
                             }
                             break;
                         }
                     }
                 }
-                catch
-                {
-                    webapi_key = string.Empty;
-                }
+                catch { return string.Empty; }
             }
+            return string.Empty;
         }
-
-        private void LoadWebApiKeTxt()
-        {
-            webapi_key = string.Empty;
-
-            string steamApiKeyFilePath = "steam_apikey.txt";
-
-            if (File.Exists(steamApiKeyFilePath))
-            {
-                try
-                {
-                    webapi_key = File.ReadAllText(steamApiKeyFilePath).Trim();
-                }
-                catch
-                {
-                    webapi_key = string.Empty;
-                }
-            }
-        }
-
 
         private void CreateUserConfig()
         {
@@ -174,48 +185,45 @@ namespace SmartGoldbergEmu
             File.WriteAllText(mainConfigFilePath, sb.ToString());
         }
 
-        private ushort GenerateRandomPort() => (ushort)new Random().Next(1024, 65535);
-
-        private string GenerateRandomSteamId() => (76561197960265728 + (ulong)new Random().Next(0, int.MaxValue)).ToString();
-
         private void CheckSoundFiles()
         {
-            string destinationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings", "sounds");
-
-            try
+            string soundsPath = Path.Combine(settingsDirectory, "sounds");
+            if (!Directory.Exists(soundsPath))
             {
-                if (!Directory.Exists(destinationPath))
+                Directory.CreateDirectory(soundsPath);
+            }
+
+            // Check friend notification sound
+            if (friend_sound_is_steam_default)
+            {
+                string steamSoundPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamui", "sounds", "ui_steam_smoother_friend_online.m4a");
+                if (File.Exists(steamSoundPath))
                 {
-                    Directory.CreateDirectory(destinationPath);
-                }
-
-                string steamSoundsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamui", "sounds");
-
-                var filesToCopy = new Dictionary<string, string>
-                {
-                    { "overlay_achievement_notification.wav", "desktop_toast_default.wav" },
-                    { "overlay_friend_notification.wav", "deck_ui_misc_01.wav" }
-                };
-
-                foreach (var filePair in filesToCopy)
-                {
-                    string destinationFile = Path.Combine(destinationPath, filePair.Key);
-
-                    if (!File.Exists(destinationFile))
-                    {
-                        string sourceFile = Path.Combine(steamSoundsPath, filePair.Value);
-
-                        if (File.Exists(sourceFile))
-                        {
-                            File.Copy(sourceFile, destinationFile, true);
-                        }
-                    }
+                    friend_sound_path = steamSoundPath;
                 }
             }
-            catch (Exception ex)
+
+            // Check achievement notification sound
+            if (achievement_sound_is_steam_default)
             {
-                MessageBox.Show($"Error copying Steam sounds: {ex.Message}", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string steamSoundPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamui", "sounds", "desktop_toast_default.wav");
+                if (File.Exists(steamSoundPath))
+                {
+                    achievement_sound_path = steamSoundPath;
+                }
             }
+        }
+
+        private string GenerateRandomSteamId()
+        {
+            Random random = new Random();
+            return $"7656119{random.Next(100000000, 999999999)}";
+        }
+
+        private ushort GenerateRandomPort()
+        {
+            Random random = new Random();
+            return (ushort)random.Next(1024, 65535);
         }
 
         public async Task CheckGoldbergFiles()

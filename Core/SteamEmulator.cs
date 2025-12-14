@@ -282,21 +282,71 @@ namespace SmartGoldbergEmu
 
         public static void LoadSmartGoldbergEmuCfg()
         {
+            string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string steamApiKeyFilePath = Path.Combine(exeDirectory, "steam_apikey.txt");
+            string cfgFilePath = Path.Combine(exeDirectory, "SmartGoldbergEmu.cfg");
+
+            // Always prefer the txt file if it exists and is valid
+            if (File.Exists(steamApiKeyFilePath))
+            {
+                try
+                {
+                    string txtKey = File.ReadAllText(steamApiKeyFilePath).Trim();
+                    if (!string.IsNullOrWhiteSpace(txtKey) && txtKey.Length == 32)
+                    {
+                        Config.webapi_key = txtKey;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Invalid Steam API key format in steam_apikey.txt", "Configuration Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading steam_apikey.txt: {ex.Message}", "Configuration Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+
             try
             {
+                if (!File.Exists(cfgFilePath))
+                {
+                    Save(); // Silently create a new config file with default settings
+                    return;
+                }
+
                 SavedConf save = new SavedConf();
                 var xmlserializer = new XmlSerializer(save.GetType());
 
-                using (FileStream file = File.Open("SmartGoldbergEmu.cfg", FileMode.Open))
+                using (FileStream file = File.Open(cfgFilePath, FileMode.Open))
                 {
-                    save = (SavedConf)xmlserializer.Deserialize(file);
-
-                    Apps = save.apps;
-                    Config.webapi_key = save.webapi_key;
+                    try
+                    {
+                        save = (SavedConf)xmlserializer.Deserialize(file);
+                        if (save != null)
+                        {
+                            Apps = save.apps ?? new List<GameConfig>();
+                            if (!string.IsNullOrWhiteSpace(save.webapi_key) && save.webapi_key.Length == 32)
+                            {
+                                Config.webapi_key = save.webapi_key;
+                            }
+                        }
+                        else
+                        {
+                            Save(); // Silently create a new config file with default settings
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error deserializing configuration file: {ex.Message}\nA new configuration file will be created.", "Configuration Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Save(); // Create a new config file with default settings
+                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                MessageBox.Show($"Error loading configuration file: {ex.Message}\nA new configuration file will be created.", "Configuration Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Save(); // Create a new config file with default settings
             }
         }
 
@@ -569,7 +619,7 @@ namespace SmartGoldbergEmu
 
             while (currentRetry <= maxRetries)
             {
-                using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
+                using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) })
                 {
                     try
                     {
@@ -646,7 +696,7 @@ namespace SmartGoldbergEmu
         {
             if (string.IsNullOrWhiteSpace(Config.webapi_key))
             {
-                feedback?.SetMessage("WebAPI key missing.");
+                feedback?.SetMessage("WebAPI key missing");
                 return false;
             }
 
@@ -727,49 +777,29 @@ namespace SmartGoldbergEmu
             var achievements = schema?.game?.availableGameStats?.achievements;
             if (achievements == null || achievements.Count == 0)
             {
-                // Use default image for fake achievement
-                if (!Directory.Exists(imagesFolder))
-                    Directory.CreateDirectory(imagesFolder);
-                string fakeIconName = "Fake_Achievement.png";
-                string fakeIconPath = Path.Combine(imagesFolder, fakeIconName);
-                if (!File.Exists(fakeIconPath))
-                {
-                    using (var bmp = SmartGoldbergEmu.Properties.Resources.achievement)
-                    {
-                        bmp.Save(fakeIconPath, System.Drawing.Imaging.ImageFormat.Png);
-                    }
-                }
-                achievements = new List<CAchievement>
-                {
-                    new CAchievement
-                    {
-                        name = "Fake_Achievement",
-                        displayName = "This game has no achievements",
-                        description = "Still, this fake achievement was generated to prevent a crash when you click the Test achievement button.",
-                        icon = $"achievement_images/{fakeIconName}",
-                        icongray = $"achievement_images/{fakeIconName}",
-                        icon_gray = $"achievement_images/{fakeIconName}"
-                    }
-                };
-                feedback?.SetMessage($"No achievements found for {app.AppName}.");
-                File.WriteAllText(achievementsFile, Newtonsoft.Json.JsonConvert.SerializeObject(achievements, Newtonsoft.Json.Formatting.Indented));
-                feedback?.SetProgress(100, 100);
+                feedback?.SetMessage("No achievements to generate.");
                 return false;
             }
 
             feedback?.SetMessage($"Generating {achievements.Count} achievements...");
             int count = achievements.Count;
             int completed = 0;
-            int maxConcurrency = 30; // Limit parallel downloads
+            int maxConcurrency = 30; // Set to 30 concurrent downloads
             var semaphore = new SemaphoreSlim(maxConcurrency);
             if (!Directory.Exists(imagesFolder))
                 Directory.CreateDirectory(imagesFolder);
-            var tasks = new List<Task>();
+
+            // Create batches of achievements
+            var batches = achievements.Select((x, i) => new { Achievement = x, Index = i })
+                                    .GroupBy(x => x.Index / maxConcurrency)
+                                    .Select(g => g.Select(x => x.Achievement).ToList())
+                                    .ToList();
+
             using (var imgClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
             {
-                foreach (var achievement in achievements)
+                foreach (var batch in batches)
                 {
-                    var task = Task.Run(async () =>
+                    var batchTasks = batch.Select(async achievement =>
                     {
                         await semaphore.WaitAsync();
                         try
@@ -806,19 +836,19 @@ namespace SmartGoldbergEmu
                             {
                                 using (var bmp = SmartGoldbergEmu.Properties.Resources.achievement)
                                 {
-                                    bmp.Save(iconPath, System.Drawing.Imaging.ImageFormat.Png);
+                                    bmp.Save(iconPath, System.Drawing.Imaging.ImageFormat.Jpeg);
                                 }
                             }
                             if (!iconGrayOk)
                             {
                                 using (var bmp = SmartGoldbergEmu.Properties.Resources.achievement)
                                 {
-                                    bmp.Save(iconGrayPath, System.Drawing.Imaging.ImageFormat.Png);
+                                    bmp.Save(iconGrayPath, System.Drawing.Imaging.ImageFormat.Jpeg);
                                 }
                             }
                             // Set local relative paths
-                            achievement.icon = Path.Combine("achievement_images", achievement.name + ".png").Replace("\\", "/");
-                            achievement.icongray = Path.Combine("achievement_images", achievement.name + "_gray.png").Replace("\\", "/");
+                            achievement.icon = Path.Combine("achievement_images", achievement.name + ".jpg").Replace("\\", "/");
+                            achievement.icongray = Path.Combine("achievement_images", achievement.name + "_gray.jpg").Replace("\\", "/");
                             achievement.icon_gray = achievement.icongray;
                         }
                         finally
@@ -829,9 +859,10 @@ namespace SmartGoldbergEmu
                             semaphore.Release();
                         }
                     });
-                    tasks.Add(task);
+
+                    // Wait for current batch to complete before starting next batch
+                    await Task.WhenAll(batchTasks);
                 }
-                await Task.WhenAll(tasks);
             }
             File.WriteAllText(achievementsFile, Newtonsoft.Json.JsonConvert.SerializeObject(achievements, Newtonsoft.Json.Formatting.Indented));
             feedback?.SetMessage($"Successfully generated {count} achievements.");
@@ -931,6 +962,27 @@ namespace SmartGoldbergEmu
                 {
                     buffer = JsonConvert.SerializeObject(new_json, Newtonsoft.Json.Formatting.Indented);
                     streamWriter.Write(buffer);
+                }
+
+                // Create items_note.txt with instructions
+                string items_note_file = Path.Combine(game_emu_folder, "steam_settings", "items_note.txt");
+                using (StreamWriter noteWriter = new StreamWriter(new FileStream(items_note_file, FileMode.Create), Encoding.UTF8))
+                {
+                    noteWriter.WriteLine("Item Quantity Modification Instructions");
+                    noteWriter.WriteLine("=====================================");
+                    noteWriter.WriteLine("To modify item quantities, edit the 'items.json' file in this folder.");
+                    noteWriter.WriteLine("Each item has an ID and a name. Here are the available items:");
+                    noteWriter.WriteLine();
+                    
+                    foreach (var item in new_json)
+                    {
+                        string itemId = item.Key;
+                        var itemData = item.Value as Newtonsoft.Json.Linq.JObject;
+                        string itemName = itemData?["name"]?.ToString() ?? "Unknown Item";
+                        noteWriter.WriteLine($"ID: {itemId}");
+                        noteWriter.WriteLine($"Name: {itemName}");
+                        noteWriter.WriteLine();
+                    }
                 }
             }
             catch (Exception ex)

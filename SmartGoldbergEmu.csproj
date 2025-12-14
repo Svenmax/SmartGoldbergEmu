@@ -7,7 +7,7 @@
     <ProjectGuid>{CFD996D2-8788-45CD-A86F-9F493E9F33B6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>SmartGoldbergEmu</RootNamespace>
-    <AssemblyName>SmartGoldbergEmu Launcher</AssemblyName>
+    <AssemblyName>SmartGoldbergEmu</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

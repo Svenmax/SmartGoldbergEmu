@@ -1,4 +1,8 @@
 using System.Runtime.InteropServices;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using SmartGoldbergEmu.Services;
 
 // Windows Shell API interop for high-res icons
 private static class ShellIconExtractor
@@ -101,93 +105,42 @@ private static class ShellIconExtractor
     }
 }
 
-public void LoadIcons(GameConfig app)
+public class SmartGoldbergEmuMainForm : Form
 {
-    try
-    {
-        if (_image_list_small.Images.ContainsKey(app.Path))
-            _image_list_small.Images.RemoveByKey(app.Path);
-        if (_image_list_large.Images.ContainsKey(app.Path))
-            _image_list_large.Images.RemoveByKey(app.Path);
-        if (_image_list_huge.Images.ContainsKey(app.Path))
-            _image_list_huge.Images.RemoveByKey(app.Path);
+    private readonly IconManager _iconManager;
+    private ViewManager _viewManager;
 
-        Icon icon = null;
-        bool usedShell = false;
-        if (string.IsNullOrEmpty(app.CustomIcon))
-        {
-            // Use shell for exe/lnk
-            if (app.Path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || app.Path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-            {
-                icon = ShellIconExtractor.GetHighResIcon(app.Path, 128);
-                if (icon != null)
-                {
-                    _image_list_huge.Images.Add(app.Path, new Bitmap(icon.ToBitmap(), _image_list_huge.ImageSize));
-                    usedShell = true;
-                }
-            }
-            if (!usedShell)
-            {
-                icon = Icon.ExtractAssociatedIcon(app.Path);
-                _image_list_huge.Images.Add(app.Path, new Bitmap(icon.ToBitmap(), _image_list_huge.ImageSize));
-            }
-        }
-        else
-        {
-            if (app.CustomIcon.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || app.CustomIcon.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-            {
-                icon = ShellIconExtractor.GetHighResIcon(app.CustomIcon, 128);
-                if (icon != null)
-                {
-                    _image_list_huge.Images.Add(app.Path, new Bitmap(icon.ToBitmap(), _image_list_huge.ImageSize));
-                    usedShell = true;
-                }
-            }
-            if (!usedShell)
-            {
-                if (app.CustomIcon.EndsWith(".ico", StringComparison.OrdinalIgnoreCase))
-                {
-                    icon = new Icon(app.CustomIcon, _image_list_huge.ImageSize);
-                    _image_list_huge.Images.Add(app.Path, icon.ToBitmap());
-                }
-                else
-                {
-                    Bitmap bmp = new Bitmap(app.CustomIcon);
-                    _image_list_huge.Images.Add(app.Path, new Bitmap(bmp, _image_list_huge.ImageSize));
-                }
-            }
-        }
-        // Small and large icons (always fallback to normal extraction)
-        if (icon == null && (string.IsNullOrEmpty(app.CustomIcon)))
-            icon = Icon.ExtractAssociatedIcon(app.Path);
-        if (icon == null && !string.IsNullOrEmpty(app.CustomIcon) && app.CustomIcon.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-            icon = Icon.ExtractAssociatedIcon(app.CustomIcon);
-        if (icon != null)
-        {
-            _image_list_small.Images.Add(app.Path, new Bitmap(icon.ToBitmap(), _image_list_small.ImageSize));
-            _image_list_large.Images.Add(app.Path, new Bitmap(icon.ToBitmap(), _image_list_large.ImageSize));
-        }
-        else if (!string.IsNullOrEmpty(app.CustomIcon))
-        {
-            Bitmap bmp = new Bitmap(app.CustomIcon);
-            _image_list_small.Images.Add(app.Path, new Bitmap(bmp, _image_list_small.ImageSize));
-            _image_list_large.Images.Add(app.Path, new Bitmap(bmp, _image_list_large.ImageSize));
-        }
-    }
-    catch (Exception)
+    public SmartGoldbergEmuMainForm()
     {
-        try
-        {
-            _image_list_small.Images.Add(app.Path, new Bitmap(SystemIcons.Application.ToBitmap(), _image_list_small.ImageSize));
-            _image_list_large.Images.Add(app.Path, new Bitmap(SystemIcons.Application.ToBitmap(), _image_list_large.ImageSize));
-            _image_list_huge.Images.Add(app.Path, new Bitmap(SystemIcons.Application.ToBitmap(), _image_list_huge.ImageSize));
-        }
-        catch
-        {
-            // Silently fail if even this doesn't work
-        }
+        InitializeComponent();
+        _iconManager = new IconManager(_image_list_small, _image_list_large, _image_list_huge);
+        _viewManager = new ViewManager(app_list_view, _image_list_tile, _image_list_capsule_tile);
+        _viewManager.RestoreView();
     }
-}
 
-[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-private static extern bool DestroyIcon(IntPtr handle); 
+    public void LoadIcons(GameConfig app)
+    {
+        _iconManager.LoadIcons(app);
+    }
+
+    private void SortGames()
+    {
+        // ... sorting logic ...
+        _viewManager.RestoreView();
+    }
+
+    private void TileToolStripMenuItem_Click_Handler(object sender, EventArgs e)
+    {
+        _viewManager.SetBigTileView();
+        // ... reload items for big tile view ...
+    }
+
+    private void CapsuleTileToolStripMenuItem_Click_Handler(object sender, EventArgs e)
+    {
+        _viewManager.SetCapsuleTileView();
+        // ... reload items for capsule tile view ...
+    }
+
+    [DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    private static extern bool DestroyIcon(IntPtr handle);
+} 

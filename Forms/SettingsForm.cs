@@ -264,6 +264,8 @@ namespace SmartGoldbergEmu
                 general_language_box.SelectedIndex = general_language_box.Items.IndexOf("english");
             }
 
+            // Load API key from Config
+            general_webApiKey_box.Text = Config.webapi_key;
             general_port_box.Text = Config.port.ToString();
 
             // The rest of the method loads settings for other tabs (e.g., Appearance from configs.overlay.ini)
@@ -832,6 +834,18 @@ namespace SmartGoldbergEmu
             if (Check_settings())
             {
                 Spremanje(); // Only save if validation passes
+                // Write API key to steam_apikey.txt for compatibility
+                if (!string.IsNullOrWhiteSpace(Config.webapi_key) && Config.webapi_key.Length == 32)
+                {
+                    try
+                    {
+                        File.WriteAllText("steam_apikey.txt", Config.webapi_key.Trim());
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to write steam_apikey.txt: {ex.Message}");
+                    }
+                }
                 DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -852,8 +866,53 @@ namespace SmartGoldbergEmu
         /// <exception cref="InvalidOperationException">Thrown when user chooses not to keep key due to network error</exception>
         private bool ValidateSteamApiKey(string apiKey)
         {
-            // Temporary stub: always return true
-            return true;
+            // Query Steam Web API for appid 480 (Spacewar)
+            string url = $"https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key={apiKey}&appid=480";
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                request.Timeout = 5000; // 5 seconds
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    if (response.StatusCode != HttpStatusCode.OK)
+                        return false;
+                    using (Stream stream = response.GetResponseStream())
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        string json = reader.ReadToEnd();
+                        if (string.IsNullOrWhiteSpace(json))
+                            return false;
+                        try
+                        {
+                            var obj = JObject.Parse(json);
+                            // If the response contains a valid 'game' object, the key is valid
+                            if (obj["game"] != null || (obj["game"] == null && obj["gameName"] != null))
+                                return true;
+                        }
+                        catch { return false; }
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                if (ex.Response is HttpWebResponse errorResponse)
+                {
+                    if (errorResponse.StatusCode == HttpStatusCode.Forbidden || errorResponse.StatusCode == HttpStatusCode.Unauthorized)
+                        return false;
+                }
+                // Network error, ask user if they want to keep the key
+                var result = MessageBox.Show("Network error occurred while validating the API key.\nDo you want to keep the key anyway?", "Network Error", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.No)
+                    throw new InvalidOperationException();
+                return true;
+            }
+            catch
+            {
+                // Other errors
+                return false;
+            }
+            return false;
         }
 
         private bool Check_settings()
