@@ -160,30 +160,20 @@ namespace SmartGoldbergEmu
                 {
                     string line;
                     string prosliline = "a";
-                    double result = 0;
                     while ((line = streamReader.ReadLine()) != null)
                     {
                         prosliline = line;
                         if (prosliline.Contains("account_name="))
                         {
-                            //FontsizeText.Text = prosliline;
-                            prosliline = prosliline.Replace("account_name=", "");
-                            double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            username_edit.Text = result.ToString().Replace(",", ".");
+                            username_edit.Text = prosliline.Replace("account_name=", "");
                         }
                         if (prosliline.Contains("account_steamid="))
                         {
-                            //FontsizeText.Text = prosliline;
-                            prosliline = prosliline.Replace("account_steamid=", "");
-                            double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            steam_id_edit.Text = result.ToString().Replace(",", ".");
+                            steam_id_edit.Text = prosliline.Replace("account_steamid=", "");
                         }
                         if (prosliline.Contains("language="))
                         {
-                            //FontsizeText.Text = prosliline;
-                            prosliline = prosliline.Replace("language=", "");
-                            double.TryParse(prosliline, NumberStyles.AllowDecimalPoint, NumberFormatInfo.InvariantInfo, out result);
-                            language_combo.Text = result.ToString().Replace(",", ".");
+                            language_combo.Text = prosliline.Replace("language=", "");
                         }
                     }
                     streamReader.Close();
@@ -800,8 +790,8 @@ namespace SmartGoldbergEmu
                 {
                     // File in use and can't be deleted; no permission etc.
                 }
+                Ucitavanje();
             }
-            Ucitavanje();
         }
 
         private void addfriendsoundbutton_Click(object sender, EventArgs e)
