@@ -202,6 +202,7 @@ namespace SmartGoldbergEmu
             ["Ok!"] = "好的！",
             ["Folder"] = "文件夹",
             ["Game executables (*.exe)|*.exe;|All Files|*.*"] = "游戏可执行文件 (*.exe)|*.exe;|所有文件|*.*",
+            ["All Files|*.*"] = "所有文件|*.*",
             ["Image Files|*.jpg; *.jpeg; *.png; *.ico|All Files|*.*"] = "图像文件|*.jpg; *.jpeg; *.png; *.ico|所有文件|*.*",
             ["PNG|*.png|JPG|*.jpg|All files|*.*"] = "PNG|*.png|JPG|*.jpg|所有文件|*.*",
             ["WAV|*.wav|All files|*.*"] = "WAV|*.wav|所有文件|*.*",
@@ -298,6 +299,11 @@ namespace SmartGoldbergEmu
         public static void ApplyTo(Control root)
         {
             ApplyControl(root);
+        }
+
+        public static void ApplyTo(ToolStripItemCollection items)
+        {
+            ApplyToolStripItems(items);
         }
 
         private static void ApplyControl(Control control)

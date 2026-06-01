@@ -35,6 +35,7 @@ namespace SmartGoldbergEmu
         {
             InitializeComponent();
             Localization.ApplyTo(this);
+            Localization.ApplyTo(capp_contextMenuStrip.Items);
 
             _image_list.ImageSize = new Size(32, 32);
 
@@ -122,7 +123,7 @@ namespace SmartGoldbergEmu
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = (OSDetector.IsWindows() ? "Game executables (*.exe)|*.exe;|All Files|*.*" : "All Files|*.*"),
+                Filter = Localization.T(OSDetector.IsWindows() ? "Game executables (*.exe)|*.exe;|All Files|*.*" : "All Files|*.*"),
                 FilterIndex = 1,
                 Multiselect = false,
                 CheckFileExists = true
