@@ -262,7 +262,7 @@ namespace SmartGoldbergEmu
             }
             catch
             {
-                MessageBox.Show("Folder: " + emu_folder, "Folder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("Folder: ") + emu_folder, Localization.T("Folder"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -276,7 +276,7 @@ namespace SmartGoldbergEmu
 
                     if (key == null)
                     {
-                        MessageBox.Show(@"Cannot setup registry keys in HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(Localization.T(@"Cannot setup registry keys in HKEY_CURRENT_USER\Software\Valve\Steam\ActiveProcess"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
 
@@ -323,7 +323,7 @@ namespace SmartGoldbergEmu
             string emu_path = os_folder + OSFuncs.GetSteamAPIName(app.UseX64);
             if (!File.Exists(emu_path))
             {
-                MessageBox.Show("Cannot find SmartGoldbergEmu Launcher: " + emu_path);
+                MessageBox.Show(Localization.T("Cannot find SmartGoldbergEmu Launcher: ") + emu_path);
                 return false;
             }
 
@@ -369,8 +369,8 @@ namespace SmartGoldbergEmu
         {
             if (Config.webapi_key.Equals(""))
             {
-                MessageBox.Show("Can't generate achievements definition file, webapi key is missing.\n\nSee https://steamcommunity.com/dev/apikey to get yours.",
-                    "Webapi Key error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("Can't generate achievements definition file, webapi key is missing.\n\nSee https://steamcommunity.com/dev/apikey to get yours."),
+                    Localization.T("Webapi Key error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -388,7 +388,7 @@ namespace SmartGoldbergEmu
                 {
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        MessageBox.Show("Failed to get achievements definition (wrong webapi key ?)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(Localization.T("Failed to get achievements definition (wrong webapi key ?)"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                     Stream sresult = response.GetResponseStream();
@@ -425,11 +425,11 @@ namespace SmartGoldbergEmu
                         streamWriter.Write(buffer);
                     }
                 }
-                MessageBox.Show("Achievements definition file created", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("Achievements definition file created"), Localization.T("Ok!"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception)
             {
-                MessageBox.Show("Error, is appid wrong ?", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("Error, is appid wrong ?"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -437,8 +437,8 @@ namespace SmartGoldbergEmu
         {
             if (Config.webapi_key.Equals(""))
             {
-                MessageBox.Show("Can't generate achievements definition file, webapi key is missing.\n\nSee https://steamcommunity.com/dev/apikey to get yours.",
-                    "Webapi Key error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("Can't generate achievements definition file, webapi key is missing.\n\nSee https://steamcommunity.com/dev/apikey to get yours."),
+                    Localization.T("Webapi Key error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -456,7 +456,7 @@ namespace SmartGoldbergEmu
 
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    MessageBox.Show("Failed to get items definition", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Localization.T("Failed to get items definition"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -474,13 +474,13 @@ namespace SmartGoldbergEmu
                 if (metaResponse.response.digest == null ||
                 metaResponse.response.digest.Equals(""))
                 {
-                    MessageBox.Show("No items for this game", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Localization.T("No items for this game"), Localization.T("Ok!"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
             }
             catch(Exception)
             {
-                MessageBox.Show("No items for this game: Invalid meta answer.", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("No items for this game: Invalid meta answer."), Localization.T("Ok!"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -540,13 +540,13 @@ namespace SmartGoldbergEmu
                     }
                     catch(Exception)
                     {
-                        MessageBox.Show("No items for this game: Invalid items answer.", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(Localization.T("No items for this game: Invalid items answer."), Localization.T("Ok!"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
                 }
             }
 
-            MessageBox.Show("Items definition file created", "Ok!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Localization.T("Items definition file created"), Localization.T("Ok!"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             SteamEmulator.Save();
         }
 
@@ -558,7 +558,7 @@ namespace SmartGoldbergEmu
         {
             if (app.AppId == 0)
             {
-                MessageBox.Show("You need to set up game app id first. You can find your game app id on steam store url: http://store.steampowered.com/app/<AppId>", "Invalid app id", MessageBoxButtons.OK);
+                MessageBox.Show(Localization.T("You need to set up game app id first. You can find your game app id on steam store url: http://store.steampowered.com/app/<AppId>"), Localization.T("Invalid app id"), MessageBoxButtons.OK);
                 return;
             }
 
@@ -601,7 +601,7 @@ namespace SmartGoldbergEmu
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Cannot launch game: " + e.Message, "Game Launch Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Localization.T("Cannot launch game: ") + e.Message, Localization.T("Game Launch Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -621,7 +621,7 @@ namespace SmartGoldbergEmu
         {
             if(!OSDetector.IsWindows())
             {
-                MessageBox.Show("This feature is only available on Windows for the moment", "Unsupported", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("This feature is only available on Windows for the moment"), Localization.T("Unsupported"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

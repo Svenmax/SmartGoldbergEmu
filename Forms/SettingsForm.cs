@@ -778,7 +778,7 @@ namespace SmartGoldbergEmu
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             OpenFileDialog dijalog = new OpenFileDialog
             {
-                Filter = "PNG|*.png|JPG|*.jpg|All files|*.*",
+                Filter = Localization.T("PNG|*.png|JPG|*.jpg|All files|*.*"),
                 FilterIndex = 3
             };
             if (dijalog.ShowDialog() == DialogResult.OK)
@@ -800,7 +800,7 @@ namespace SmartGoldbergEmu
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             OpenFileDialog dijalog = new OpenFileDialog
             {
-                Filter = "WAV|*.wav|All files|*.*",
+                Filter = Localization.T("WAV|*.wav|All files|*.*"),
                 FilterIndex = 2
             };
             if (dijalog.ShowDialog() == DialogResult.OK)
@@ -820,7 +820,7 @@ namespace SmartGoldbergEmu
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             OpenFileDialog dijalog = new OpenFileDialog
             {
-                Filter = "WAV|*.wav|All files|*.*",
+                Filter = Localization.T("WAV|*.wav|All files|*.*"),
                 FilterIndex = 2
             };
             if (dijalog.ShowDialog() == DialogResult.OK)
@@ -866,7 +866,7 @@ namespace SmartGoldbergEmu
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             OpenFileDialog dijalog = new OpenFileDialog
             {
-                Filter = "TTF|*.ttf|All files|*.*",
+                Filter = Localization.T("TTF|*.ttf|All files|*.*"),
                 FilterIndex = 2
             };
             if (dijalog.ShowDialog() == DialogResult.OK)

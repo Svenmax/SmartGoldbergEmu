@@ -550,7 +550,7 @@ namespace SmartGoldbergEmu
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Game executables (*.exe)|*.exe;|All Files|*.*",
+                Filter = Localization.T("Game executables (*.exe)|*.exe;|All Files|*.*"),
                 FilterIndex = 1,
                 Multiselect = false,
                 CheckFileExists = true
@@ -566,7 +566,7 @@ namespace SmartGoldbergEmu
             FolderBrowserDialog openFolderDialog = new FolderBrowserDialog
             {
                 ShowNewFolderButton = false,
-                Description = "Game start folder",
+                Description = Localization.T("Game start folder"),
                 SelectedPath = game_folder_edit.Text
             };
             if (openFolderDialog.ShowDialog() == DialogResult.OK)
@@ -579,7 +579,7 @@ namespace SmartGoldbergEmu
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Image Files|*.jpg; *.jpeg; *.png; *.ico|All Files|*.*",
+                Filter = Localization.T("Image Files|*.jpg; *.jpeg; *.png; *.ico|All Files|*.*"),
                 FilterIndex = 1,
                 Multiselect = false,
                 CheckFileExists = true
@@ -594,12 +594,12 @@ namespace SmartGoldbergEmu
         {
             if (game_folder_edit.Text.Length == 0 || !Directory.Exists(game_folder_edit.Text))
             {
-                MessageBox.Show("Start folder " + game_folder_edit.Text + " does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("Start folder ") + game_folder_edit.Text + Localization.T(" does not exist"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             else if (game_exe_edit.Text.Length == 0 || !File.Exists(game_exe_edit.Text))
             {
-                MessageBox.Show("Game exe " + game_exe_edit.Text + " does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("Game exe ") + game_exe_edit.Text + Localization.T(" does not exist"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             else
@@ -610,7 +610,7 @@ namespace SmartGoldbergEmu
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Game exe " + game_exe_edit.Text + " does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Localization.T("Game exe ") + game_exe_edit.Text + Localization.T(" does not exist"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
@@ -672,7 +672,7 @@ namespace SmartGoldbergEmu
             }
             catch
             {
-                MessageBox.Show("Invalid IP Address", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("Invalid IP Address"), Localization.T("Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -831,12 +831,12 @@ namespace SmartGoldbergEmu
         {
             if (textBox_env_var_key.Text.Equals(""))
             {
-                MessageBox.Show("An env var must have a name", "Invalid Env Var", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("An env var must have a name"), Localization.T("Invalid Env Var"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             if (textBox_env_var_value.Text.Equals(""))
             {
-                if (MessageBox.Show("An empty env var value will clear it before starting the game, are you sure ?", "Null env var value", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                if (MessageBox.Show(Localization.T("An empty env var value will clear it before starting the game, are you sure ?"), Localization.T("Null env var value"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 {
                     return;
                 }
@@ -1288,12 +1288,12 @@ namespace SmartGoldbergEmu
                     }
                     else
                     {
-                        DialogResult res = MessageBox.Show("Appid has no DLC", "No DLC", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        DialogResult res = MessageBox.Show(Localization.T("Appid has no DLC"), Localization.T("No DLC"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    DialogResult res = MessageBox.Show("Appid is not valid?", "Not valid Appid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DialogResult res = MessageBox.Show(Localization.T("Appid is not valid?"), Localization.T("Not valid Appid"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             stream.Dispose();
@@ -1316,7 +1316,7 @@ namespace SmartGoldbergEmu
                 }
                 else
                 {
-                    DialogResult res = MessageBox.Show("Appid is not valid?", "Not valid Appid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DialogResult res = MessageBox.Show(Localization.T("Appid is not valid?"), Localization.T("Not valid Appid"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             stream.Dispose();

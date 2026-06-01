@@ -55,7 +55,7 @@ namespace SmartGoldbergEmu
             }
             catch
             {
-                MessageBox.Show("Folder: " + emu_folder, "Folder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("Folder: ") + emu_folder, Localization.T("Folder"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
