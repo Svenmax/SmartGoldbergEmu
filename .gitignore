@@ -1,4 +1,5 @@
 /bin 
 /obj
+artifacts/
 /.vs
 .vs/SmartGoldbergEmu/v17/.suo
