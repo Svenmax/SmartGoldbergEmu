@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace SmartGoldbergEmu
 {
@@ -41,22 +43,37 @@ namespace SmartGoldbergEmu
             ["Font Size"] = "字体大小",
             ["Image Size"] = "图片大小",
             ["Notification Colour"] = "通知颜色",
+            ["Notification"] = "通知",
             ["Background Colour"] = "背景颜色",
+            ["Background"] = "背景",
             ["Element Colour"] = "元素颜色",
+            ["Element"] = "元素",
             ["Element Hover Colour"] = "元素悬停颜色",
+            ["Element Hovered"] = "元素悬停",
             ["Element Active Colour"] = "元素激活颜色",
+            ["Element Active"] = "元素激活",
+            ["R,G,B,A"] = "R,G,B,A",
             ["Ach Position"] = "成就位置",
             ["Inv Position"] = "邀请位置",
             ["Chat Position"] = "聊天位置",
             ["Sound & Font"] = "声音和字体",
+            ["Sound and Font"] = "声音和字体",
             ["Add Friend Sound"] = "添加好友声音",
             ["Delete Friend Sound"] = "删除好友声音",
             ["Add Achievement Sound"] = "添加成就声音",
             ["Delete Achievement Sound"] = "删除成就声音",
             ["Add Font"] = "添加字体",
+            ["Change Font"] = "更换字体",
             ["Delete Font"] = "删除字体",
+            ["Change Sound"] = "更换声音",
+            ["Delete Sound"] = "删除声音",
+            ["Font"] = "字体",
+            ["Friend Notification"] = "好友通知",
+            ["Achievement Notification"] = "成就通知",
             ["Font Spacing X"] = "字体间距 X",
+            ["Font Spacing X:"] = "字体间距 X:",
             ["Font Spacing Y"] = "字体间距 Y",
+            ["Font Spacing Y:"] = "字体间距 Y:",
             ["Notifications"] = "通知",
             ["Animation"] = "动画",
             ["Roundness"] = "圆角",
@@ -65,7 +82,12 @@ namespace SmartGoldbergEmu
             ["Achievement Duration"] = "成就持续时间",
             ["Progress Duration"] = "进度持续时间",
             ["Invitation Duration"] = "邀请持续时间",
+            ["Invite Duration"] = "邀请持续时间",
             ["Chat Duration"] = "聊天持续时间",
+            ["Notification Animation"] = "通知动画",
+            ["Notification Margin Y"] = "通知边距 Y",
+            ["Notification Margin X"] = "通知边距 X",
+            ["Notification Rounding"] = "通知圆角",
             ["Game Settings"] = "游戏设置",
             ["Other Settings"] = "其他设置",
             ["Disable Unknown Leaderboard"] = "禁用未知排行榜",
@@ -160,7 +182,62 @@ namespace SmartGoldbergEmu
 
         public static void InitializeFromSettings()
         {
-            CurrentLanguage = Normalize(Properties.Settings.Default.UiLanguage);
+            CurrentLanguage = LoadUiLanguage();
+        }
+
+        public static string LoadUiLanguage()
+        {
+            string configPath = GetConfigPath();
+            if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
+                return English;
+
+            XmlDocument document = new XmlDocument();
+            document.Load(configPath);
+            XmlNode node = document.SelectSingleNode("/configuration/appSettings/add[@key='UiLanguage']");
+            return Normalize(node?.Attributes?["value"]?.Value);
+        }
+
+        public static void SaveUiLanguage(string language)
+        {
+            string configPath = GetConfigPath();
+            if (string.IsNullOrEmpty(configPath))
+                return;
+
+            XmlDocument document = new XmlDocument();
+            if (File.Exists(configPath))
+                document.Load(configPath);
+            else
+                document.AppendChild(document.CreateElement("configuration"));
+
+            XmlElement root = document.DocumentElement;
+            if (root == null)
+            {
+                root = document.CreateElement("configuration");
+                document.AppendChild(root);
+            }
+
+            XmlElement appSettings = root.SelectSingleNode("appSettings") as XmlElement;
+            if (appSettings == null)
+            {
+                appSettings = document.CreateElement("appSettings");
+                root.PrependChild(appSettings);
+            }
+
+            XmlElement setting = appSettings.SelectSingleNode("add[@key='UiLanguage']") as XmlElement;
+            if (setting == null)
+            {
+                setting = document.CreateElement("add");
+                setting.SetAttribute("key", "UiLanguage");
+                appSettings.AppendChild(setting);
+            }
+
+            setting.SetAttribute("value", Normalize(language));
+            document.Save(configPath);
+        }
+
+        private static string GetConfigPath()
+        {
+            return Path.Combine(AppContext.BaseDirectory, "SmartGoldbergEmu.dll.config");
         }
 
         public static string Normalize(string language)

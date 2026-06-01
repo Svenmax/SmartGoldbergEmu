@@ -130,7 +130,7 @@ namespace SmartGoldbergEmu
             // 
             // save_button
             // 
-            this.save_button.Location = new System.Drawing.Point(385, 178);
+            this.save_button.Location = new System.Drawing.Point(465, 204);
             this.save_button.Name = "save_button";
             this.save_button.Size = new System.Drawing.Size(75, 23);
             this.save_button.TabIndex = 11;
@@ -140,7 +140,7 @@ namespace SmartGoldbergEmu
             // 
             // cancel_button
             // 
-            this.cancel_button.Location = new System.Drawing.Point(304, 178);
+            this.cancel_button.Location = new System.Drawing.Point(384, 204);
             this.cancel_button.Name = "cancel_button";
             this.cancel_button.Size = new System.Drawing.Size(75, 23);
             this.cancel_button.TabIndex = 12;
@@ -157,7 +157,7 @@ namespace SmartGoldbergEmu
             this.tabControl1.Location = new System.Drawing.Point(13, 5);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(447, 167);
+            this.tabControl1.Size = new System.Drawing.Size(527, 193);
             this.tabControl1.TabIndex = 15;
             // 
             // generaltab
@@ -180,7 +180,7 @@ namespace SmartGoldbergEmu
             this.generaltab.Location = new System.Drawing.Point(4, 22);
             this.generaltab.Name = "generaltab";
             this.generaltab.Padding = new System.Windows.Forms.Padding(3);
-            this.generaltab.Size = new System.Drawing.Size(439, 167);
+            this.generaltab.Size = new System.Drawing.Size(519, 167);
             this.generaltab.TabIndex = 0;
             this.generaltab.Text = "General";
             // 
@@ -209,30 +209,30 @@ namespace SmartGoldbergEmu
             // 
             this.ui_language_combo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ui_language_combo.FormattingEnabled = true;
-            this.ui_language_combo.Location = new System.Drawing.Point(175, 88);
+            this.ui_language_combo.Location = new System.Drawing.Point(200, 88);
             this.ui_language_combo.Name = "ui_language_combo";
-            this.ui_language_combo.Size = new System.Drawing.Size(245, 21);
+            this.ui_language_combo.Size = new System.Drawing.Size(300, 21);
             this.ui_language_combo.TabIndex = 27;
             // 
             // language_combo
             // 
             this.language_combo.FormattingEnabled = true;
-            this.language_combo.Location = new System.Drawing.Point(175, 61);
+            this.language_combo.Location = new System.Drawing.Point(200, 61);
             this.language_combo.Name = "language_combo";
-            this.language_combo.Size = new System.Drawing.Size(245, 21);
+            this.language_combo.Size = new System.Drawing.Size(300, 21);
             this.language_combo.TabIndex = 24;
             // 
             // webapi_key_edit
             // 
-            this.webapi_key_edit.Location = new System.Drawing.Point(175, 140);
+            this.webapi_key_edit.Location = new System.Drawing.Point(200, 140);
             this.webapi_key_edit.MaxLength = 32;
             this.webapi_key_edit.Name = "webapi_key_edit";
-            this.webapi_key_edit.Size = new System.Drawing.Size(245, 20);
+            this.webapi_key_edit.Size = new System.Drawing.Size(300, 20);
             this.webapi_key_edit.TabIndex = 23;
             // 
             // port_edit
             // 
-            this.port_edit.Location = new System.Drawing.Point(175, 114);
+            this.port_edit.Location = new System.Drawing.Point(200, 114);
             this.port_edit.MaxLength = 5;
             this.port_edit.Name = "port_edit";
             this.port_edit.Size = new System.Drawing.Size(86, 20);
@@ -240,17 +240,17 @@ namespace SmartGoldbergEmu
             // 
             // steam_id_edit
             // 
-            this.steam_id_edit.Location = new System.Drawing.Point(175, 35);
+            this.steam_id_edit.Location = new System.Drawing.Point(200, 35);
             this.steam_id_edit.Name = "steam_id_edit";
-            this.steam_id_edit.Size = new System.Drawing.Size(245, 20);
+            this.steam_id_edit.Size = new System.Drawing.Size(300, 20);
             this.steam_id_edit.TabIndex = 21;
             // 
             // username_edit
             // 
-            this.username_edit.Location = new System.Drawing.Point(175, 9);
+            this.username_edit.Location = new System.Drawing.Point(200, 9);
             this.username_edit.MaxLength = 32;
             this.username_edit.Name = "username_edit";
-            this.username_edit.Size = new System.Drawing.Size(245, 20);
+            this.username_edit.Size = new System.Drawing.Size(300, 20);
             this.username_edit.TabIndex = 20;
             // 
             // label5
@@ -869,7 +869,7 @@ namespace SmartGoldbergEmu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(472, 231);
+            this.ClientSize = new System.Drawing.Size(552, 257);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.cancel_button);
             this.Controls.Add(this.save_button);

@@ -119,7 +119,7 @@ namespace SmartGoldbergEmu
 
         private void InitializeUiLanguageCombo()
         {
-            _initialUiLanguage = Localization.Normalize(Properties.Settings.Default.UiLanguage);
+            _initialUiLanguage = Localization.LoadUiLanguage();
             ui_language_combo.Items.Clear();
             ui_language_combo.Items.Add(Localization.GetLanguageDisplayName(Localization.English));
             ui_language_combo.Items.Add(Localization.GetLanguageDisplayName(Localization.SimplifiedChinese));
@@ -727,8 +727,7 @@ namespace SmartGoldbergEmu
             if( Check_settings() )
             {
                 string selectedUiLanguage = Localization.GetLanguageCodeFromDisplayName(ui_language_combo.SelectedItem?.ToString());
-                Properties.Settings.Default.UiLanguage = selectedUiLanguage;
-                Properties.Settings.Default.Save();
+                Localization.SaveUiLanguage(selectedUiLanguage);
 
                 if (selectedUiLanguage != _initialUiLanguage)
                     MessageBox.Show(Localization.T("The UI language change will take effect after restarting the application."), Localization.T("Restart Required"), MessageBoxButtons.OK, MessageBoxIcon.Information);
