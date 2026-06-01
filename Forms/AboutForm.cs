@@ -29,6 +29,7 @@ namespace SmartGoldbergEmu
         public AboutForm()
         {
             InitializeComponent();
+            Localization.ApplyTo(this);
 
         }
 

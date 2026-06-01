@@ -51,6 +51,7 @@ namespace SmartGoldbergEmu
             this.generaltab = new System.Windows.Forms.TabPage();
             this.avatar = new System.Windows.Forms.PictureBox();
             this.avatarchng = new System.Windows.Forms.Button();
+            this.ui_language_combo = new System.Windows.Forms.ComboBox();
             this.language_combo = new System.Windows.Forms.ComboBox();
             this.webapi_key_edit = new System.Windows.Forms.TextBox();
             this.port_edit = new System.Windows.Forms.TextBox();
@@ -59,6 +60,7 @@ namespace SmartGoldbergEmu
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.ui_language_label = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.appearancetab = new System.Windows.Forms.TabPage();
@@ -163,6 +165,7 @@ namespace SmartGoldbergEmu
             this.generaltab.BackColor = System.Drawing.SystemColors.Control;
             this.generaltab.Controls.Add(this.avatar);
             this.generaltab.Controls.Add(this.avatarchng);
+            this.generaltab.Controls.Add(this.ui_language_combo);
             this.generaltab.Controls.Add(this.language_combo);
             this.generaltab.Controls.Add(this.webapi_key_edit);
             this.generaltab.Controls.Add(this.port_edit);
@@ -171,12 +174,13 @@ namespace SmartGoldbergEmu
             this.generaltab.Controls.Add(this.label5);
             this.generaltab.Controls.Add(this.label4);
             this.generaltab.Controls.Add(this.label3);
+            this.generaltab.Controls.Add(this.ui_language_label);
             this.generaltab.Controls.Add(this.label2);
             this.generaltab.Controls.Add(this.label1);
             this.generaltab.Location = new System.Drawing.Point(4, 22);
             this.generaltab.Name = "generaltab";
             this.generaltab.Padding = new System.Windows.Forms.Padding(3);
-            this.generaltab.Size = new System.Drawing.Size(439, 141);
+            this.generaltab.Size = new System.Drawing.Size(439, 167);
             this.generaltab.TabIndex = 0;
             this.generaltab.Text = "General";
             // 
@@ -201,6 +205,15 @@ namespace SmartGoldbergEmu
             this.avatarchng.UseVisualStyleBackColor = true;
             this.avatarchng.Click += new System.EventHandler(this.Avatarchng_Click);
             // 
+            // ui_language_combo
+            // 
+            this.ui_language_combo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ui_language_combo.FormattingEnabled = true;
+            this.ui_language_combo.Location = new System.Drawing.Point(175, 88);
+            this.ui_language_combo.Name = "ui_language_combo";
+            this.ui_language_combo.Size = new System.Drawing.Size(245, 21);
+            this.ui_language_combo.TabIndex = 27;
+            // 
             // language_combo
             // 
             this.language_combo.FormattingEnabled = true;
@@ -211,7 +224,7 @@ namespace SmartGoldbergEmu
             // 
             // webapi_key_edit
             // 
-            this.webapi_key_edit.Location = new System.Drawing.Point(175, 114);
+            this.webapi_key_edit.Location = new System.Drawing.Point(175, 140);
             this.webapi_key_edit.MaxLength = 32;
             this.webapi_key_edit.Name = "webapi_key_edit";
             this.webapi_key_edit.Size = new System.Drawing.Size(245, 20);
@@ -219,7 +232,7 @@ namespace SmartGoldbergEmu
             // 
             // port_edit
             // 
-            this.port_edit.Location = new System.Drawing.Point(175, 88);
+            this.port_edit.Location = new System.Drawing.Point(175, 114);
             this.port_edit.MaxLength = 5;
             this.port_edit.Name = "port_edit";
             this.port_edit.Size = new System.Drawing.Size(86, 20);
@@ -243,7 +256,7 @@ namespace SmartGoldbergEmu
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(106, 118);
+            this.label5.Location = new System.Drawing.Point(106, 144);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(71, 13);
             this.label5.TabIndex = 19;
@@ -252,7 +265,7 @@ namespace SmartGoldbergEmu
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(106, 91);
+            this.label4.Location = new System.Drawing.Point(106, 117);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(29, 13);
             this.label4.TabIndex = 18;
@@ -266,6 +279,15 @@ namespace SmartGoldbergEmu
             this.label3.Size = new System.Drawing.Size(58, 13);
             this.label3.TabIndex = 17;
             this.label3.Text = "Language:";
+            // 
+            // ui_language_label
+            // 
+            this.ui_language_label.AutoSize = true;
+            this.ui_language_label.Location = new System.Drawing.Point(106, 91);
+            this.ui_language_label.Name = "ui_language_label";
+            this.ui_language_label.Size = new System.Drawing.Size(71, 13);
+            this.ui_language_label.TabIndex = 26;
+            this.ui_language_label.Text = "UI Language:";
             // 
             // label2
             // 
@@ -847,7 +869,7 @@ namespace SmartGoldbergEmu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(472, 205);
+            this.ClientSize = new System.Drawing.Size(472, 231);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.cancel_button);
             this.Controls.Add(this.save_button);
@@ -879,6 +901,7 @@ namespace SmartGoldbergEmu
         private System.Windows.Forms.TabPage generaltab;
         private System.Windows.Forms.PictureBox avatar;
         private System.Windows.Forms.Button avatarchng;
+        private System.Windows.Forms.ComboBox ui_language_combo;
         private System.Windows.Forms.ComboBox language_combo;
         private System.Windows.Forms.TextBox webapi_key_edit;
         private System.Windows.Forms.TextBox port_edit;
@@ -887,6 +910,7 @@ namespace SmartGoldbergEmu
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label ui_language_label;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabPage appearancetab;

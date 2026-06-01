@@ -72,5 +72,17 @@ namespace SmartGoldbergEmu.Properties {
                 this["F1Size"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("en")]
+        public string UiLanguage {
+            get {
+                return ((string)(this["UiLanguage"]));
+            }
+            set {
+                this["UiLanguage"] = value;
+            }
+        }
     }
 }

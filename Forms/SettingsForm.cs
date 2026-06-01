@@ -65,6 +65,7 @@ namespace SmartGoldbergEmu
         };
 
         private EmuConfig _config = new EmuConfig();
+        private string _initialUiLanguage;
 
         public EmuConfig Config
         {
@@ -110,7 +111,19 @@ namespace SmartGoldbergEmu
         public SettingsForm()
         {
             InitializeComponent();
+            InitializeUiLanguageCombo();
+            Localization.ApplyTo(this);
+            ui_language_combo.SelectedItem = Localization.GetLanguageDisplayName(_initialUiLanguage);
             Ucitavanje();
+        }
+
+        private void InitializeUiLanguageCombo()
+        {
+            _initialUiLanguage = Localization.Normalize(Properties.Settings.Default.UiLanguage);
+            ui_language_combo.Items.Clear();
+            ui_language_combo.Items.Add(Localization.GetLanguageDisplayName(Localization.English));
+            ui_language_combo.Items.Add(Localization.GetLanguageDisplayName(Localization.SimplifiedChinese));
+            ui_language_combo.SelectedItem = Localization.GetLanguageDisplayName(_initialUiLanguage);
         }
 
         public void Ucitavanje()
@@ -713,6 +726,13 @@ namespace SmartGoldbergEmu
             Spremanje();
             if( Check_settings() )
             {
+                string selectedUiLanguage = Localization.GetLanguageCodeFromDisplayName(ui_language_combo.SelectedItem?.ToString());
+                Properties.Settings.Default.UiLanguage = selectedUiLanguage;
+                Properties.Settings.Default.Save();
+
+                if (selectedUiLanguage != _initialUiLanguage)
+                    MessageBox.Show(Localization.T("The UI language change will take effect after restarting the application."), Localization.T("Restart Required"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -732,7 +752,7 @@ namespace SmartGoldbergEmu
             }
             catch
             {
-                MessageBox.Show("The port must be a number >1024", "Port invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("The port must be a number >1024"), Localization.T("Port invalid"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             Config.steamid = steam_id_edit.Text;
@@ -742,12 +762,12 @@ namespace SmartGoldbergEmu
 
             if (Config.webapi_key.Length != 0 && Config.webapi_key.Length != 32 )
             {
-                MessageBox.Show("The webapi key consists of 32 alphanum char in upper case.\n\nMore infos at https://steamcommunity.com/dev/apikey", "Webapi Key invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("The webapi key consists of 32 alphanum char in upper case.\n\nMore infos at https://steamcommunity.com/dev/apikey"), Localization.T("Webapi Key invalid"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             if(Config.port != 0 && Config.port < 1024 )
             {
-                MessageBox.Show("The port must be a number >1024", "Port invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization.T("The port must be a number >1024"), Localization.T("Port invalid"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -822,11 +842,11 @@ namespace SmartGoldbergEmu
             if (File.Exists(Path.Combine(save_folder, "overlay_friend_notification.wav")))
             {
                 File.Delete(Path.Combine(save_folder, "overlay_friend_notification.wav"));
-                MessageBox.Show("File was successfully deleted", "File Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("File was successfully deleted"), Localization.T("File Deleted"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("File doesn't exist", "File doesn't exist", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("File doesn't exist"), Localization.T("File doesn't exist"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         private void delachsoundbutton_Click(object sender, EventArgs e)
@@ -834,11 +854,11 @@ namespace SmartGoldbergEmu
             string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
             if (File.Exists(Path.Combine(save_folder, "overlay_achievement_notification.wav"))) {
                 File.Delete(Path.Combine(save_folder, "overlay_achievement_notification.wav"));
-                MessageBox.Show("File was successfully deleted", "File Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("File was successfully deleted"), Localization.T("File Deleted"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("File doesn't exist", "File doesn't exist", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("File doesn't exist"), Localization.T("File doesn't exist"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -874,11 +894,11 @@ namespace SmartGoldbergEmu
             {
                 File.Delete(Path.Combine(save_folder, "fonts", "dinamo.ttf"));
                 Directory.Delete(Path.Combine(save_folder, "fonts"));
-                MessageBox.Show("File was successfully deleted", "File Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("File was successfully deleted"), Localization.T("File Deleted"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("File doesn't exist", "File doesn't exist", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization.T("File doesn't exist"), Localization.T("File doesn't exist"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }

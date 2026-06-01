@@ -29,6 +29,7 @@ namespace SmartGoldbergEmu
         static void Main(string[] args)
         {
             SteamEmulator.Initialize();
+            Localization.InitializeFromSettings();
 
             if (args.Length == 0)
             {

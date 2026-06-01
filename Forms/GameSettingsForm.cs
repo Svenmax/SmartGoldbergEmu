@@ -244,6 +244,7 @@ namespace SmartGoldbergEmu
         public GameSettingsForm()
         {
             InitializeComponent();
+            Localization.ApplyTo(this);
         }
 
         public void SetApp(GameConfig app)

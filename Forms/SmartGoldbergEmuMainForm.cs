@@ -34,6 +34,7 @@ namespace SmartGoldbergEmu
         public SmartGoldbergEmuMainForm()
         {
             InitializeComponent();
+            Localization.ApplyTo(this);
 
             _image_list.ImageSize = new Size(32, 32);
 
@@ -245,7 +246,7 @@ namespace SmartGoldbergEmu
 
         private void RemoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to delete this appid?", "Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show(Localization.T("Are you sure you want to delete this appid?"), Localization.T("Delete"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 DeleteGame();
             }     
