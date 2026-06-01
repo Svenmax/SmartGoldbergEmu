@@ -126,10 +126,19 @@ namespace SmartGoldbergEmu
             ui_language_combo.SelectedItem = Localization.GetLanguageDisplayName(_initialUiLanguage);
         }
 
+        private static string GetSettingsSaveFolder(bool createDirectory = false)
+        {
+            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            if (createDirectory)
+                Directory.CreateDirectory(save_folder);
+
+            return save_folder;
+        }
+
         public void Ucitavanje()
         {
             Image img=null;
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder();
             if (File.Exists(Path.Combine(save_folder, "account_avatar.png")))
             {
                 using (var bmpTemp = new Bitmap(Path.Combine(save_folder, "account_avatar.png")))
@@ -463,7 +472,7 @@ namespace SmartGoldbergEmu
         public void Spremanje()
         {
             double R,G,B,A;
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder(true);
             if (!string.IsNullOrWhiteSpace(ImgSizeText.Text) | !string.IsNullOrWhiteSpace(FontsizeText.Text) 
                 | !string.IsNullOrWhiteSpace(PosAch_Dropdown.Text) | !string.IsNullOrWhiteSpace(PosInv_Dropdown.Text) | !string.IsNullOrWhiteSpace(PosMsg_Dropdown.Text)
                 | !string.IsNullOrWhiteSpace(fontspacingXText.Text) | !string.IsNullOrWhiteSpace(fontspacingYText.Text)
@@ -775,7 +784,7 @@ namespace SmartGoldbergEmu
 
         private void Avatarchng_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder(true);
             OpenFileDialog dijalog = new OpenFileDialog
             {
                 Filter = Localization.T("PNG|*.png|JPG|*.jpg|All files|*.*"),
@@ -797,7 +806,7 @@ namespace SmartGoldbergEmu
 
         private void addfriendsoundbutton_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder(true);
             OpenFileDialog dijalog = new OpenFileDialog
             {
                 Filter = Localization.T("WAV|*.wav|All files|*.*"),
@@ -817,7 +826,7 @@ namespace SmartGoldbergEmu
         }
         private void addachsoundbutton_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder(true);
             OpenFileDialog dijalog = new OpenFileDialog
             {
                 Filter = Localization.T("WAV|*.wav|All files|*.*"),
@@ -837,7 +846,7 @@ namespace SmartGoldbergEmu
         }
         private void delfriendsoundbutton_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder();
             if (File.Exists(Path.Combine(save_folder, "overlay_friend_notification.wav")))
             {
                 File.Delete(Path.Combine(save_folder, "overlay_friend_notification.wav"));
@@ -850,7 +859,7 @@ namespace SmartGoldbergEmu
         }
         private void delachsoundbutton_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder();
             if (File.Exists(Path.Combine(save_folder, "overlay_achievement_notification.wav"))) {
                 File.Delete(Path.Combine(save_folder, "overlay_achievement_notification.wav"));
                 MessageBox.Show(Localization.T("File was successfully deleted"), Localization.T("File Deleted"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -863,7 +872,7 @@ namespace SmartGoldbergEmu
 
         private void addFontbutton_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder(true);
             OpenFileDialog dijalog = new OpenFileDialog
             {
                 Filter = Localization.T("TTF|*.ttf|All files|*.*"),
@@ -888,7 +897,7 @@ namespace SmartGoldbergEmu
 
         private void delfontbutton_Click(object sender, EventArgs e)
         {
-            string save_folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves", "settings");
+            string save_folder = GetSettingsSaveFolder();
             if (File.Exists(Path.Combine(save_folder, "fonts", "dinamo.ttf")))
             {
                 File.Delete(Path.Combine(save_folder, "fonts", "dinamo.ttf"));
