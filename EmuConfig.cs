@@ -42,6 +42,11 @@ namespace SmartGoldbergEmu
     {
         public string webapi_key = "";
         public string ui_language = "";
+        public string main_window_state = "Normal";
+        public int main_window_x = 0;
+        public int main_window_y = 0;
+        public int main_window_width = 0;
+        public int main_window_height = 0;
         public List<GameConfig> apps = new List<GameConfig>();
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Net;
+using System.Drawing;
 
 using Microsoft.Win32;
 
@@ -21,6 +22,9 @@ namespace SmartGoldbergEmu
     {
         public static EmuConfig Config { get; set; } = new EmuConfig();
         public static List<GameConfig> Apps { get; set; } = new List<GameConfig>();
+        public static FormWindowState MainWindowState { get; set; } = FormWindowState.Normal;
+        public static Point MainWindowLocation { get; set; } = Point.Empty;
+        public static Size MainWindowSize { get; set; } = Size.Empty;
         private static List<Process> emuGamesProcess = new List<Process>();
         private static int? steamPid = 0;
         private static string steamClientDll = "";
@@ -151,6 +155,9 @@ namespace SmartGoldbergEmu
                     Apps = save.apps;
                     Config.webapi_key = save.webapi_key;
                     Localization.CurrentLanguage = Localization.Normalize(string.IsNullOrWhiteSpace(save.ui_language) ? Localization.LoadLegacyUiLanguage() : save.ui_language);
+                    MainWindowState = Enum.TryParse(save.main_window_state, out FormWindowState state) ? state : FormWindowState.Normal;
+                    MainWindowLocation = new Point(save.main_window_x, save.main_window_y);
+                    MainWindowSize = new Size(save.main_window_width, save.main_window_height);
                 }
             }
             catch (Exception)
@@ -177,6 +184,11 @@ namespace SmartGoldbergEmu
                 save.apps = Apps;
                 save.webapi_key = Config.webapi_key;
                 save.ui_language = Localization.CurrentLanguage;
+                save.main_window_state = MainWindowState.ToString();
+                save.main_window_x = MainWindowLocation.X;
+                save.main_window_y = MainWindowLocation.Y;
+                save.main_window_width = MainWindowSize.Width;
+                save.main_window_height = MainWindowSize.Height;
 
                 using (var writer = XmlWriter.Create(stringWriter, settings))
                 {
