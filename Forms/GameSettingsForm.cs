@@ -346,6 +346,11 @@ namespace SmartGoldbergEmu
                                 var popravni = line.Replace("ip_country=", "");
                                 force_IPCountry_add.Text = popravni;
                             }
+                            if (line.StartsWith("local_save_path="))
+                            {
+                                var popravni = line.Replace("local_save_path=", "");
+                                local_save_edit.Text = popravni;
+                            }
                             if (line.StartsWith("saves_folder_name="))
                             {
                                 var popravni = line.Replace("saves_folder_name=", "");
@@ -358,18 +363,32 @@ namespace SmartGoldbergEmu
                 {
                     using (StreamReader streamReader = new StreamReader(new FileStream(Path.Combine(game_emu_folder, "steam_settings", "configs.app.ini"), FileMode.Open), Encoding.ASCII))
                     {
+                        string section = string.Empty;
                         while (!streamReader.EndOfStream)
                         {
-                            
                             var line = streamReader.ReadLine();
-                            if (line.StartsWith("branch_name="))
+                            string trimmedLine = line.Trim();
+                            if (trimmedLine.Length == 0 || trimmedLine.StartsWith("#") || trimmedLine.StartsWith(";"))
                             {
-                                var popravni = line.Replace("branch_name=", "");
+                                continue;
+                            }
+                            if (trimmedLine.StartsWith("[") && trimmedLine.EndsWith("]"))
+                            {
+                                section = trimmedLine;
+                                continue;
+                            }
+                            if (section == "[app::general]" && trimmedLine.StartsWith("branch_name="))
+                            {
+                                var popravni = trimmedLine.Replace("branch_name=", "");
                                 beta_branch_add.Text = popravni;
                             }
-                            if (!line.Contains("is_beta_branch=") && !line.Contains("branch_name=") && !line.Contains("unlock_all=") && !line.Contains("[app::general]") && !line.Contains("[app::dlcs]"))
+                            if (section == "[app::dlcs]" && !trimmedLine.Contains("unlock_all="))
                             {
-                                DLC_add.Text = DLC_add.Text+line+ "\r\n";
+                                DLC_add.Text = DLC_add.Text + trimmedLine + "\r\n";
+                            }
+                            if (section == "[app::paths]")
+                            {
+                                Apppt_add.Text = Apppt_add.Text + trimmedLine + "\r\n";
                             }
                         }
                     }
@@ -387,6 +406,24 @@ namespace SmartGoldbergEmu
                                 var popravni = line.Replace("listen_port=", "");
                                 force_listen_port_add.Text = popravni;
                             }
+                            if (line.StartsWith("steam_deck=")) checkBox_SteamDeck.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("enable_account_avatar=")) checkBox_DisableAvatar.Checked = !IsConfigValueEnabled(line);
+                            if (line.StartsWith("allow_unknown_stats=")) checkBox_UnknownStats.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("save_only_higher_stat_achievement_progress=")) checkBox_SaveHigheStats.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("immediate_gameserver_stats=")) checkBox_GameServerStat.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("matchmaking_server_list_actual_type=")) checkBox_ActualType.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("matchmaking_server_details_via_source_query=")) checkBox_MatchmakeSource.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("disable_lan_only=")) checkBox_DisableLANOnly.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("disable_networking=")) checkBox_DisableNetworking.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("offline=")) checkbox_offline.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("disable_sharing_stats_with_gameserver=")) checkBox_DisableStatShare.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("disable_source_query=")) checkBox_DisableSQuery.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("share_leaderboards_over_network=")) checkBox_ShareLeaderboard.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("disable_lobby_creation=")) checkBox_DisLobbyCreation.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("download_steamhttp_requests=")) checkBox_EnableHTTP.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("achievements_bypass=")) checkBox_AchBypass.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("force_steamhttp_success=")) checkBox_HttpSuccess.Checked = IsConfigValueEnabled(line);
+                            if (line.StartsWith("disable_leaderboards_create_unknown=")) checkBox_UnknownLeaderboard.Checked = IsConfigValueEnabled(line);
                         }
                     }
                 }
@@ -500,6 +537,12 @@ namespace SmartGoldbergEmu
         {
             DialogResult = DialogResult.Cancel;
             this.Close();
+        }
+
+        private static bool IsConfigValueEnabled(string line)
+        {
+            int separator = line.IndexOf('=');
+            return separator >= 0 && line.Substring(separator + 1).Trim() == "1";
         }
 
         private void Browse_game_exe_Click(object sender, EventArgs e)
@@ -894,7 +937,7 @@ namespace SmartGoldbergEmu
                 if (!string.IsNullOrEmpty(force_langugae_add.Text)) tw.WriteLine("language=" + force_langugae_add.Text);
                 if (!string.IsNullOrEmpty(force_IPCountry_add.Text)) tw.WriteLine("ip_country=" + force_IPCountry_add.Text);
                 tw.WriteLine("[user::saves]");
-                if (!string.IsNullOrEmpty(local_save_edit.Text)) tw.WriteLine("saves_folder_name=" + local_save_edit.Text);
+                if (!string.IsNullOrEmpty(local_save_edit.Text)) tw.WriteLine("local_save_path=" + local_save_edit.Text);
                 tw.Close();
             }
             else { if (File.Exists(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini"))) File.Delete(Path.Combine(game_emu_folder, "steam_settings", "configs.user.ini")); }
@@ -907,6 +950,7 @@ namespace SmartGoldbergEmu
             tw.WriteLine("[main::general]");
             tw.WriteLine("new_app_ticket=1");
             tw.WriteLine("gc_token=1");
+            tw.WriteLine("block_unknown_clients=0");
             if (checkBox_SteamDeck.Checked) {
                 tw.WriteLine("steam_deck=1");
             }
@@ -922,14 +966,13 @@ namespace SmartGoldbergEmu
             {
                 tw.WriteLine("enable_account_avatar=1");
             }
-            if (checkBox_DisLobbyCreation.Checked)
-            {
-                tw.WriteLine("disable_leaderboards_create_unknown=00");
-            }
-            else
-            {
-                tw.WriteLine("disable_leaderboards_create_unknown=1");
-            }
+            tw.WriteLine("enable_voice_chat=0");
+            tw.WriteLine("immediate_gameserver_stats=" + (checkBox_GameServerStat.Checked ? "1" : "0"));
+            tw.WriteLine("matchmaking_server_list_actual_type=" + (checkBox_ActualType.Checked ? "1" : "0"));
+            tw.WriteLine("matchmaking_server_details_via_source_query=" + (checkBox_MatchmakeSource.Checked ? "1" : "0"));
+            tw.WriteLine("crash_printer_location=");
+            tw.WriteLine("[main::stats]");
+            tw.WriteLine("disable_leaderboards_create_unknown=" + (checkBox_UnknownLeaderboard.Checked ? "1" : "0"));
             if (checkBox_UnknownStats.Checked)
             {
                 tw.WriteLine("allow_unknown_stats=1");
@@ -938,6 +981,7 @@ namespace SmartGoldbergEmu
             {
                 tw.WriteLine("allow_unknown_stats=0");
             }
+            tw.WriteLine("stat_achievement_progress_functionality=1");
             if (checkBox_SaveHigheStats.Checked)
             {
                 tw.WriteLine("save_only_higher_stat_achievement_progress=1");
@@ -946,30 +990,8 @@ namespace SmartGoldbergEmu
             {
                 tw.WriteLine("save_only_higher_stat_achievement_progress=0");
             }
-            if (checkBox_GameServerStat.Checked)
-            {
-                tw.WriteLine("immediate_gameserver_stats=1");
-            }
-            else
-            {
-                tw.WriteLine("immediate_gameserver_stats=0");
-            }
-            if (checkBox_ActualType.Checked)
-            {
-                tw.WriteLine("matchmaking_server_list_actual_type=1");
-            }
-            else
-            {
-                tw.WriteLine("matchmaking_server_list_actual_type=0");
-            }
-            if (checkBox_MatchmakeSource.Checked)
-            {
-                tw.WriteLine("matchmaking_server_details_via_source_query=1");
-            }
-            else
-            {
-                tw.WriteLine("matchmaking_server_details_via_source_query=0");
-            }
+            tw.WriteLine("paginated_achievements_icons=10");
+            tw.WriteLine("record_playtime=0");
             tw.WriteLine("[main::connectivity]");
             if (checkBox_DisableLANOnly.Checked)
             {
@@ -1060,6 +1082,11 @@ namespace SmartGoldbergEmu
             {
                 tw.WriteLine("force_steamhttp_success=0");
             }
+            tw.WriteLine("disable_steamoverlaygameid_env_var=0");
+            tw.WriteLine("enable_steam_preowned_ids=0");
+            tw.WriteLine("steam_game_stats_reports_dir=");
+            tw.WriteLine("free_weekend=0");
+            tw.WriteLine("use_32bit_inventory_item_ids=0");
             tw.Close();
         }
 
@@ -1086,15 +1113,25 @@ namespace SmartGoldbergEmu
             }
             if (checkBox_DisableAchNotif.Checked)
             {
+            tw.WriteLine("disable_achievement_notification=1");
             tw.WriteLine("disable_achievement_progress=1");
             }
             else
             {
+            tw.WriteLine("disable_achievement_notification=0");
             tw.WriteLine("disable_achievement_progress=0");
             }
             tw.WriteLine("disable_warning_any=0");
             tw.WriteLine("disable_warning_bad_appid=0");
             tw.WriteLine("disable_warning_local_save=0");
+            tw.WriteLine("upload_achievements_icons_to_gpu=1");
+            tw.WriteLine("fps_averaging_window=10");
+            tw.WriteLine("overlay_always_show_user_info=0");
+            tw.WriteLine("overlay_always_show_fps=0");
+            tw.WriteLine("overlay_always_show_frametime=0");
+            tw.WriteLine("overlay_always_show_playtime=0");
+            tw.WriteLine("[overlay::hotkeys]");
+            tw.WriteLine("key_combo=shift + tab");
             tw.Close();
             }
         void Pisanjesg()

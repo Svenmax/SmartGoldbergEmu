@@ -26,8 +26,9 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using OSUtility;
 
-namespace NemirtingasEmuLauncher
+namespace SmartGoldbergEmu
 {
     public class MacOsIpcServer
     {
@@ -209,7 +210,7 @@ namespace NemirtingasEmuLauncher
 
         public MacOsIpcServer()
         {
-            if (OSFuncs.IsMacOS())
+            if (OSDetector.IsMacOS())
             {
                 try
                 {
@@ -233,7 +234,7 @@ namespace NemirtingasEmuLauncher
 
         public void StartIpcServer()
         {
-            if (OSFuncs.IsMacOS())
+            if (OSDetector.IsMacOS())
             {
                 if (service_rcv_port == 0)
                 {
@@ -250,7 +251,7 @@ namespace NemirtingasEmuLauncher
 
         public void StopIpcServer()
         {
-            if (OSFuncs.IsMacOS())
+            if (OSDetector.IsMacOS())
             {
                 cts.Cancel();
             }

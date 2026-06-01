@@ -429,7 +429,7 @@ namespace SmartGoldbergEmu
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(95, 13);
             this.label7.TabIndex = 36;
-            this.label7.Text = "Local Save Name:";
+            this.label7.Text = "Local Save Path:";
             // 
             // Apppaths_tab
             // 
