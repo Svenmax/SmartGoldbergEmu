@@ -211,66 +211,31 @@ namespace SmartGoldbergEmu
             ["game app id"] = "游戏 AppID"
         };
 
-        public static string CurrentLanguage { get; private set; } = English;
+        public static string CurrentLanguage { get; set; } = English;
 
         public static void InitializeFromSettings()
         {
-            CurrentLanguage = LoadUiLanguage();
+            if (string.IsNullOrEmpty(CurrentLanguage))
+                CurrentLanguage = English;
         }
 
-        public static string LoadUiLanguage()
+        public static string LoadLegacyUiLanguage()
         {
-            string configPath = GetConfigPath();
-            if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
+            string configPath = Path.Combine(AppContext.BaseDirectory, "SmartGoldbergEmu.dll.config");
+            if (!File.Exists(configPath))
                 return English;
 
-            XmlDocument document = new XmlDocument();
-            document.Load(configPath);
-            XmlNode node = document.SelectSingleNode("/configuration/appSettings/add[@key='UiLanguage']");
-            return Normalize(node?.Attributes?["value"]?.Value);
-        }
-
-        public static void SaveUiLanguage(string language)
-        {
-            string configPath = GetConfigPath();
-            if (string.IsNullOrEmpty(configPath))
-                return;
-
-            XmlDocument document = new XmlDocument();
-            if (File.Exists(configPath))
+            try
+            {
+                XmlDocument document = new XmlDocument();
                 document.Load(configPath);
-            else
-                document.AppendChild(document.CreateElement("configuration"));
-
-            XmlElement root = document.DocumentElement;
-            if (root == null)
-            {
-                root = document.CreateElement("configuration");
-                document.AppendChild(root);
+                XmlNode node = document.SelectSingleNode("/configuration/appSettings/add[@key='UiLanguage']");
+                return Normalize(node?.Attributes?["value"]?.Value);
             }
-
-            XmlElement appSettings = root.SelectSingleNode("appSettings") as XmlElement;
-            if (appSettings == null)
+            catch
             {
-                appSettings = document.CreateElement("appSettings");
-                root.PrependChild(appSettings);
+                return English;
             }
-
-            XmlElement setting = appSettings.SelectSingleNode("add[@key='UiLanguage']") as XmlElement;
-            if (setting == null)
-            {
-                setting = document.CreateElement("add");
-                setting.SetAttribute("key", "UiLanguage");
-                appSettings.AppendChild(setting);
-            }
-
-            setting.SetAttribute("value", Normalize(language));
-            document.Save(configPath);
-        }
-
-        private static string GetConfigPath()
-        {
-            return Path.Combine(AppContext.BaseDirectory, "SmartGoldbergEmu.dll.config");
         }
 
         public static string Normalize(string language)

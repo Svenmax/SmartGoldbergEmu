@@ -41,6 +41,7 @@ namespace SmartGoldbergEmu
     public class SavedConf
     {
         public string webapi_key = "";
+        public string ui_language = "";
         public List<GameConfig> apps = new List<GameConfig>();
     }
 }

@@ -150,10 +150,12 @@ namespace SmartGoldbergEmu
 
                     Apps = save.apps;
                     Config.webapi_key = save.webapi_key;
+                    Localization.CurrentLanguage = Localization.Normalize(string.IsNullOrWhiteSpace(save.ui_language) ? Localization.LoadLegacyUiLanguage() : save.ui_language);
                 }
             }
             catch (Exception)
             {
+                Localization.CurrentLanguage = Localization.LoadLegacyUiLanguage();
             }
         }
 
@@ -174,6 +176,7 @@ namespace SmartGoldbergEmu
 
                 save.apps = Apps;
                 save.webapi_key = Config.webapi_key;
+                save.ui_language = Localization.CurrentLanguage;
 
                 using (var writer = XmlWriter.Create(stringWriter, settings))
                 {
