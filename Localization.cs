@@ -166,6 +166,8 @@ namespace SmartGoldbergEmu
             ["Webapi Key invalid"] = "WebAPI 密钥无效",
             ["File Deleted"] = "文件已删除",
             ["File doesn't exist"] = "文件不存在",
+            ["Invalid image"] = "无效图片",
+            ["Please select a valid image file."] = "请选择有效的图片文件。",
             ["Restart Required"] = "需要重启",
             ["The UI language change will take effect after restarting the application."] = "界面语言变更将在重启应用后生效。",
             ["Are you sure you want to delete this appid?"] = "确定要删除这个 appid 吗？",

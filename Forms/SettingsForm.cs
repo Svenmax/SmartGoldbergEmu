@@ -140,16 +140,18 @@ namespace SmartGoldbergEmu
             string save_folder = GetSettingsSaveFolder();
             if (File.Exists(Path.Combine(save_folder, "account_avatar.png")))
             {
-                using (var bmpTemp = new Bitmap(Path.Combine(save_folder, "account_avatar.png")))
+                using (var bmpTemp = LoadAvatarImage(Path.Combine(save_folder, "account_avatar.png")))
                 {
-                    img = new Bitmap(bmpTemp);
+                    if (bmpTemp != null)
+                        img = new Bitmap(bmpTemp);
                 }
             }
             if (File.Exists(Path.Combine(save_folder, "account_avatar.jpg")))
             {
-                using (var bmpTemp = new Bitmap(Path.Combine(save_folder, "account_avatar.jpg")))
+                using (var bmpTemp = LoadAvatarImage(Path.Combine(save_folder, "account_avatar.jpg")))
                 {
-                    img = new Bitmap(bmpTemp);
+                    if (bmpTemp != null)
+                        img = new Bitmap(bmpTemp);
                 }
             };
             avatar.Image = img;
@@ -455,6 +457,18 @@ namespace SmartGoldbergEmu
                     }
                     streamReader.Close();
                 }
+            }
+        }
+
+        private static Bitmap LoadAvatarImage(string path)
+        {
+            try
+            {
+                return new Bitmap(path);
+            }
+            catch (ArgumentException)
+            {
+                return null;
             }
         }
 
@@ -783,6 +797,15 @@ namespace SmartGoldbergEmu
             {
                 try
                 {
+                    using (Bitmap avatarImage = LoadAvatarImage(dijalog.FileName))
+                    {
+                        if (avatarImage == null)
+                        {
+                            MessageBox.Show(Localization.T("Please select a valid image file."), Localization.T("Invalid image"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+
                     File.Copy(dijalog.FileName, Path.Combine(save_folder, "account_avatar.png"), true);
                 }
                 catch (IOException)
