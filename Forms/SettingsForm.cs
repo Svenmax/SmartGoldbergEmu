@@ -84,9 +84,9 @@ namespace SmartGoldbergEmu
 
                 bool found_prefered_lang = false;
 
-                foreach (string lang in languages)
+                EnsureSteamLanguageComboItems();
+                foreach (string lang in language_combo.Items)
                 {
-                    language_combo.Items.Add(lang);
                     if (!found_prefered_lang)
                     {
                         if (lang.Equals(_config.language))
@@ -111,9 +111,22 @@ namespace SmartGoldbergEmu
         public SettingsForm()
         {
             InitializeComponent();
+            EnsureSteamLanguageComboItems();
             InitializeUiLanguageCombo();
             Localization.ApplyTo(this);
             Ucitavanje();
+        }
+
+        private void EnsureSteamLanguageComboItems()
+        {
+            foreach (string lang in languages)
+            {
+                if (!language_combo.Items.Contains(lang))
+                    language_combo.Items.Add(lang);
+            }
+
+            if (language_combo.SelectedItem == null && string.IsNullOrWhiteSpace(language_combo.Text))
+                language_combo.SelectedItem = "english";
         }
 
         private void InitializeUiLanguageCombo()
@@ -174,7 +187,11 @@ namespace SmartGoldbergEmu
                         }
                         if (prosliline.Contains("language="))
                         {
-                            language_combo.Text = prosliline.Replace("language=", "");
+                            string language = prosliline.Replace("language=", "");
+                            if (language_combo.Items.Contains(language))
+                                language_combo.SelectedItem = language;
+                            else
+                                language_combo.Text = language;
                         }
                     }
                     streamReader.Close();
@@ -769,7 +786,7 @@ namespace SmartGoldbergEmu
             Config.steamid = steam_id_edit.Text;
             Config.username = username_edit.Text;
             Config.webapi_key = webapi_key_edit.Text;
-            Config.language = language_combo.SelectedItem.ToString();
+            Config.language = GetSelectedSteamLanguage();
 
             if (Config.webapi_key.Length != 0 && Config.webapi_key.Length != 32 )
             {
@@ -783,6 +800,18 @@ namespace SmartGoldbergEmu
             }
 
             return true;
+        }
+
+        private string GetSelectedSteamLanguage()
+        {
+            string selectedLanguage = language_combo.SelectedItem?.ToString();
+            if (!string.IsNullOrWhiteSpace(selectedLanguage))
+                return selectedLanguage;
+
+            if (!string.IsNullOrWhiteSpace(language_combo.Text))
+                return language_combo.Text;
+
+            return "english";
         }
 
         private void Avatarchng_Click(object sender, EventArgs e)
